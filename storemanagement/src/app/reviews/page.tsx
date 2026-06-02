@@ -1,11 +1,11 @@
-import CartContent from '../components/cart/CartContent';
+import ReviewsContent from '../components/reviews/ReviewsContent';
 import CategoryBar from '../components/CategoryBar';
 
-export default function CartPage() {
+export default function ReviewsPage() {
   return (
     <div className="aqua-page">
       <CategoryBar />
-      <CartContent />
+      <ReviewsContent />
     </div>
   );
 }

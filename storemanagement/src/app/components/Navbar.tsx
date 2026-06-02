@@ -1,155 +1,119 @@
-'use client'
+'use client';
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import CartIcon from './CartIcon'
-
-// TODO: thay thế bằng auth context / session thực tế của bạn
-// Ví dụ dùng next-auth: import { useSession } from 'next-auth/react'
-const useAuth = () => ({
-  isAuthenticated: false,
-  roleId: null as string | null,
-  userId: null as string | null,
-})
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useCart } from '../context/CartContext';
 
 export default function Navbar() {
-  const pathname = usePathname()
-  const { isAuthenticated, roleId, userId } = useAuth()
+  const router = useRouter();
+  const { cartCount } = useCart();
+  const [q, setQ] = useState('');
 
-  const isActive = (segment: string) =>
-    pathname.startsWith(segment) ? 'active' : ''
+  const doSearch = () => {
+    if (q.trim()) router.push(`/search?q=${encodeURIComponent(q.trim())}`);
+  };
 
   return (
-    <div className="container-fluid fixed-top">
-      {/* Topbar */}
-      <div className="container-fluid topbar bg-primary d-none d-lg-block">
-        <div className="d-flex justify-content-between imformation-web">
-          <div className="top-info ps-2">
-            <small className="me-3">
-              <i className="fas fa-map-marker-alt me-2 text-secondary"></i>
-              <a href="#" className="text-white">Dx003, Phú Mỹ, Thủ Dầu Một, Bình Dương</a>
-            </small>
-            <small className="me-3">
-              <i className="fas fa-envelope me-2 text-secondary"></i>
-              <a href="#" className="text-white">Mellorie@gmail.com</a>
-            </small>
-          </div>
-          <div className="top-link pe-2">
-            <a href="#" className="text-white"><small className="text-white mx-2">Privacy Policy</small>/</a>
-            <a href="#" className="text-white"><small className="text-white mx-2">Terms of Use</small>/</a>
-            <a href="#" className="text-white"><small className="text-white ms-2">Sales and Refunds</small></a>
-          </div>
-        </div>
-      </div>
+    <nav style={{
+      background: '#fff',
+      borderBottom: '1px solid #e2e8f0',
+      position: 'sticky',
+      top: 0,
+      zIndex: 50,
+      padding: '0.75rem 1.5rem',
+      fontFamily: "'DM Sans', sans-serif",
+    }}>
+      <div style={{ maxWidth: 1280, margin: '0 auto', display: 'flex', alignItems: 'center', gap: '1rem' }}>
 
-      {/* Main navbar */}
-      <div className="container px-0">
-        <nav className="navbar navbar-light bg-white navbar-expand-xl">
-          <Link href="/" className="navbar-brand">
-            <h1 className="text-primary display-6">Mallorie Cosmetic</h1>
-          </Link>
+        {/* Logo */}
+        <button
+          onClick={() => router.push('/')}
+          style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', marginRight: 8, flexShrink: 0 }}
+        >
+          <div style={{ width: 36, height: 36, borderRadius: '0.7rem', background: 'var(--teal)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" fill="#fff" />
+            </svg>
+          </div>
+          <span style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--teal)', fontFamily: "'Playfair Display', serif" }}>
+            Happy Market
+          </span>
+        </button>
+
+        {/* Search bar */}
+        <div style={{ flex: 1, maxWidth: 480, position: 'relative', display: 'flex' }}>
+          <input
+            value={q}
+            onChange={e => setQ(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && doSearch()}
+            placeholder="Search products, brands…"
+            style={{
+              borderRadius: 9999,
+              fontSize: '.875rem',
+              border: '1.5px solid var(--amber-border)',
+              padding: '.55rem 2.5rem .55rem 1rem',
+              width: '100%',
+              outline: 'none',
+              background: '#fff8e6',
+              fontFamily: "'DM Sans', sans-serif",
+            }}
+            onFocus={e => { e.currentTarget.style.borderColor = 'var(--amber)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(245,158,11,.18)'; }}
+            onBlur={e => { e.currentTarget.style.borderColor = 'var(--amber-border)'; e.currentTarget.style.boxShadow = 'none'; }}
+          />
           <button
-            className="navbar-toggler py-2 px-3"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarCollapse"
+            onClick={doSearch}
+            style={{ position: 'absolute', right: 4, top: '50%', transform: 'translateY(-50%)', width: 32, height: 32, borderRadius: '50%', background: 'var(--teal)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
-            <span className="fa fa-bars text-primary"></span>
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24">
+              <path d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Nav links */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 4 }}>
+          {([['Shop', '/shop'], ['My Orders', '/orders']] as const).map(([label, href]) => (
+            <button
+              key={label}
+              onClick={() => router.push(href)}
+              style={{ padding: '.4rem 0.75rem', borderRadius: 9999, fontSize: '.875rem', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--teal-dk)', whiteSpace: 'nowrap', fontFamily: "'DM Sans', sans-serif" }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'var(--teal-xs)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'none'; }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Cart + Profile */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 'auto' }}>
+          <button
+            onClick={() => router.push('/cart')}
+            style={{ position: 'relative', padding: '0.5rem', borderRadius: '50%', background: 'none', border: 'none', cursor: 'pointer' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--teal-xs)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'none'; }}
+          >
+            <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" stroke="currentColor" strokeWidth="1.8" />
+              <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" strokeWidth="1.8" />
+              <path d="M16 10a4 4 0 0 1-8 0" stroke="currentColor" strokeWidth="1.8" />
+            </svg>
+            {cartCount > 0 && (
+              <span style={{ position: 'absolute', top: -2, right: -2, width: 18, height: 18, borderRadius: '50%', background: 'var(--teal)', color: '#fff', fontSize: '.7rem', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>
+                {cartCount}
+              </span>
+            )}
           </button>
 
-          <div className="collapse navbar-collapse bg-white" id="navbarCollapse">
-            <div className="navbar-nav mx-auto">
-              <Link href="/" className={`nav-item nav-link menu ${pathname === '/' ? 'active' : ''}`}>
-                Home
-              </Link>
-              <Link href="/shop" className={`nav-item nav-link menu ${isActive('/shop')}`}>
-                Shop
-              </Link>
-              <a href="#footer-contact" className="nav-item nav-link menu">Contact</a>
-
-              {isAuthenticated && roleId === '1' && (
-                <Link href="/chat/inbox" className={`nav-item nav-link menu ${isActive('/chat')}`}>
-                  Chat
-                </Link>
-              )}
-              {isAuthenticated && roleId === '3' && (
-                <Link href="/chat/support" className={`nav-item nav-link menu ${isActive('/chat')}`}>
-                  Chat
-                </Link>
-              )}
-              {isAuthenticated && roleId === '1' && (
-                <Link href="/admin/dashboard" className={`nav-item nav-link menu ${isActive('/admin')}`}>
-                  Admin Page
-                </Link>
-              )}
-            </div>
-
-            <div className="d-flex m-3 me-0">
-              {/* Search button */}
-              <button
-                className="btn-search btn border border-secondary btn-md-square rounded-circle bg-white me-4"
-                data-bs-toggle="modal"
-                data-bs-target="#searchModal"
-              >
-                <i className="fas fa-search text-primary"></i>
-              </button>
-
-              {/* Cart icon */}
-              <CartIcon />
-
-              {!isAuthenticated ? (
-                <>
-                  <Link href="/login" className="nav-item nav-link menu">Login</Link>
-                  <Link href="/register" className="nav-item nav-link menu">Register</Link>
-                </>
-              ) : (
-                <>
-                  <Link href={`/profile`} className="my-auto">
-                    <i className="fas fa-user fa-2x"></i>
-                  </Link>
-                  {/* TODO: thay bằng form logout thực tế (next-auth signOut hoặc API call) */}
-                  <button
-                    type="button"
-                    className="btn btn-link nav-link text-dark"
-                    onClick={() => { /* signOut() hoặc gọi API logout */ }}
-                  >
-                    Logout
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        </nav>
-      </div>
-
-      {/* Search Modal */}
-      <div className="modal fade" id="searchModal" tabIndex={-1} aria-hidden="true">
-        <div className="modal-dialog modal-fullscreen">
-          <div className="modal-content rounded-0">
-            <div className="modal-header">
-              <h5 className="modal-title">Search by keyword</h5>
-              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div className="modal-body d-flex align-items-center">
-              <form
-                className="input-group w-75 mx-auto d-flex"
-                action="/shop"
-                method="get"
-              >
-                <input
-                  type="search"
-                  name="searchString"
-                  className="form-control p-3"
-                  placeholder="keywords"
-                />
-                <button type="submit" className="input-group-text p-3">
-                  <i className="fa fa-search"></i>
-                </button>
-              </form>
-            </div>
-          </div>
+          <button
+            onClick={() => router.push('/profile')}
+            style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg,var(--teal),var(--teal-dk))', color: '#fff', fontWeight: 700, fontSize: '.875rem', border: 'none', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}
+            title="My Profile"
+          >
+            JD
+          </button>
         </div>
       </div>
-    </div>
-  )
+    </nav>
+  );
 }

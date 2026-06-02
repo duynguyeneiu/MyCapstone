@@ -32,8 +32,9 @@ async function getOrder(id: string): Promise<Order> {
   }
 }
 
-export default async function OrderDetailPage({ params }: { params: { id: string } }) {
-  const order = await getOrder(params.id)
+export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const order = await getOrder(id)
   const subTotal = order.orderDetails.reduce((s, i) => s + i.unitPrice * i.quantity, 0)
 
   return (

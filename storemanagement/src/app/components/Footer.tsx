@@ -1,93 +1,149 @@
-import Link from 'next/link'
-import Image from 'next/image'
+'use client';
+
+import React from 'react';
+import { useRouter } from 'next/navigation';
+
+const shopLinks: [string, string][] = [
+  ['Home Appliances', '/shop?category=appliances'],
+  ['Food & Drinks',   '/shop?category=food'],
+  ['Beauty',          '/shop?category=beauty'],
+];
 
 export default function Footer() {
+  const router = useRouter();
+
   return (
-    <div className="container-fluid bg-dark text-white-50 footer pt-5 mt-5" id="footer-contact">
-      <div className="container py-5">
-        {/* Top row */}
-        <div className="pb-4 mb-4" style={{ borderBottom: '1px solid rgba(226, 175, 24, 0.5)' }}>
-          <div className="row g-4">
-            <div className="col-lg-3">
-              <a href="#">
-                <h1 className="text-primary mb-0 footer-name">Mallorie</h1>
-                <p className="text-secondary mb-0">Cosmetic products</p>
+    <footer
+      style={{
+        background: '#0f172a',
+        color: '#94a3b8',
+        padding: '2.5rem 1.5rem',
+        fontSize: '.875rem',
+        fontFamily: "'DM Sans', sans-serif",
+      }}
+    >
+      <div style={{ maxWidth: 1280, margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: '2rem', justifyContent: 'space-between' }}>
+
+        {/* Brand */}
+        <div>
+          <span
+            style={{ color: '#fff', fontSize: '1.25rem', fontWeight: 700, fontFamily: "'Playfair Display', serif", cursor: 'pointer' }}
+            onClick={() => router.push('/')}
+          >
+            Happy Market
+          </span>
+          <p style={{ marginTop: 6, maxWidth: 240, lineHeight: 1.6 }}>
+            Fresh finds delivered daily. Home appliances, gourmet food & beauty products.
+          </p>
+          <div style={{ display: 'flex', gap: 10, marginTop: '1rem' }}>
+            {['fab fa-twitter', 'fab fa-facebook-f', 'fab fa-youtube', 'fab fa-linkedin-in'].map(icon => (
+              <a key={icon} href="#"
+                style={{ width: 36, height: 36, borderRadius: '50%', border: '1px solid #334155', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', textDecoration: 'none', transition: '.2s' }}
+                onMouseEnter={e => { (e.currentTarget).style.borderColor = 'var(--teal)'; (e.currentTarget).style.color = 'var(--teal-lt)'; }}
+                onMouseLeave={e => { (e.currentTarget).style.borderColor = '#334155'; (e.currentTarget).style.color = '#94a3b8'; }}>
+                <i className={icon} style={{ fontSize: '0.85rem' }} />
               </a>
-            </div>
-            <div className="col-lg-6">
-              <div className="position-relative mx-auto">
-                <input
-                  className="form-control border-0 w-100 py-3 px-4 rounded-pill"
-                  type="email"
-                  placeholder="Your Email"
-                />
-                <button
-                  type="button"
-                  className="btn btn-primary border-0 border-secondary py-3 px-4 position-absolute rounded-pill text-white"
-                  style={{ top: 0, right: 0 }}
-                >
-                  Subscribe Now
-                </button>
-              </div>
-            </div>
-            <div className="col-lg-3">
-              <div className="d-flex justify-content-end pt-3">
-                <a className="btn btn-outline-secondary me-2 btn-md-square rounded-circle" href="#"><i className="fab fa-twitter"></i></a>
-                <a className="btn btn-outline-secondary me-2 btn-md-square rounded-circle" href="#"><i className="fab fa-facebook-f"></i></a>
-                <a className="btn btn-outline-secondary me-2 btn-md-square rounded-circle" href="#"><i className="fab fa-youtube"></i></a>
-                <a className="btn btn-outline-secondary btn-md-square rounded-circle" href="#"><i className="fab fa-linkedin-in"></i></a>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
-        {/* Bottom row */}
-        <div className="row g-5">
-          <div className="col-lg-3 col-md-6">
-            <div className="footer-item">
-              <h4 className="text-light mb-3">Why People Like us!</h4>
-              <p className="mb-4">
-                typesetting, remaining essentially unchanged. It was popularised in the 1960s
-                with the like Aldus PageMaker including of Lorem Ipsum.
+        {/* Nav columns */}
+        <div style={{ display: 'flex', gap: '3rem', flexWrap: 'wrap' }}>
+          {/* Shop */}
+          <div>
+            <p style={{ color: '#fff', fontWeight: 600, marginBottom: 12, fontSize: '1rem' }}>Shop</p>
+            {shopLinks.map(([label, href]) => (
+              <p key={label}
+                style={{ cursor: 'pointer', marginTop: 8, transition: '.15s' }}
+                onClick={() => router.push(href)}
+                onMouseEnter={e => ((e.target as HTMLElement).style.color = '#5eead4')}
+                onMouseLeave={e => ((e.target as HTMLElement).style.color = '#94a3b8')}
+              >
+                {label}
               </p>
-              <a href="#" className="btn border-secondary py-2 px-4 rounded-pill text-primary">
-                Read More
-              </a>
-            </div>
+            ))}
           </div>
 
-          <div className="col-lg-3 col-md-6">
-            <div className="d-flex flex-column text-start footer-item">
-              <h4 className="text-light mb-3">Shop Info</h4>
-              <a className="btn-link" href="#">Contact Us</a>
-              <a className="btn-link" href="#">Privacy Policy</a>
-              <a className="btn-link" href="#">Terms &amp; Condition</a>
-              <a className="btn-link" href="#">FAQs &amp; Help</a>
-            </div>
+          {/* Help */}
+          <div>
+            <p style={{ color: '#fff', fontWeight: 600, marginBottom: 12, fontSize: '1rem' }}>Help</p>
+            {['FAQ', 'Returns', 'Contact'].map(l => (
+              <p key={l}
+                style={{ cursor: 'pointer', marginTop: 8, transition: '.15s' }}
+                onMouseEnter={e => ((e.target as HTMLElement).style.color = '#5eead4')}
+                onMouseLeave={e => ((e.target as HTMLElement).style.color = '#94a3b8')}
+              >
+                {l}
+              </p>
+            ))}
           </div>
 
-          <div className="col-lg-3 col-md-6">
-            <div className="d-flex flex-column text-start footer-item">
-              <h4 className="text-light mb-3">Account</h4>
-              <a className="btn-link" href="#">My Account</a>
-              <Link className="btn-link" href="/shop">Shop details</Link>
-              <Link className="btn-link" href="/cart">Shopping Cart</Link>
-              <a className="btn-link" href="#">Order History</a>
-            </div>
+          {/* Account */}
+          <div>
+            <p style={{ color: '#fff', fontWeight: 600, marginBottom: 12, fontSize: '1rem' }}>Account</p>
+            {([['My Profile', '/profile'], ['Order History', '/orders'], ['My Reviews', '/reviews'], ['Shopping Cart', '/cart']] as [string, string][]).map(([label, href]) => (
+              <p key={label}
+                style={{ cursor: 'pointer', marginTop: 8, transition: '.15s' }}
+                onClick={() => router.push(href)}
+                onMouseEnter={e => ((e.target as HTMLElement).style.color = '#5eead4')}
+                onMouseLeave={e => ((e.target as HTMLElement).style.color = '#94a3b8')}
+              >
+                {label}
+              </p>
+            ))}
           </div>
+        </div>
 
-          <div className="col-lg-3 col-md-6">
-            <div className="footer-item">
-              <h4 className="text-light mb-3">Contact</h4>
-              <p>Address: Ho Chi Minh City</p>
-              <p>Email: Mellorie@gmail.com</p>
-              <p>Phone: +0123 4567 8910</p>
-              <p>Payment Accepted</p>
-              <Image src="/images/payment.png" className="img-fluid" alt="Payment methods" width={200} height={40} />
-            </div>
+        {/* Contact + Newsletter */}
+        <div id="footer-contact">
+          <p style={{ color: '#fff', fontWeight: 600, marginBottom: 12, fontSize: '1rem' }}>Contact</p>
+          {[
+            ['📍', 'Ho Chi Minh City, Vietnam'],
+            ['✉️', 'hello@aquamarket.vn'],
+            ['📞', '+84 912 345 678'],
+          ].map(([icon, text]) => (
+            <p key={text} style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span>{icon}</span>{text}
+            </p>
+          ))}
+
+          <p style={{ color: '#fff', fontWeight: 500, marginBottom: 8, fontSize: '.875rem', marginTop: '1.25rem' }}>
+            Subscribe for deals
+          </p>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <input
+              type="email"
+              placeholder="Your email"
+              style={{ flex: 1, padding: '.5rem .85rem', borderRadius: 9999, border: '1px solid #334155', background: '#1e293b', color: '#fff', fontSize: '.8rem', outline: 'none', fontFamily: "'DM Sans', sans-serif", minWidth: 0 }}
+              onFocus={e => { e.currentTarget.style.borderColor = 'var(--teal)'; }}
+              onBlur={e => { e.currentTarget.style.borderColor = '#334155'; }}
+            />
+            <button
+              style={{ padding: '.5rem 1rem', borderRadius: 9999, background: 'var(--teal)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '.8rem', fontWeight: 600, fontFamily: "'DM Sans', sans-serif", flexShrink: 0 }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'var(--teal-dk)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'var(--teal)'; }}
+            >
+              Subscribe
+            </button>
           </div>
         </div>
       </div>
-    </div>
-  )
+
+      {/* Bottom bar */}
+      <div style={{ maxWidth: 1280, margin: '1.5rem auto 0', paddingTop: '1.5rem', borderTop: '1px solid #1e293b', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <p style={{ fontSize: '.75rem', color: '#475569' }}>© 2025 Happy Market. All rights reserved.</p>
+        <div style={{ display: 'flex', gap: '1.5rem', fontSize: '.75rem' }}>
+          {['Privacy Policy', 'Terms of Use', 'Sales & Refunds'].map(l => (
+            <span key={l}
+              style={{ cursor: 'pointer', transition: '.15s' }}
+              onMouseEnter={e => ((e.target as HTMLElement).style.color = '#5eead4')}
+              onMouseLeave={e => ((e.target as HTMLElement).style.color = '#475569')}
+            >
+              {l}
+            </span>
+          ))}
+        </div>
+      </div>
+    </footer>
+  );
 }
