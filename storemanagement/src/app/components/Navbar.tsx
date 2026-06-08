@@ -3,15 +3,29 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function Navbar() {
   const router = useRouter();
   const { cartCount } = useCart();
+  const { user, logout } = useAuth();
   const [q, setQ] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const doSearch = () => {
     if (q.trim()) router.push(`/search?q=${encodeURIComponent(q.trim())}`);
   };
+
+  const handleLogout = () => {
+    logout();
+    setShowDropdown(false);
+    router.push('/');
+  };
+
+  // Initials from user name
+  const initials = user
+    ? user.name.split(' ').map(w => w[0]).slice(-2).join('').toUpperCase()
+    : 'JD';
 
   return (
     <nav style={{
@@ -85,9 +99,33 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Cart + Profile */}
+        {/* Cart + User */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 'auto' }}>
-          <button
+
+          {/* Not logged in → Login / Register buttons */}
+          {!user && (
+            <>
+              <button
+                onClick={() => router.push('/login')}
+                style={{ padding: '.45rem 1.1rem', borderRadius: 9999, fontSize: '.875rem', fontWeight: 600, background: 'none', border: '1.5px solid var(--teal)', color: 'var(--teal)', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", transition: 'all .15s' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'var(--teal-xs)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'none'; }}
+              >
+                Login
+              </button>
+              <button
+                onClick={() => router.push('/register')}
+                style={{ padding: '.45rem 1.1rem', borderRadius: 9999, fontSize: '.875rem', fontWeight: 600, background: 'var(--teal)', border: 'none', color: '#fff', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", transition: 'all .15s' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'var(--teal-dk)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'var(--teal)'; }}
+              >
+                Register
+              </button>
+            </>
+          )}
+
+          {/* Cart (only shown when logged in) */}
+          {user && <button
             onClick={() => router.push('/cart')}
             style={{ position: 'relative', padding: '0.5rem', borderRadius: '50%', background: 'none', border: 'none', cursor: 'pointer' }}
             onMouseEnter={e => { e.currentTarget.style.background = 'var(--teal-xs)'; }}
@@ -103,17 +141,99 @@ export default function Navbar() {
                 {cartCount}
               </span>
             )}
-          </button>
+          </button>}
 
-          <button
-            onClick={() => router.push('/profile')}
-            style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg,var(--teal),var(--teal-dk))', color: '#fff', fontWeight: 700, fontSize: '.875rem', border: 'none', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}
-            title="My Profile"
-          >
-            JD
-          </button>
+          {/* User avatar + dropdown (logged in only) */}
+          {user && <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setShowDropdown(v => !v)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 7,
+                padding: '5px 12px 5px 5px',
+                borderRadius: 9999,
+                background: showDropdown ? 'var(--teal-xs)' : 'var(--teal-xs)',
+                border: '1.5px solid var(--teal-lt)',
+                cursor: 'pointer',
+                transition: '.15s',
+              }}
+              title={user?.name}
+            >
+              {/* Avatar circle */}
+              <div style={{
+                width: 30, height: 30, borderRadius: '50%',
+                background: 'linear-gradient(135deg,var(--teal),var(--teal-dk))',
+                color: '#fff', fontWeight: 700, fontSize: '.75rem',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0,
+              }}>
+                {initials}
+              </div>
+              <span style={{ fontSize: '.8rem', fontWeight: 600, color: 'var(--teal-dk)', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {user?.name.split(' ')[0] ?? 'Guest'}
+              </span>
+              <span style={{ fontSize: '.65rem', color: 'var(--teal)', marginLeft: -2 }}>▾</span>
+            </button>
+
+            {/* Dropdown */}
+            {showDropdown && (
+              <div style={{
+                position: 'absolute', top: 'calc(100% + 6px)', right: 0,
+                background: '#fff', borderRadius: '0.75rem', padding: '0.5rem',
+                boxShadow: '0 8px 24px rgba(0,0,0,.12)',
+                border: '1px solid #e2e8f0',
+                minWidth: 180, zIndex: 200,
+                animation: 'fadeUp .15s ease',
+              }}>
+                {/* User info */}
+                <div style={{ padding: '0.5rem 0.75rem', borderBottom: '1px solid #f1f5f9', marginBottom: '0.25rem' }}>
+                  <p style={{ fontWeight: 600, fontSize: '.875rem', color: '#1e293b' }}>{user?.name}</p>
+                  <p style={{ fontSize: '.75rem', color: '#94a3b8' }}>{user?.email}</p>
+                  <span style={{ display: 'inline-block', marginTop: 4, background: 'var(--teal-lt)', color: 'var(--teal-dk)', borderRadius: 99, padding: '1px 8px', fontSize: '0.7rem', fontWeight: 700 }}>
+                    {user?.role}
+                  </span>
+                </div>
+
+                <button onClick={() => { setShowDropdown(false); router.push('/profile'); }}
+                  style={menuItemStyle}
+                  onMouseEnter={e => e.currentTarget.style.background = 'var(--teal-xs)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                >
+                  👤 My Profile
+                </button>
+                <button onClick={() => { setShowDropdown(false); router.push('/orders'); }}
+                  style={menuItemStyle}
+                  onMouseEnter={e => e.currentTarget.style.background = 'var(--teal-xs)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                >
+                  📦 My Orders
+                </button>
+                <hr style={{ border: 'none', borderTop: '1px solid #f1f5f9', margin: '0.25rem 0' }} />
+                <button onClick={handleLogout}
+                  style={{ ...menuItemStyle, color: '#ef4444' }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#fff1f2'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                >
+                  🚪 Sign Out
+                </button>
+              </div>
+            )}
+          </div>}
         </div>
       </div>
+
+      {/* Close dropdown on outside click */}
+      {showDropdown && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 199 }} onClick={() => setShowDropdown(false)} />
+      )}
     </nav>
   );
 }
+
+const menuItemStyle: React.CSSProperties = {
+  display: 'flex', alignItems: 'center', gap: 8,
+  width: '100%', padding: '0.5rem 0.75rem',
+  background: 'transparent', border: 'none', cursor: 'pointer',
+  fontSize: '.8rem', fontWeight: 500, color: '#374151',
+  borderRadius: '0.5rem', textAlign: 'left', transition: '.1s',
+  fontFamily: "'DM Sans', sans-serif",
+};

@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { CartProvider } from "./context/CartContext";
 import { OrderProvider } from "./context/OrderContext";
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
-import ToastDisplay from "./components/ui/ToastDisplay";
+import { AuthProvider } from "./context/AuthContext";
+import ClientShell from "./components/ClientShell";
 
 export const metadata: Metadata = {
   title: "Happy Market",
@@ -35,17 +34,15 @@ export default function RootLayout({
         <link href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css" rel="stylesheet" />
       </head>
       <body>
-        <CartProvider>
-          <OrderProvider>
-            <Navbar />
-            {children}
-            <ToastDisplay />
-            {/* Back to Top */}
-            <a href="#" className="btn btn-primary border-3 border-primary rounded-circle back-to-top">
-              <i className="fa fa-arrow-up"></i>
-            </a>
-          </OrderProvider>
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            <OrderProvider>
+              <ClientShell>
+                {children}
+              </ClientShell>
+            </OrderProvider>
+          </CartProvider>
+        </AuthProvider>
 
         {/* Bootstrap JS */}
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" defer />
@@ -53,8 +50,6 @@ export default function RootLayout({
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js" defer />
         {/* Owl Carousel JS */}
         <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js" defer />
-
-        <Footer />
       </body>
     </html>
   );

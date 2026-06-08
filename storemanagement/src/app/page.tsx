@@ -1,11 +1,5 @@
-import HomeContent from './components/home/HomeContent';
-import CategoryBar from './components/CategoryBar';
+import HomeGate from './components/HomeGate';
 
 export default function HomePage() {
-  return (
-    <div className="aqua-page">
-      <CategoryBar />
-      <HomeContent />
-    </div>
-  );
+  return <HomeGate />;
 }

@@ -1,0 +1,555 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>RetailPro - Promotions</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Hanken+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary": "#00694c", "secondary": "#565e74", "tertiary": "#4d5d73",
+        "error": "#ba1a1a", "surface": "#f7fbf9", "background": "#f7fbf9",
+        "surface-container": "#edf7f2", "surface-container-low": "#f4fbf7",
+        "surface-container-high": "#e6f4ee", "surface-container-lowest": "#ffffff",
+        "on-surface": "#191c1e", "on-surface-variant": "#3d4943",
+        "outline": "#6d7a73", "outline-variant": "#c8e4d8",
+        "secondary-container": "#fff3d6", "primary-container": "#008560",
+      },
+      spacing: {
+        "md": "16px", "lg": "24px", "xl": "32px", "2xl": "48px",
+        "sm": "8px", "gutter": "24px", "margin-desktop": "32px",
+      },
+      fontSize: {
+        "body-sm": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+        "label-sm": ["12px", { lineHeight: "14px", fontWeight: "600" }],
+        "label-md": ["14px", { lineHeight: "16px", letterSpacing: "0.01em", fontWeight: "500" }],
+        "headline-sm": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+        "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+      }
+    }
+  }
+}
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 50; align-items: center; justify-content: center; }
+  .modal-backdrop.open { display: flex; }
+  aside { border-right: 2px solid #ffe08a; background: linear-gradient(180deg, #f4fbf7 0%, #fffdf5 100%); }
+  header { background: linear-gradient(90deg, #f7fbf9 0%, #fffdf5 100%); border-bottom: 1.5px solid #ffe08a; }
+  .nav-active { background: linear-gradient(90deg, #fff3d6 0%, #fde68a44 100%) !important; border-left: 3px solid #f59e0b; color: #00694c !important; font-weight: 700; }
+  .search-bar { background: #fff8e6; border: 1.5px solid #fcd97a; border-radius: 999px; display: flex; align-items: center; padding: 8px 16px; gap: 8px; }
+  .search-bar:focus-within { border-color: #f59e0b; box-shadow: 0 0 0 3px #f59e0b22; }
+  .search-bar input { background: transparent; border: none; outline: none; width: 100%; font-size: 14px; }
+  .stat-card { transition: transform 0.18s ease; }
+  .stat-card:hover { transform: translateY(-2px); }
+  .btn-primary { background: linear-gradient(135deg, #00694c 0%, #00a86b 100%); color: #fff; transition: all .15s; box-shadow: 0 2px 8px #00694c33; }
+  .btn-primary:hover { box-shadow: 0 4px 14px #00694c55; }
+  tbody tr:hover { background: #f4fbf7 !important; }
+  .brand-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #00694c); margin-right: 6px; vertical-align: middle; }
+  .filter-select { background: #fff8e6; border: 1.5px solid #fcd97a; border-radius: 8px; padding: 8px 12px; font-size: 13px; color: #3d4943; outline: none; }
+  .filter-select:focus { border-color: #f59e0b; }
+  .modal-input { border: 1.5px solid #c8e4d8; background: #f4fbf7; border-radius: 8px; padding: 8px 12px; font-size: 14px; width: 100%; outline: none; }
+  .modal-input:focus { border-color: #00694c; }
+</style>
+</head>
+<body class="bg-background text-on-surface">
+
+<!-- Sidebar -->
+<aside class="h-screen w-64 fixed left-0 top-0 z-40 flex flex-col py-md px-sm overflow-y-auto">
+  <div class="mb-2xl px-4">
+    <h1 class="font-bold text-primary flex items-center" style="font-size:20px;line-height:28px">
+      <span class="brand-dot"></span>RetailPro
+    </h1>
+    <p class="text-on-surface-variant" style="font-size:14px">Management System</p>
+  </div>
+  <nav class="flex-1 space-y-1">
+    <a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg" href="dashboard.html">
+      <span class="material-symbols-outlined">dashboard</span>
+      <span class="font-label-md text-label-md">Dashboard</span>
+    </a>
+    <a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg" href="products.html">
+      <span class="material-symbols-outlined">shopping_bag</span>
+      <span class="font-label-md text-label-md">Products</span>
+    </a>
+    <a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg" href="categories.html">
+      <span class="material-symbols-outlined">category</span>
+      <span class="font-label-md text-label-md">Categories</span>
+    </a>
+    <a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg" href="orders.html">
+      <span class="material-symbols-outlined">receipt_long</span>
+      <span class="font-label-md text-label-md">Orders</span>
+    </a>
+    <a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg" href="inventory.html">
+      <span class="material-symbols-outlined">inventory_2</span>
+      <span class="font-label-md text-label-md">Inventory</span>
+    </a>
+    <a class="nav-active flex items-center gap-3 px-4 py-3 rounded-lg" href="promotions.html">
+      <span class="material-symbols-outlined">campaign</span>
+      <span class="font-label-md text-label-md">Promotions</span>
+    </a>
+    <a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg" href="users.html">
+      <span class="material-symbols-outlined">group</span>
+      <span class="font-label-md text-label-md">Users</span>
+    </a>
+    <a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg" href="settings.html">
+      <span class="material-symbols-outlined">settings</span>
+      <span class="font-label-md text-label-md">Settings</span>
+    </a>
+  </nav>
+  <div class="mt-auto p-4 border-t" style="border-color:#ffe08a">
+    <div class="flex items-center gap-3">
+      <span class="material-symbols-outlined text-on-surface-variant">help_outline</span>
+      <div>
+        <p class="font-bold text-on-surface" style="font-size:13px">Need Help?</p>
+        <p class="text-on-surface-variant" style="font-size:11px">Check our documentation</p>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main -->
+<main class="ml-64 min-h-screen flex flex-col">
+
+  <!-- Topbar -->
+  <header class="sticky top-0 z-30 flex justify-between items-center px-margin-desktop py-sm">
+    <div class="flex items-center gap-md">
+      <h2 class="text-primary font-bold" style="font-size:24px">Promotions</h2>
+      <div class="search-bar hidden lg:flex w-80">
+        <span class="material-symbols-outlined" style="color:#b47b10;font-size:20px">search</span>
+        <input id="searchInput" placeholder="Search code, description...">
+      </div>
+    </div>
+    <div class="flex items-center gap-sm">
+      <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container rounded-full p-2">notifications</button>
+      <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container rounded-full p-2">help_outline</button>
+      <div class="h-8 w-px mx-2" style="background:#ffe08a"></div>
+      <div class="flex items-center gap-2 px-2">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center" style="background:linear-gradient(135deg,#00694c,#f59e0b)">
+          <span class="material-symbols-outlined text-white" style="font-size:16px">person</span>
+        </div>
+        <div>
+          <p class="font-bold text-on-surface leading-none" style="font-size:13px">ADMIN USER</p>
+          <p class="text-on-surface-variant" style="font-size:10px;text-transform:uppercase;letter-spacing:.05em">Store Manager</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="p-margin-desktop space-y-gutter">
+
+    <!-- Stats -->
+    <div class="grid grid-cols-4 gap-gutter">
+      <!-- Total — Green -->
+      <div class="stat-card bg-surface-container-lowest border rounded-xl p-lg flex flex-col justify-between" style="border-color:#b8e0cc;box-shadow:0 0 0 1px #00694c1a,0 4px 20px #00694c14">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-on-surface-variant font-label-md text-label-md mb-1">Total Promotions</p>
+            <h3 class="font-bold" style="font-size:24px">12</h3>
+          </div>
+          <span class="material-symbols-outlined p-2 rounded-lg" style="color:#00694c;background:#e0f5ed">campaign</span>
+        </div>
+        <div class="mt-4 flex items-center gap-1">
+          <span class="font-label-sm text-label-sm" style="color:#00694c">All time</span>
+        </div>
+      </div>
+      <!-- Active Now — Amber -->
+      <div class="stat-card bg-surface-container-lowest border rounded-xl p-lg flex flex-col justify-between" style="border-color:#fcd97a;box-shadow:0 0 0 1px #f59e0b1a,0 4px 20px #f59e0b14">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-on-surface-variant font-label-md text-label-md mb-1">Active Now</p>
+            <h3 class="font-bold" style="font-size:24px">5</h3>
+          </div>
+          <span class="material-symbols-outlined p-2 rounded-lg" style="color:#b47b10;background:#fff3d6">local_offer</span>
+        </div>
+        <div class="mt-4 flex items-center gap-1">
+          <span class="font-label-sm text-label-sm" style="color:#b47b10">Currently running</span>
+        </div>
+      </div>
+      <!-- Total Discount — Green -->
+      <div class="stat-card bg-surface-container-lowest border rounded-xl p-lg flex flex-col justify-between" style="border-color:#b8e0cc;box-shadow:0 0 0 1px #00694c1a,0 4px 20px #00694c14">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-on-surface-variant font-label-md text-label-md mb-1">Total Discount Given</p>
+            <h3 class="font-bold" style="font-size:22px">8,240,000₫</h3>
+          </div>
+          <span class="material-symbols-outlined p-2 rounded-lg" style="color:#00694c;background:#e0f5ed">savings</span>
+        </div>
+        <div class="mt-4 flex items-center gap-1">
+          <span class="font-label-sm text-label-sm" style="color:#00694c">This month</span>
+        </div>
+      </div>
+      <!-- Expiring — Amber warm -->
+      <div class="stat-card bg-surface-container-lowest border rounded-xl p-lg flex flex-col justify-between" style="border-color:#fac057;box-shadow:0 0 0 1px #D9770622,0 4px 20px #D9770614">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-on-surface-variant font-label-md text-label-md mb-1">Expiring Soon</p>
+            <h3 class="font-bold" style="font-size:24px;color:#854f0b">2</h3>
+          </div>
+          <span class="material-symbols-outlined p-2 rounded-lg" style="color:#854f0b;background:#fff3d6">timer</span>
+        </div>
+        <div class="mt-4 flex items-center gap-1">
+          <span class="font-label-sm text-label-sm" style="color:#854f0b">Within 7 days</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="bg-surface-container-lowest border rounded-xl overflow-hidden" style="border-color:#c8e4d8">
+
+      <!-- Toolbar -->
+      <div class="p-lg border-b flex items-center justify-between gap-3 flex-wrap" style="border-color:#c8e4d8">
+        <div class="flex items-center gap-3">
+          <select id="statusFilter" class="filter-select">
+            <option value="">All Status</option>
+            <option>Active</option>
+            <option>Inactive</option>
+            <option>Expired</option>
+          </select>
+          <select id="typeFilter" class="filter-select">
+            <option value="">All Types</option>
+            <option>Percentage</option>
+            <option>Fixed</option>
+          </select>
+        </div>
+        <button onclick="openModal()" class="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg font-bold" style="font-size:14px">
+          <span class="material-symbols-outlined" style="font-size:18px">add</span>
+          Add Promotion
+        </button>
+      </div>
+
+      <!-- Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead style="background:#f4fbf7">
+            <tr>
+              <th class="px-4 py-3 w-10"><input type="checkbox" class="rounded" id="checkAll"></th>
+              <th class="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Code</th>
+              <th class="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Description</th>
+              <th class="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Type</th>
+              <th class="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Discount</th>
+              <th class="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Min Order</th>
+              <th class="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Period</th>
+              <th class="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Status</th>
+              <th class="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="promoBody" class="divide-y" style="border-color:#c8e4d8"></tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="px-lg py-md border-t flex items-center justify-between" style="border-color:#c8e4d8">
+        <p id="pageInfo" class="text-on-surface-variant" style="font-size:13px"></p>
+        <div class="flex items-center gap-1">
+          <button class="w-8 h-8 rounded-lg border flex items-center justify-center hover:bg-surface-container" style="border-color:#c8e4d8">
+            <span class="material-symbols-outlined" style="font-size:16px">chevron_left</span>
+          </button>
+          <button class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold btn-primary" style="font-size:13px">1</button>
+          <button class="w-8 h-8 rounded-lg border flex items-center justify-center hover:bg-surface-container" style="border-color:#c8e4d8">
+            <span class="material-symbols-outlined" style="font-size:16px">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="mt-auto p-margin-desktop text-center border-t" style="border-color:#c8e4d8">
+    <p class="text-on-surface-variant" style="font-size:14px">© 2024 RetailPro Management System. All rights reserved.</p>
+  </footer>
+</main>
+
+<!-- Add/Edit Modal -->
+<div class="modal-backdrop" id="formModal">
+  <div class="bg-surface-container-lowest rounded-xl border w-[520px] max-w-[95vw] max-h-[90vh] overflow-y-auto" style="border-color:#c8e4d8">
+    <div class="flex items-center justify-between p-lg border-b" style="border-color:#c8e4d8">
+      <h3 class="font-bold text-on-surface" id="modalTitle" style="font-size:18px">Add Promotion</h3>
+      <button onclick="closeModal()" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container rounded-full p-1">close</button>
+    </div>
+    <div class="p-lg space-y-4">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Promo Code *</label>
+          <input id="fCode" type="text" placeholder="e.g. SUMMER20" class="modal-input uppercase">
+        </div>
+        <div>
+          <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Discount Type *</label>
+          <select id="fType" class="modal-input">
+            <option value="Percentage">Percentage (%)</option>
+            <option value="Fixed">Fixed Amount (₫)</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Description</label>
+        <input id="fDesc" type="text" placeholder="Promotion description" class="modal-input">
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Discount Value *</label>
+          <input id="fValue" type="number" min="0" placeholder="0" class="modal-input">
+        </div>
+        <div>
+          <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Min Order Value (₫)</label>
+          <input id="fMinOrder" type="number" min="0" placeholder="0" class="modal-input">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Start Date *</label>
+          <input id="fStart" type="date" class="modal-input">
+        </div>
+        <div>
+          <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">End Date *</label>
+          <input id="fEnd" type="date" class="modal-input">
+        </div>
+      </div>
+      <div>
+        <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Status</label>
+        <select id="fStatus" class="modal-input">
+          <option>Active</option>
+          <option>Inactive</option>
+        </select>
+      </div>
+
+      <!-- Live Preview — amber themed -->
+      <div class="rounded-xl p-4" style="background:#fffdf0;border:1.5px dashed #f59e0b">
+        <p class="font-label-sm text-label-sm text-on-surface-variant mb-2">Preview</p>
+        <div class="flex items-center gap-3">
+          <div class="px-4 py-2 rounded-xl border-2 border-dashed" style="border-color:#00694c;background:#e0f5ed">
+            <p class="font-bold" id="previewCode" style="font-size:16px;color:#00694c;letter-spacing:.06em">CODE</p>
+          </div>
+          <div>
+            <p class="font-bold text-on-surface" id="previewDiscount" style="font-size:14px">0% off</p>
+            <p class="text-on-surface-variant" id="previewMin" style="font-size:12px">No minimum order</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="flex justify-end gap-3 px-lg py-md border-t" style="border-color:#c8e4d8">
+      <button onclick="closeModal()" class="px-4 py-2 rounded-lg border text-on-surface-variant hover:bg-surface-container" style="border-color:#c8e4d8;font-size:14px">Cancel</button>
+      <button onclick="savePromo()" class="btn-primary px-4 py-2 rounded-lg text-white font-bold" style="font-size:14px">Save Promotion</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal-backdrop" id="delModal">
+  <div class="bg-surface-container-lowest rounded-xl border w-[360px] p-xl text-center" style="border-color:#c8e4d8">
+    <div class="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4" style="background:#fee2e2">
+      <span class="material-symbols-outlined" style="color:#991b1b;font-size:28px">delete</span>
+    </div>
+    <h3 class="font-bold text-on-surface mb-2" style="font-size:18px">Delete promotion?</h3>
+    <p class="text-on-surface-variant mb-6" id="delText" style="font-size:14px"></p>
+    <div class="flex gap-3 justify-center">
+      <button onclick="closeDelModal()" class="px-5 py-2 rounded-lg border text-on-surface-variant hover:bg-surface-container" style="border-color:#c8e4d8;font-size:14px">Cancel</button>
+      <button onclick="confirmDelete()" class="px-5 py-2 rounded-lg text-white font-bold" style="background:#dc2626;font-size:14px">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const fmt = n => new Intl.NumberFormat('vi-VN').format(n) + '₫';
+const today = new Date();
+
+let promos = [
+  { id:1, code:'SUMMER20',   desc:'Summer sale 20% off',         type:'Percentage', value:20,    minOrder:200000, start:'2024-05-01', end:'2024-05-31', status:'Active'   },
+  { id:2, code:'WELCOME50K', desc:'New customer 50,000₫ off',    type:'Fixed',      value:50000, minOrder:300000, start:'2024-01-01', end:'2024-12-31', status:'Active'   },
+  { id:3, code:'FLASH15',    desc:'Flash sale 15% this weekend', type:'Percentage', value:15,    minOrder:0,      start:'2024-05-24', end:'2024-05-26', status:'Active'   },
+  { id:4, code:'VIP100K',    desc:'VIP customer 100,000₫ off',  type:'Fixed',      value:100000,minOrder:500000, start:'2024-05-01', end:'2024-05-28', status:'Active'   },
+  { id:5, code:'FREESHIP',   desc:'Free shipping on all orders', type:'Fixed',      value:30000, minOrder:150000, start:'2024-05-20', end:'2024-05-27', status:'Active'   },
+  { id:6, code:'TETHOLIDAY', desc:'Tet holiday special 25% off', type:'Percentage', value:25,    minOrder:400000, start:'2024-02-01', end:'2024-02-15', status:'Expired'  },
+  { id:7, code:'BLACKFRI30', desc:'Black Friday 30% mega sale',  type:'Percentage', value:30,    minOrder:500000, start:'2023-11-24', end:'2023-11-24', status:'Expired'  },
+  { id:8, code:'PAYDAY10',   desc:'Payday 10% off sitewide',     type:'Percentage', value:10,    minOrder:100000, start:'2024-06-01', end:'2024-06-30', status:'Inactive' },
+];
+
+let deleteId = null;
+let editId = null;
+
+function statusBadge(s) {
+  const map = {
+    'Active':   { bg:'#e0f5ed', color:'#004d38' },
+    'Inactive': { bg:'#e5e7eb', color:'#374151' },
+    'Expired':  { bg:'#fee2e2', color:'#7f1d1d' },
+  };
+  const c = map[s] || map['Inactive'];
+  return `<span style="background:${c.bg};color:${c.color};padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700">${s}</span>`;
+}
+
+function typeBadge(t) {
+  return t === 'Percentage'
+    ? `<span style="background:#e0f5ed;color:#004d38;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600">% Percent</span>`
+    : `<span style="background:#fff3d6;color:#7a5c00;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600">₫ Fixed</span>`;
+}
+
+function discountDisplay(type, value) {
+  return type === 'Percentage'
+    ? `<span class="font-bold" style="font-size:15px;color:#00694c">${value}%</span>`
+    : `<span class="font-bold" style="font-size:14px;color:#b47b10">${fmt(value)}</span>`;
+}
+
+function daysLeft(endDate) {
+  const end = new Date(endDate);
+  const diff = Math.ceil((end - today) / (1000*60*60*24));
+  if (diff < 0) return `<span style="font-size:11px;color:#7f1d1d">Expired</span>`;
+  if (diff === 0) return `<span style="font-size:11px;color:#dc2626;font-weight:700">Ends today!</span>`;
+  if (diff <= 7) return `<span style="font-size:11px;color:#854f0b;font-weight:600">${diff}d left</span>`;
+  return `<span style="font-size:11px;color:#3d4943">${diff}d left</span>`;
+}
+
+function renderTable(data) {
+  document.getElementById('pageInfo').textContent = `Showing ${data.length} of ${promos.length} promotions`;
+  document.getElementById('promoBody').innerHTML = data.map(p => `
+    <tr class="transition-colors" style="border-color:#c8e4d8">
+      <td class="px-4 py-3"><input type="checkbox" class="rounded"></td>
+      <td class="px-4 py-3">
+        <div class="flex items-center gap-2">
+          <div class="px-3 py-1 rounded-lg border-2 border-dashed" style="border-color:#00694c;background:#e0f5ed">
+            <span class="font-bold" style="font-size:12px;color:#00694c;letter-spacing:.05em">${p.code}</span>
+          </div>
+        </div>
+      </td>
+      <td class="px-4 py-3 text-on-surface-variant" style="font-size:13px;max-width:200px">${p.desc}</td>
+      <td class="px-4 py-3">${typeBadge(p.type)}</td>
+      <td class="px-4 py-3">${discountDisplay(p.type, p.value)}</td>
+      <td class="px-4 py-3 text-on-surface-variant" style="font-size:13px">${p.minOrder ? fmt(p.minOrder) : '—'}</td>
+      <td class="px-4 py-3">
+        <p style="font-size:12px;color:#3d4943">${p.start} → ${p.end}</p>
+        <div class="mt-1">${daysLeft(p.end)}</div>
+      </td>
+      <td class="px-4 py-3">${statusBadge(p.status)}</td>
+      <td class="px-4 py-3">
+        <div class="flex items-center justify-center gap-2">
+          <button onclick="openEdit(${p.id})" class="w-8 h-8 rounded-lg border flex items-center justify-center transition-colors" style="border-color:#c8e4d8" onmouseover="this.style.background='#e0f5ed';this.style.borderColor='#00694c'" onmouseout="this.style.background='';this.style.borderColor='#c8e4d8'" title="Edit">
+            <span class="material-symbols-outlined" style="font-size:16px;color:#3d4943">edit</span>
+          </button>
+          <button onclick="openDelete(${p.id})" class="w-8 h-8 rounded-lg border flex items-center justify-center transition-colors" style="border-color:#c8e4d8" onmouseover="this.style.background='#fee2e2';this.style.borderColor='#dc2626'" onmouseout="this.style.background='';this.style.borderColor='#c8e4d8'" title="Delete">
+            <span class="material-symbols-outlined" style="font-size:16px;color:#3d4943">delete</span>
+          </button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function filter() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const status = document.getElementById('statusFilter').value;
+  const type = document.getElementById('typeFilter').value;
+  return promos.filter(p =>
+    (!q || p.code.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q)) &&
+    (!status || p.status === status) &&
+    (!type || p.type === type)
+  );
+}
+
+['statusFilter','typeFilter'].forEach(id =>
+  document.getElementById(id).addEventListener('change', () => renderTable(filter()))
+);
+document.getElementById('searchInput').addEventListener('input', () => renderTable(filter()));
+document.getElementById('checkAll').addEventListener('change', e => {
+  document.querySelectorAll('#promoBody input[type=checkbox]').forEach(cb => cb.checked = e.target.checked);
+});
+
+function updatePreview() {
+  const code = document.getElementById('fCode').value.toUpperCase() || 'CODE';
+  const type = document.getElementById('fType').value;
+  const value = document.getElementById('fValue').value || 0;
+  const minOrder = document.getElementById('fMinOrder').value || 0;
+  document.getElementById('previewCode').textContent = code;
+  document.getElementById('previewDiscount').textContent =
+    type === 'Percentage' ? `${value}% off` : `${new Intl.NumberFormat('vi-VN').format(value)}₫ off`;
+  document.getElementById('previewMin').textContent =
+    minOrder > 0 ? `Min order: ${new Intl.NumberFormat('vi-VN').format(minOrder)}₫` : 'No minimum order';
+}
+
+function openModal() {
+  editId = null;
+  document.getElementById('modalTitle').textContent = 'Add Promotion';
+  document.getElementById('fCode').value = '';
+  document.getElementById('fDesc').value = '';
+  document.getElementById('fType').value = 'Percentage';
+  document.getElementById('fValue').value = '';
+  document.getElementById('fMinOrder').value = '';
+  document.getElementById('fStart').value = new Date().toISOString().split('T')[0];
+  document.getElementById('fEnd').value = '';
+  document.getElementById('fStatus').value = 'Active';
+  updatePreview();
+  document.getElementById('formModal').classList.add('open');
+}
+
+function openEdit(id) {
+  const p = promos.find(x => x.id === id);
+  editId = id;
+  document.getElementById('modalTitle').textContent = 'Edit Promotion';
+  document.getElementById('fCode').value = p.code;
+  document.getElementById('fDesc').value = p.desc;
+  document.getElementById('fType').value = p.type;
+  document.getElementById('fValue').value = p.value;
+  document.getElementById('fMinOrder').value = p.minOrder;
+  document.getElementById('fStart').value = p.start;
+  document.getElementById('fEnd').value = p.end;
+  document.getElementById('fStatus').value = p.status;
+  updatePreview();
+  document.getElementById('formModal').classList.add('open');
+}
+
+['fCode','fType','fValue','fMinOrder'].forEach(id =>
+  document.getElementById(id).addEventListener('input', updatePreview)
+);
+document.getElementById('fType').addEventListener('change', updatePreview);
+
+function closeModal() { document.getElementById('formModal').classList.remove('open'); }
+
+function savePromo() {
+  const code = document.getElementById('fCode').value.trim().toUpperCase();
+  if (!code) return alert('Promo code is required');
+  if (editId) {
+    const p = promos.find(x => x.id === editId);
+    p.code = code;
+    p.desc = document.getElementById('fDesc').value;
+    p.type = document.getElementById('fType').value;
+    p.value = parseFloat(document.getElementById('fValue').value) || 0;
+    p.minOrder = parseFloat(document.getElementById('fMinOrder').value) || 0;
+    p.start = document.getElementById('fStart').value;
+    p.end = document.getElementById('fEnd').value;
+    p.status = document.getElementById('fStatus').value;
+  } else {
+    promos.unshift({
+      id: Date.now(), code,
+      desc: document.getElementById('fDesc').value,
+      type: document.getElementById('fType').value,
+      value: parseFloat(document.getElementById('fValue').value) || 0,
+      minOrder: parseFloat(document.getElementById('fMinOrder').value) || 0,
+      start: document.getElementById('fStart').value,
+      end: document.getElementById('fEnd').value,
+      status: document.getElementById('fStatus').value,
+    });
+  }
+  closeModal();
+  renderTable(filter());
+}
+
+function openDelete(id) {
+  deleteId = id;
+  const p = promos.find(x => x.id === id);
+  document.getElementById('delText').textContent = `Promotion "${p.code}" will be permanently removed.`;
+  document.getElementById('delModal').classList.add('open');
+}
+function closeDelModal() { document.getElementById('delModal').classList.remove('open'); }
+function confirmDelete() {
+  promos = promos.filter(x => x.id !== deleteId);
+  closeDelModal();
+  renderTable(filter());
+}
+
+document.querySelectorAll('.modal-backdrop').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+
+renderTable(promos);
+</script>
+</body></html>

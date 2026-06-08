@@ -1,0 +1,621 @@
+<!DOCTYPE html><html class="light" lang="en" style><head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>RetailPro - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Hanken+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed": "#002115",
+                        "primary": "#00694c",
+                        "error-container": "#ffdad6",
+                        "secondary": "#565e74",
+                        "surface-container": "#edf7f2",
+                        "on-tertiary-fixed-variant": "#38485d",
+                        "outline": "#6d7a73",
+                        "on-primary-fixed-variant": "#00513a",
+                        "surface-container-low": "#f4fbf7",
+                        "secondary-container": "#fff3d6",
+                        "secondary-fixed": "#fff3d6",
+                        "tertiary-fixed": "#d3e4fe",
+                        "tertiary-container": "#66768d",
+                        "on-background": "#191c1e",
+                        "primary-fixed-dim": "#68dbae",
+                        "on-tertiary-container": "#fdfcff",
+                        "on-tertiary": "#ffffff",
+                        "surface-dim": "#d8dadc",
+                        "on-error-container": "#93000a",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "on-secondary-container": "#7a5c00",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-on-surface": "#eff1f3",
+                        "surface-tint": "#006c4e",
+                        "on-surface-variant": "#3d4943",
+                        "primary-fixed": "#86f8c9",
+                        "surface": "#f7fbf9",
+                        "on-tertiary-fixed": "#0b1c30",
+                        "primary-container": "#008560",
+                        "outline-variant": "#c8e4d8",
+                        "on-secondary-fixed-variant": "#3f465c",
+                        "on-primary-container": "#f5fff7",
+                        "on-primary": "#ffffff",
+                        "background": "#f7fbf9",
+                        "inverse-surface": "#2d3133",
+                        "error": "#ba1a1a",
+                        "secondary-fixed-dim": "#fcd97a",
+                        "on-secondary-fixed": "#131b2e",
+                        "inverse-primary": "#68dbae",
+                        "surface-container-high": "#e6f4ee",
+                        "tertiary-fixed-dim": "#b7c8e1",
+                        "surface-container-highest": "#dceee6",
+                        "tertiary": "#4d5d73",
+                        "surface-bright": "#f7fbf9",
+                        "on-surface": "#191c1e",
+                        "surface-variant": "#dceee6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "2xl": "48px",
+                        "md": "16px",
+                        "gutter": "24px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "32px",
+                        "lg": "24px",
+                        "sm": "8px",
+                        "xl": "32px",
+                        "xs": "4px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Inter"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "body-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "display": ["Hanken Grotesk"],
+                        "label-md": ["Inter"],
+                        "headline-sm": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["12px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-sm": ["10px", {"lineHeight": "14px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "display": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-hanken { font-family: 'Hanken Grotesk', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Sidebar amber accent stripe */
+        aside {
+            border-right: 2px solid #ffe08a;
+            background: linear-gradient(180deg, #f4fbf7 0%, #fffdf5 100%);
+        }
+
+        /* Amber glow on active nav item */
+        .nav-active {
+            background: linear-gradient(90deg, #fff3d6 0%, #fde68a44 100%) !important;
+            border-left: 3px solid #f59e0b;
+            color: #00694c !important;
+            font-weight: 700;
+        }
+
+        /* Header warm tint */
+        header {
+            background: linear-gradient(90deg, #f7fbf9 0%, #fffdf5 100%);
+            border-bottom: 1.5px solid #ffe08a;
+        }
+
+        /* Stat card hover */
+        .stat-card {
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        /* FAB */
+        .fab {
+            background: linear-gradient(135deg, #00694c 0%, #00a86b 100%);
+            box-shadow: 0 4px 16px #00694c44;
+        }
+        .fab:hover { box-shadow: 0 6px 24px #00694c66; }
+
+        /* Table rows */
+        tbody tr:hover { background: #f4fbf7 !important; }
+
+        /* Restock button amber */
+        .btn-amber {
+            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+            color: #431d00;
+            font-weight: 600;
+            box-shadow: 0 2px 8px #f59e0b44;
+            transition: all 0.15s;
+        }
+        .btn-amber:hover {
+            background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+            box-shadow: 0 4px 14px #f59e0b55;
+        }
+
+        /* Search bar */
+        .search-bar {
+            background: #fff8e6;
+            border: 1.5px solid #fcd97a;
+            border-radius: 999px;
+        }
+        .search-bar input { background: transparent; }
+        .search-bar:focus-within { border-color: #f59e0b; box-shadow: 0 0 0 3px #f59e0b22; }
+
+        /* Logo brand mark */
+        .brand-dot {
+            display: inline-block;
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f59e0b, #00694c);
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+    </style>
+  </head>
+  <body class="bg-background text-on-surface">
+    <!-- SideNavBar -->
+    <aside class="h-screen w-64 fixed left-0 top-0 z-40 border-r flex flex-col py-md px-sm overflow-y-auto">
+      <div class="mb-2xl px-4">
+        <h1 class="font-headline-sm text-headline-sm font-bold text-primary flex items-center">
+          <span class="brand-dot"></span>RetailPro
+        </h1>
+        <p class="font-label-md text-label-md text-on-surface-variant">Management System</p>
+      </div>
+      <nav class="flex-1 space-y-1">
+        <a class="nav-active flex items-center gap-3 px-4 py-3 transition-colors rounded-lg" href="dashboard.html">
+          <span class="material-symbols-outlined">dashboard</span>
+          <span class="font-label-md text-label-md">Dashboard</span>
+        </a>
+        <a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg" href="products.html">
+          <span class="material-symbols-outlined">shopping_bag</span>
+          <span class="font-label-md text-label-md">Products</span>
+        </a>
+        <a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg" href="categories.html">
+          <span class="material-symbols-outlined">category</span>
+          <span class="font-label-md text-label-md">Categories</span>
+        </a>
+        <a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg" href="orders.html">
+          <span class="material-symbols-outlined">receipt_long</span>
+          <span class="font-label-md text-label-md">Orders</span>
+        </a>
+        <a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg" href="inventory.html">
+          <span class="material-symbols-outlined">inventory_2</span>
+          <span class="font-label-md text-label-md">Inventory</span>
+        </a>
+        <a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg" href="promotions.html">
+          <span class="material-symbols-outlined">campaign</span>
+          <span class="font-label-md text-label-md">Promotions</span>
+        </a>
+        <a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg" href="users.html">
+          <span class="material-symbols-outlined">group</span>
+          <span class="font-label-md text-label-md">Users</span>
+        </a>
+        <a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg" href="pos.html">
+          <span class="material-symbols-outlined">point_of_sale</span>
+          <span class="font-label-md text-label-md">POS</span>
+        </a>
+        <a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg" href="settings.html">
+          <span class="material-symbols-outlined">settings</span>
+          <span class="font-label-md text-label-md">Settings</span>
+        </a>
+      </nav>
+      <div class="mt-auto p-4 border-t" style="border-color:#ffe08a">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-on-surface-variant">help_outline</span>
+          <div>
+            <p class="font-bold text-on-surface" style="font-size:13px">Need Help?</p>
+            <p class="text-on-surface-variant" style="font-size:11px">Check our documentation</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="ml-64 min-h-screen flex flex-col">
+      <header class="sticky top-0 w-full z-30 flex justify-between items-center px-margin-desktop py-sm">
+        <div class="flex items-center gap-md">
+          <h2 class="font-headline-md text-headline-md text-primary">Dashboard</h2>
+          <div class="search-bar hidden lg:flex items-center px-4 py-2 w-80 gap-2">
+            <span class="material-symbols-outlined" style="color:#b47b10;font-size:20px">search</span>
+            <input id="searchInput" class="border-none focus:ring-0 w-full" style="font-size:14px;outline:none;" placeholder="Search product name, barcode...">
+          </div>
+        </div>
+        <div class="flex items-center gap-sm">
+          <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container rounded-full p-2 transition-all">notifications</button>
+          <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container rounded-full p-2 transition-all">help_outline</button>
+          <div class="h-8 w-px mx-2" style="background:#ffe08a"></div>
+          <div class="flex items-center gap-2 px-2">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center" style="background:linear-gradient(135deg,#00694c,#f59e0b)">
+              <span class="material-symbols-outlined text-white text-[16px]">person</span>
+            </div>
+            <div class="text-right">
+              <p class="font-label-md text-label-md font-bold text-on-surface leading-none">ADMIN USER</p>
+              <p class="text-[10px] uppercase tracking-wider text-on-surface-variant">Store Manager</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="p-margin-desktop space-y-gutter max-w-7xl">
+        <!-- Stats Row -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
+          <!-- Revenue — Green -->
+          <div class="stat-card bg-surface-container-lowest border rounded-xl p-lg flex flex-col justify-between"
+            style="border-color:#b8e0cc; box-shadow: 0 0 0 1px #00694c1a, 0 4px 20px #00694c14">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="font-label-md text-label-md text-on-surface-variant mb-1">Total Revenue</p>
+                <h3 class="font-headline-md text-headline-md font-bold">25,000,000 VND</h3>
+              </div>
+              <span class="material-symbols-outlined p-2 rounded-lg" style="color:#00694c;background:#e0f5ed">payments</span>
+            </div>
+            <div class="mt-4 flex items-center gap-1">
+              <span class="material-symbols-outlined text-[18px]" style="color:#00694c">trending_up</span>
+              <span class="font-label-sm text-label-sm" style="color:#00694c">+12% from last month</span>
+            </div>
+          </div>
+
+          <!-- Orders — Amber -->
+          <div class="stat-card bg-surface-container-lowest border rounded-xl p-lg flex flex-col justify-between"
+            style="border-color:#fcd97a; box-shadow: 0 0 0 1px #f59e0b1a, 0 4px 20px #f59e0b14">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="font-label-md text-label-md text-on-surface-variant mb-1">Total Orders</p>
+                <h3 class="font-headline-md text-headline-md font-bold">142</h3>
+              </div>
+              <span class="material-symbols-outlined p-2 rounded-lg" style="color:#b47b10;background:#fff3d6">shopping_cart</span>
+            </div>
+            <div class="mt-4 flex items-center gap-1">
+              <span class="material-symbols-outlined text-[18px]" style="color:#b47b10">trending_up</span>
+              <span class="font-label-sm text-label-sm" style="color:#b47b10">+8% from last month</span>
+            </div>
+          </div>
+
+          <!-- Customers — Green mid -->
+          <div class="stat-card bg-surface-container-lowest border rounded-xl p-lg flex flex-col justify-between"
+            style="border-color:#b8e0cc; box-shadow: 0 0 0 1px #00694c1a, 0 4px 20px #00694c14">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="font-label-md text-label-md text-on-surface-variant mb-1">New Customers</p>
+                <h3 class="font-headline-md text-headline-md font-bold">28</h3>
+              </div>
+              <span class="material-symbols-outlined p-2 rounded-lg" style="color:#00694c;background:#e0f5ed">person_add</span>
+            </div>
+            <div class="mt-4 flex items-center gap-1">
+              <span class="material-symbols-outlined text-[18px]" style="color:#00694c">trending_up</span>
+              <span class="font-label-sm text-label-sm" style="color:#00694c">+5.2%</span>
+            </div>
+          </div>
+
+          <!-- Low Stock — Amber warm -->
+          <div class="stat-card bg-surface-container-lowest border rounded-xl p-lg flex flex-col justify-between"
+            style="border-color:#fac057; box-shadow: 0 0 0 1px #D9770622, 0 4px 20px #D9770618">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="font-label-md text-label-md text-on-surface-variant mb-1">Low Stock Products</p>
+                <h3 class="font-headline-md text-headline-md font-bold" style="color:#854f0b">5</h3>
+              </div>
+              <span class="material-symbols-outlined p-2 rounded-lg" style="color:#854f0b;background:#fff3d6">inventory</span>
+            </div>
+            <div class="mt-4 flex items-center gap-1">
+              <span class="material-symbols-outlined text-[18px]" style="color:#854f0b">warning</span>
+              <span class="font-label-sm text-label-sm font-medium" style="color:#854f0b">Requires attention</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+          <!-- Bar Chart -->
+          <div class="lg:col-span-2 bg-surface-container-lowest border rounded-xl p-lg" style="border-color:#c8e4d8">
+            <div class="flex justify-between items-center mb-xl">
+              <h4 class="font-headline-sm text-headline-sm">Revenue (Last 7 Days)</h4>
+              <select class="bg-surface-container border-none rounded-lg font-label-md text-label-md py-1 px-3" style="background:#fff3d6;color:#7a5c00;border:1.5px solid #fcd97a;font-size:13px">
+                <option>This Week</option>
+                <option>Last Week</option>
+              </select>
+            </div>
+            <div class="relative h-64">
+              <canvas id="revenueChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Donut Chart -->
+          <div class="bg-surface-container-lowest border rounded-xl p-lg flex flex-col" style="border-color:#c8e4d8">
+            <h4 class="font-headline-sm text-headline-sm mb-1">Sales Channel</h4>
+            <p class="font-label-sm text-label-sm text-on-surface-variant mb-lg">Online vs POS today</p>
+            <div class="flex-1 flex flex-col items-center justify-center">
+              <div class="relative w-44 h-44">
+                <canvas id="donutChart"></canvas>
+                <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <span style="font-size:11px;color:#3d4943;text-transform:uppercase;letter-spacing:.05em">Total</span>
+                  <span style="font-size:24px;font-weight:700;color:#191c1e;line-height:1.2">142</span>
+                  <span style="font-size:11px;color:#3d4943">orders</span>
+                </div>
+              </div>
+              <div class="mt-6 w-full space-y-3">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 rounded-full" style="background:#1d6fb8"></div>
+                    <span class="font-body-sm text-body-sm">POS (In-store)</span>
+                  </div>
+                  <div class="text-right">
+                    <span class="font-label-md text-label-md font-bold">82</span>
+                    <span class="font-label-sm text-label-sm text-on-surface-variant ml-1">58%</span>
+                  </div>
+                </div>
+                <div class="w-full bg-surface-container rounded-full h-1.5">
+                  <div class="h-1.5 rounded-full" style="width:58%;background:#1d6fb8"></div>
+                </div>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 rounded-full" style="background:#f59e0b"></div>
+                    <span class="font-body-sm text-body-sm">Online</span>
+                  </div>
+                  <div class="text-right">
+                    <span class="font-label-md text-label-md font-bold">60</span>
+                    <span class="font-label-sm text-label-sm text-on-surface-variant ml-1">42%</span>
+                  </div>
+                </div>
+                <div class="w-full bg-surface-container rounded-full h-1.5">
+                  <div class="h-1.5 rounded-full" style="width:42%;background:#f59e0b"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tables Row -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-gutter">
+          <!-- Recent Orders -->
+          <div class="bg-surface-container-lowest border rounded-xl overflow-hidden" style="border-color:#c8e4d8">
+            <div class="p-lg border-b flex justify-between items-center" style="border-color:#c8e4d8">
+              <h4 class="font-headline-sm text-headline-sm">Recent Orders</h4>
+              <button class="text-primary font-label-md text-label-md hover:underline">View All</button>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead style="background:#f4fbf7">
+                  <tr>
+                    <th class="px-6 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Order ID</th>
+                    <th class="px-6 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Customer</th>
+                    <th class="px-6 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Amount</th>
+                    <th class="px-6 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Status</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y" style="border-color:#c8e4d8">
+                  <tr class="transition-colors">
+                    <td class="px-6 py-4 font-body-sm text-body-sm">#ORD-2584</td>
+                    <td class="px-6 py-4 font-body-sm text-body-sm">Minh Hoang</td>
+                    <td class="px-6 py-4 font-body-sm text-body-sm">1,250,000 VND</td>
+                    <td class="px-6 py-4"><span class="px-3 py-1 rounded-full text-[12px] font-bold" style="background:#e0f5ed;color:#004d38">Delivered</span></td>
+                  </tr>
+                  <tr class="transition-colors">
+                    <td class="px-6 py-4 font-body-sm text-body-sm">#ORD-2583</td>
+                    <td class="px-6 py-4 font-body-sm text-body-sm">Phuong Linh</td>
+                    <td class="px-6 py-4 font-body-sm text-body-sm">850,000 VND</td>
+                    <td class="px-6 py-4"><span class="px-3 py-1 rounded-full text-[12px] font-bold" style="background:#fff3d6;color:#7a5c00">Processing</span></td>
+                  </tr>
+                  <tr class="transition-colors">
+                    <td class="px-6 py-4 font-body-sm text-body-sm">#ORD-2582</td>
+                    <td class="px-6 py-4 font-body-sm text-body-sm">Tran Anh</td>
+                    <td class="px-6 py-4 font-body-sm text-body-sm">2,100,000 VND</td>
+                    <td class="px-6 py-4"><span class="px-3 py-1 rounded-full text-[12px] font-bold" style="background:#fde68a;color:#78350f">Pending</span></td>
+                  </tr>
+                  <tr class="transition-colors">
+                    <td class="px-6 py-4 font-body-sm text-body-sm">#ORD-2581</td>
+                    <td class="px-6 py-4 font-body-sm text-body-sm">Duc Huy</td>
+                    <td class="px-6 py-4 font-body-sm text-body-sm">450,000 VND</td>
+                    <td class="px-6 py-4"><span class="px-3 py-1 rounded-full text-[12px] font-bold" style="background:#FECACA;color:#7F1D1D">Cancelled</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Low Stock Alert -->
+          <div class="bg-surface-container-lowest border rounded-xl overflow-hidden" style="border-color:#c8e4d8">
+            <div class="p-lg border-b flex justify-between items-center" style="border-color:#c8e4d8">
+              <h4 class="font-headline-sm text-headline-sm">Low Stock Alert</h4>
+              <button class="btn-amber px-4 py-2 rounded-lg font-label-md text-label-md">Restock All</button>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead style="background:#f4fbf7">
+                  <tr>
+                    <th class="px-6 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Product Name</th>
+                    <th class="px-6 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Category</th>
+                    <th class="px-6 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase text-right">Stock</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y" style="border-color:#c8e4d8">
+                  <tr class="transition-colors">
+                    <td class="px-6 py-4"><p class="font-body-sm text-body-sm font-medium">Arabica Coffee Beans 1kg</p><p class="text-[11px] text-on-surface-variant">Beverages</p></td>
+                    <td class="px-6 py-4 font-body-sm text-body-sm text-on-surface-variant">Beverages</td>
+                    <td class="px-6 py-4 font-label-md text-label-md text-error text-right font-bold">2 units</td>
+                  </tr>
+                  <tr class="transition-colors">
+                    <td class="px-6 py-4"><p class="font-body-sm text-body-sm font-medium">Eco-friendly Straws (Pack 50)</p><p class="text-[11px] text-on-surface-variant">Supplies</p></td>
+                    <td class="px-6 py-4 font-body-sm text-body-sm text-on-surface-variant">Supplies</td>
+                    <td class="px-6 py-4 font-label-md text-label-md text-error text-right font-bold">0 units</td>
+                  </tr>
+                  <tr class="transition-colors">
+                    <td class="px-6 py-4"><p class="font-body-sm text-body-sm font-medium">Banh Mi Flour Special</p><p class="text-[11px] text-on-surface-variant">Bakery</p></td>
+                    <td class="px-6 py-4 font-body-sm text-body-sm text-on-surface-variant">Bakery</td>
+                    <td class="px-6 py-4 font-label-md text-label-md text-right font-bold" style="color:#854f0b">12 units</td>
+                  </tr>
+                  <tr class="transition-colors">
+                    <td class="px-6 py-4"><p class="font-body-sm text-body-sm font-medium">Coconut Milk Organic</p><p class="text-[11px] text-on-surface-variant">Groceries</p></td>
+                    <td class="px-6 py-4 font-body-sm text-body-sm text-on-surface-variant">Groceries</td>
+                    <td class="px-6 py-4 font-label-md text-label-md text-right font-bold" style="color:#854f0b">8 units</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="mt-auto p-margin-desktop text-center border-t" style="border-color:#c8e4d8">
+        <p class="font-body-sm text-body-sm text-on-surface-variant">© 2024 RetailPro Management System. All rights reserved.</p>
+      </footer>
+    </main>
+
+    <button class="fab fixed bottom-margin-desktop right-margin-desktop w-14 h-14 text-white rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all z-50">
+      <span class="material-symbols-outlined">add</span>
+    </button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script>
+const barData = [3.2, 4.1, 2.8, 5.0, 5.8, 3.9, 3.1];
+const barLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const maxVal = Math.max(...barData);
+const barCtx = document.getElementById('revenueChart').getContext('2d');
+
+const gradientPeak = barCtx.createLinearGradient(0, 0, 0, 256);
+gradientPeak.addColorStop(0, '#4ade80');
+gradientPeak.addColorStop(1, '#00694c');
+
+const gradientMuted = barCtx.createLinearGradient(0, 0, 0, 256);
+gradientMuted.addColorStop(0, '#86efac');
+gradientMuted.addColorStop(1, '#00694c66');
+
+const gridPlugin = {
+  id: 'customGrid',
+  beforeDatasetsDraw(chart) {
+    const { ctx, chartArea: { left, right }, scales: { y } } = chart;
+    ctx.save();
+    y.ticks.forEach((tick, i) => {
+      if (i === 0) return;
+      const yPos = y.getPixelForValue(tick.value);
+      ctx.beginPath();
+      ctx.strokeStyle = '#c8e4d8';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      ctx.moveTo(left, yPos);
+      ctx.lineTo(right, yPos);
+      ctx.stroke();
+    });
+    ctx.restore();
+  }
+};
+
+new Chart(barCtx, {
+  plugins: [gridPlugin],
+  type: 'bar',
+  data: {
+    labels: barLabels,
+    datasets: [{
+      data: barData,
+      backgroundColor: barData.map(v => v === maxVal ? gradientPeak : gradientMuted),
+      borderRadius: 6,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.parsed.y + 'M VND' } }
+    },
+    layout: { padding: { top: 28 } },
+    scales: {
+      x: {
+        grid: { display: false },
+        border: { display: false },
+        ticks: { font: { family: 'Inter', size: 12 }, color: '#3d4943' }
+      },
+      y: {
+        border: { display: false },
+        grid: { drawOnChartArea: false, drawTicks: false },
+        ticks: {
+          font: { family: 'Inter', size: 11 },
+          color: '#3d4943',
+          padding: 8,
+          callback: val => val + 'M',
+          stepSize: 1
+        },
+        beginAtZero: true,
+        max: 7
+      }
+    },
+    animation: {
+      onComplete: function() {
+        const chart = this;
+        const c = chart.ctx;
+        chart.data.datasets.forEach((dataset, i) => {
+          chart.getDatasetMeta(i).data.forEach((bar, idx) => {
+            const val = dataset.data[idx];
+            c.fillStyle = '#191c1e';
+            c.font = '600 12px Inter';
+            c.textAlign = 'center';
+            c.textBaseline = 'bottom';
+            c.fillText(val + 'M', bar.x, bar.y - 4);
+            if (val === maxVal) {
+              c.font = '15px serif';
+              c.fillText('⭐', bar.x, bar.y - 20);
+            }
+          });
+        });
+      }
+    }
+  }
+});
+
+new Chart(document.getElementById('donutChart').getContext('2d'), {
+  type: 'doughnut',
+  data: {
+    labels: ['POS (In-store)', 'Online'],
+    datasets: [{
+      data: [82, 60],
+      backgroundColor: ['#1d6fb8', '#f59e0b'],
+      borderWidth: 0,
+      hoverOffset: 6,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    cutout: '72%',
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed} orders` } }
+    }
+  }
+});
+    </script>
+  </body></html>

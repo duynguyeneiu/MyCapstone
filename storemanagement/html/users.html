@@ -1,0 +1,701 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>RetailPro - Users</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Hanken+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary": "#00694c", "secondary": "#565e74", "tertiary": "#4d5d73",
+        "error": "#ba1a1a", "surface": "#f7fbf9", "background": "#f7fbf9",
+        "surface-container": "#edf7f2", "surface-container-low": "#f4fbf7",
+        "surface-container-high": "#e6f4ee", "surface-container-lowest": "#ffffff",
+        "on-surface": "#191c1e", "on-surface-variant": "#3d4943",
+        "outline": "#6d7a73", "outline-variant": "#c8e4d8",
+        "secondary-container": "#fff3d6", "primary-container": "#008560",
+      },
+      spacing: {
+        "md": "16px", "lg": "24px", "xl": "32px", "2xl": "48px",
+        "sm": "8px", "gutter": "24px", "margin-desktop": "32px",
+      },
+      fontSize: {
+        "body-sm": ["12px", { lineHeight: "20px", fontWeight: "400" }],
+        "label-sm": ["12px", { lineHeight: "14px", fontWeight: "600" }],
+        "label-md": ["14px", { lineHeight: "16px", letterSpacing: "0.01em", fontWeight: "500" }],
+        "headline-sm": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+        "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+      }
+    }
+  }
+}
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 50; align-items: center; justify-content: center; }
+  .modal-backdrop.open { display: flex; }
+  .tab-btn { padding: 8px 20px; font-size: 14px; font-weight: 500; border-bottom: 2px solid transparent; color: #3d4943; cursor: pointer; transition: color .15s; }
+  .tab-btn.active { color: #00694c; border-bottom-color: #f59e0b; }
+  aside { border-right: 2px solid #ffe08a; background: linear-gradient(180deg, #f4fbf7 0%, #fffdf5 100%); }
+  header { background: linear-gradient(90deg, #f7fbf9 0%, #fffdf5 100%); border-bottom: 1.5px solid #ffe08a; }
+  .nav-active { background: linear-gradient(90deg, #fff3d6 0%, #fde68a44 100%) !important; border-left: 3px solid #f59e0b; color: #00694c !important; font-weight: 700; }
+  .search-bar { background: #fff8e6; border: 1.5px solid #fcd97a; border-radius: 999px; display: flex; align-items: center; padding: 8px 16px; gap: 8px; }
+  .search-bar:focus-within { border-color: #f59e0b; box-shadow: 0 0 0 3px #f59e0b22; }
+  .search-bar input { background: transparent; border: none; outline: none; width: 100%; font-size: 14px; }
+  .stat-card { transition: transform 0.18s ease; }
+  .stat-card:hover { transform: translateY(-2px); }
+  .btn-primary { background: linear-gradient(135deg, #00694c 0%, #00a86b 100%); color: #fff; transition: all .15s; box-shadow: 0 2px 8px #00694c33; }
+  .btn-primary:hover { box-shadow: 0 4px 14px #00694c55; }
+  tbody tr:hover { background: #f4fbf7 !important; }
+  .brand-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #00694c); margin-right: 6px; vertical-align: middle; }
+  .filter-select { background: #fff8e6; border: 1.5px solid #fcd97a; border-radius: 8px; padding: 8px 12px; font-size: 13px; color: #3d4943; outline: none; }
+  .filter-select:focus { border-color: #f59e0b; }
+  .modal-input { border: 1.5px solid #c8e4d8; background: #f4fbf7; border-radius: 8px; padding: 8px 12px; font-size: 14px; width: 100%; outline: none; }
+  .modal-input:focus { border-color: #00694c; }
+</style>
+</head>
+<body class="bg-background text-on-surface">
+
+<!-- Sidebar -->
+<aside class="h-screen w-64 fixed left-0 top-0 z-40 flex flex-col py-md px-sm overflow-y-auto">
+  <div class="mb-2xl px-4">
+    <h1 class="font-headline-sm text-headline-sm font-bold text-primary flex items-center">
+      <span class="brand-dot"></span>RetailPro
+    </h1>
+    <p class="font-label-md text-label-md text-on-surface-variant">Management System</p>
+  </div>
+  <nav class="flex-1 space-y-1">
+    <a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg" href="dashboard.html">
+      <span class="material-symbols-outlined">dashboard</span>
+      <span class="font-label-md text-label-md">Dashboard</span>
+    </a>
+    <a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg" href="products.html">
+      <span class="material-symbols-outlined">shopping_bag</span>
+      <span class="font-label-md text-label-md">Products</span>
+    </a>
+    <a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg" href="categories.html">
+      <span class="material-symbols-outlined">category</span>
+      <span class="font-label-md text-label-md">Categories</span>
+    </a>
+    <a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg" href="orders.html">
+      <span class="material-symbols-outlined">receipt_long</span>
+      <span class="font-label-md text-label-md">Orders</span>
+    </a>
+    <a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg" href="inventory.html">
+      <span class="material-symbols-outlined">inventory_2</span>
+      <span class="font-label-md text-label-md">Inventory</span>
+    </a>
+    <a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg" href="promotions.html">
+      <span class="material-symbols-outlined">campaign</span>
+      <span class="font-label-md text-label-md">Promotions</span>
+    </a>
+    <a class="nav-active flex items-center gap-3 px-4 py-3 transition-colors rounded-lg" href="users.html">
+      <span class="material-symbols-outlined">group</span>
+      <span class="font-label-md text-label-md">Users</span>
+    </a>
+    <a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg" href="pos.html">
+      <span class="material-symbols-outlined">point_of_sale</span>
+      <span class="font-label-md text-label-md">POS</span>
+    </a>
+    <a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg" href="settings.html">
+      <span class="material-symbols-outlined">settings</span>
+      <span class="font-label-md text-label-md">Settings</span>
+    </a>
+  </nav>
+  <div class="mt-auto p-4 border-t" style="border-color:#ffe08a">
+    <div class="flex items-center gap-3">
+      <span class="material-symbols-outlined text-on-surface-variant">help_outline</span>
+      <div>
+        <p class="font-bold text-on-surface" style="font-size:13px">Need Help?</p>
+        <p class="text-on-surface-variant" style="font-size:11px">Check our documentation</p>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main -->
+<main class="ml-64 min-h-screen flex flex-col">
+  <header class="sticky top-0 z-30 flex justify-between items-center px-margin-desktop py-sm">
+    <div class="flex items-center gap-md">
+      <h2 class="text-primary font-bold" style="font-size:24px">Users</h2>
+      <div class="search-bar hidden lg:flex w-80">
+        <span class="material-symbols-outlined" style="color:#b47b10;font-size:20px">search</span>
+        <input id="searchInput" placeholder="Search name, phone, email...">
+      </div>
+    </div>
+    <div class="flex items-center gap-sm">
+      <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container rounded-full p-2">notifications</button>
+      <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container rounded-full p-2">help_outline</button>
+      <div class="h-8 w-px mx-2" style="background:#ffe08a"></div>
+      <div class="flex items-center gap-2 px-2">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center" style="background:linear-gradient(135deg,#00694c,#f59e0b)">
+          <span class="material-symbols-outlined text-white" style="font-size:16px">person</span>
+        </div>
+        <div>
+          <p class="font-bold text-on-surface leading-none" style="font-size:13px">ADMIN USER</p>
+          <p class="text-on-surface-variant" style="font-size:10px;text-transform:uppercase;letter-spacing:.05em">Store Manager</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="p-margin-desktop space-y-gutter">
+
+    <!-- Stats -->
+    <div class="grid grid-cols-4 gap-gutter">
+      <!-- Total Customers — Green -->
+      <div class="stat-card bg-surface-container-lowest border rounded-xl p-lg flex flex-col justify-between" style="border-color:#b8e0cc;box-shadow:0 0 0 1px #00694c1a,0 4px 20px #00694c14">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-on-surface-variant font-label-md text-label-md mb-1">Total Customers</p>
+            <h3 class="font-bold" style="font-size:24px">1,284</h3>
+          </div>
+          <span class="material-symbols-outlined p-2 rounded-lg" style="color:#00694c;background:#e0f5ed">group</span>
+        </div>
+        <div class="mt-4 flex items-center gap-1">
+          <span class="material-symbols-outlined" style="color:#00694c;font-size:18px">trending_up</span>
+          <span class="font-label-sm text-label-sm" style="color:#00694c">+28 this month</span>
+        </div>
+      </div>
+      <!-- Staff — Amber -->
+      <div class="stat-card bg-surface-container-lowest border rounded-xl p-lg flex flex-col justify-between" style="border-color:#fcd97a;box-shadow:0 0 0 1px #f59e0b1a,0 4px 20px #f59e0b14">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-on-surface-variant font-label-md text-label-md mb-1">Staff Accounts</p>
+            <h3 class="font-bold" style="font-size:24px">8</h3>
+          </div>
+          <span class="material-symbols-outlined p-2 rounded-lg" style="color:#b47b10;background:#fff3d6">badge</span>
+        </div>
+        <div class="mt-4 flex items-center gap-1">
+          <span class="font-label-sm text-label-sm" style="color:#b47b10">Active employees</span>
+        </div>
+      </div>
+      <!-- New This Month — Green -->
+      <div class="stat-card bg-surface-container-lowest border rounded-xl p-lg flex flex-col justify-between" style="border-color:#b8e0cc;box-shadow:0 0 0 1px #00694c1a,0 4px 20px #00694c14">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-on-surface-variant font-label-md text-label-md mb-1">New This Month</p>
+            <h3 class="font-bold" style="font-size:24px">28</h3>
+          </div>
+          <span class="material-symbols-outlined p-2 rounded-lg" style="color:#00694c;background:#e0f5ed">person_add</span>
+        </div>
+        <div class="mt-4 flex items-center gap-1">
+          <span class="material-symbols-outlined" style="color:#00694c;font-size:18px">trending_up</span>
+          <span class="font-label-sm text-label-sm" style="color:#00694c">+5.2% vs last month</span>
+        </div>
+      </div>
+      <!-- Locked — Red -->
+      <div class="stat-card bg-surface-container-lowest border rounded-xl p-lg flex flex-col justify-between" style="border-color:#fca5a5;box-shadow:0 0 0 1px #dc262622,0 4px 20px #dc262614">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-on-surface-variant font-label-md text-label-md mb-1">Locked Accounts</p>
+            <h3 class="font-bold" style="font-size:24px;color:#dc2626">3</h3>
+          </div>
+          <span class="material-symbols-outlined p-2 rounded-lg" style="color:#dc2626;background:#fee2e2">lock</span>
+        </div>
+        <div class="mt-4 flex items-center gap-1">
+          <span class="font-label-sm text-label-sm" style="color:#dc2626">Need review</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs + Table -->
+    <div class="bg-surface-container-lowest border rounded-xl overflow-hidden" style="border-color:#c8e4d8">
+
+      <!-- Tabs -->
+      <div class="flex border-b px-lg" style="border-color:#c8e4d8">
+        <button class="tab-btn active" onclick="switchTab('customers', this)">Customers</button>
+        <button class="tab-btn" onclick="switchTab('staff', this)">Staff</button>
+      </div>
+
+      <!-- Customers Tab -->
+      <div id="tab-customers">
+        <div class="p-lg border-b flex items-center justify-between gap-3 flex-wrap" style="border-color:#c8e4d8">
+          <div class="flex items-center gap-3">
+            <select id="custStatusFilter" class="filter-select">
+              <option value="">All Status</option>
+              <option>Active</option>
+              <option>Locked</option>
+            </select>
+            <select id="genderFilter" class="filter-select">
+              <option value="">All Gender</option>
+              <option>Male</option>
+              <option>Female</option>
+            </select>
+          </div>
+          <button onclick="openCustModal()" class="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg font-bold" style="font-size:14px">
+            <span class="material-symbols-outlined" style="font-size:18px">add</span>
+            Add Customer
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left">
+            <thead style="background:#f4fbf7">
+              <tr>
+                <th class="px-4 py-3 w-10"><input type="checkbox" class="rounded"></th>
+                <th class="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Customer</th>
+                <th class="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Phone</th>
+                <th class="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Email</th>
+                <th class="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Loyalty Points</th>
+                <th class="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Registered</th>
+                <th class="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Status</th>
+                <th class="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="custBody" class="divide-y" style="border-color:#c8e4d8"></tbody>
+          </table>
+        </div>
+        <div class="px-lg py-md border-t flex items-center justify-between" style="border-color:#c8e4d8">
+          <p id="custInfo" class="text-on-surface-variant" style="font-size:13px"></p>
+          <div class="flex items-center gap-1">
+            <button class="w-8 h-8 rounded-lg border flex items-center justify-center hover:bg-surface-container" style="border-color:#c8e4d8">
+              <span class="material-symbols-outlined" style="font-size:16px">chevron_left</span>
+            </button>
+            <button class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold btn-primary" style="font-size:13px">1</button>
+            <button class="w-8 h-8 rounded-lg border flex items-center justify-center hover:bg-surface-container" style="border-color:#c8e4d8;font-size:13px">2</button>
+            <button class="w-8 h-8 rounded-lg border flex items-center justify-center hover:bg-surface-container" style="border-color:#c8e4d8">
+              <span class="material-symbols-outlined" style="font-size:16px">chevron_right</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Staff Tab -->
+      <div id="tab-staff" class="hidden">
+        <div class="p-lg border-b flex items-center justify-between gap-3" style="border-color:#c8e4d8">
+          <select id="roleFilter" class="filter-select">
+            <option value="">All Roles</option>
+            <option>Admin</option>
+            <option>Staff</option>
+          </select>
+          <button onclick="openStaffModal()" class="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg font-bold" style="font-size:14px">
+            <span class="material-symbols-outlined" style="font-size:18px">add</span>
+            Add Staff
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left">
+            <thead style="background:#f4fbf7">
+              <tr>
+                <th class="px-4 py-3 w-10"><input type="checkbox" class="rounded"></th>
+                <th class="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Staff</th>
+                <th class="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Phone</th>
+                <th class="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Email</th>
+                <th class="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Role</th>
+                <th class="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Status</th>
+                <th class="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="staffBody" class="divide-y" style="border-color:#c8e4d8"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="mt-auto p-margin-desktop text-center border-t" style="border-color:#c8e4d8">
+    <p class="text-on-surface-variant" style="font-size:14px">© 2024 RetailPro Management System. All rights reserved.</p>
+  </footer>
+</main>
+
+<!-- Customer Modal -->
+<div class="modal-backdrop" id="custModal">
+  <div class="bg-surface-container-lowest rounded-xl border w-[520px] max-w-[95vw] max-h-[90vh] overflow-y-auto" style="border-color:#c8e4d8">
+    <div class="flex items-center justify-between p-lg border-b" style="border-color:#c8e4d8">
+      <h3 class="font-bold text-on-surface" id="custModalTitle" style="font-size:18px">Add Customer</h3>
+      <button onclick="closeCustModal()" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container rounded-full p-1">close</button>
+    </div>
+    <div class="p-lg space-y-4">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Full Name *</label>
+          <input id="cName" type="text" placeholder="Enter full name" class="modal-input">
+        </div>
+        <div>
+          <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Gender</label>
+          <select id="cGender" class="modal-input">
+            <option>Male</option>
+            <option>Female</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Phone *</label>
+          <input id="cPhone" type="text" placeholder="0901234567" class="modal-input">
+        </div>
+        <div>
+          <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Email</label>
+          <input id="cEmail" type="email" placeholder="email@example.com" class="modal-input">
+        </div>
+      </div>
+      <div>
+        <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Address</label>
+        <input id="cAddress" type="text" placeholder="Street, District, City" class="modal-input">
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Username</label>
+          <input id="cUsername" type="text" placeholder="username" class="modal-input">
+        </div>
+        <div>
+          <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Status</label>
+          <select id="cStatus" class="modal-input">
+            <option>Active</option>
+            <option>Locked</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="flex justify-end gap-3 px-lg py-md border-t" style="border-color:#c8e4d8">
+      <button onclick="closeCustModal()" class="px-4 py-2 rounded-lg border text-on-surface-variant hover:bg-surface-container" style="border-color:#c8e4d8;font-size:14px">Cancel</button>
+      <button onclick="saveCust()" class="btn-primary px-4 py-2 rounded-lg text-white font-bold" style="font-size:14px">Save Customer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Staff Modal -->
+<div class="modal-backdrop" id="staffModal">
+  <div class="bg-surface-container-lowest rounded-xl border w-[520px] max-w-[95vw] max-h-[90vh] overflow-y-auto" style="border-color:#c8e4d8">
+    <div class="flex items-center justify-between p-lg border-b" style="border-color:#c8e4d8">
+      <h3 class="font-bold text-on-surface" id="staffModalTitle" style="font-size:18px">Add Staff</h3>
+      <button onclick="closeStaffModal()" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container rounded-full p-1">close</button>
+    </div>
+    <div class="p-lg space-y-4">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Full Name *</label>
+          <input id="sName" type="text" placeholder="Enter full name" class="modal-input">
+        </div>
+        <div>
+          <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Role *</label>
+          <select id="sRole" class="modal-input">
+            <option>Staff</option>
+            <option>Admin</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Phone *</label>
+          <input id="sPhone" type="text" placeholder="0901234567" class="modal-input">
+        </div>
+        <div>
+          <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Email</label>
+          <input id="sEmail" type="email" placeholder="email@example.com" class="modal-input">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Username *</label>
+          <input id="sUsername" type="text" placeholder="username" class="modal-input">
+        </div>
+        <div>
+          <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Password *</label>
+          <input id="sPassword" type="password" placeholder="••••••••" class="modal-input">
+        </div>
+      </div>
+      <div>
+        <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Address</label>
+        <input id="sAddress" type="text" placeholder="Street, District, City" class="modal-input">
+      </div>
+      <div>
+        <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Status</label>
+        <select id="sStatus" class="modal-input">
+          <option>Active</option>
+          <option>Locked</option>
+        </select>
+      </div>
+    </div>
+    <div class="flex justify-end gap-3 px-lg py-md border-t" style="border-color:#c8e4d8">
+      <button onclick="closeStaffModal()" class="px-4 py-2 rounded-lg border text-on-surface-variant hover:bg-surface-container" style="border-color:#c8e4d8;font-size:14px">Cancel</button>
+      <button onclick="saveStaff()" class="btn-primary px-4 py-2 rounded-lg text-white font-bold" style="font-size:14px">Save Staff</button>
+    </div>
+  </div>
+</div>
+
+<!-- Lock/Unlock Confirm Modal -->
+<div class="modal-backdrop" id="lockModal">
+  <div class="bg-surface-container-lowest rounded-xl border w-[360px] p-xl text-center" style="border-color:#c8e4d8">
+    <div class="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4" id="lockIcon" style="background:#fff3d6">
+      <span class="material-symbols-outlined" id="lockIconSymbol" style="color:#7a5c00;font-size:28px">lock</span>
+    </div>
+    <h3 class="font-bold text-on-surface mb-2" id="lockTitle" style="font-size:18px">Lock account?</h3>
+    <p class="text-on-surface-variant mb-6" id="lockText" style="font-size:14px"></p>
+    <div class="flex gap-3 justify-center">
+      <button onclick="closeLockModal()" class="px-5 py-2 rounded-lg border text-on-surface-variant hover:bg-surface-container" style="border-color:#c8e4d8;font-size:14px">Cancel</button>
+      <button onclick="confirmLock()" id="lockConfirmBtn" class="px-5 py-2 rounded-lg text-white font-bold" style="background:#f59e0b;font-size:14px">Lock</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let customers = [
+  { id:1,  name:'Minh Hoang',  gender:'Male',   phone:'0901234567', email:'minh@gmail.com',     address:'123 Le Loi, Q1',       username:'minhhoang',  points:1250, registered:'12 Jan 2024', status:'Active' },
+  { id:2,  name:'Phuong Linh', gender:'Female', phone:'0912345678', email:'phuong@gmail.com',   address:'45 Nguyen Hue, Q1',    username:'phuonglinh', points:890,  registered:'20 Jan 2024', status:'Active' },
+  { id:3,  name:'Tran Anh',    gender:'Male',   phone:'0923456789', email:'trananh@gmail.com',  address:'78 Hai Ba Trung, Q3',  username:'trananh',    points:2100, registered:'05 Feb 2024', status:'Active' },
+  { id:4,  name:'Duc Huy',     gender:'Male',   phone:'0934567890', email:'duchuy@gmail.com',   address:'12 Vo Van Tan, Q3',    username:'duchuy',     points:450,  registered:'14 Feb 2024', status:'Locked' },
+  { id:5,  name:'Lan Anh',     gender:'Female', phone:'0945678901', email:'lananh@gmail.com',   address:'22 Vo Thi Sau, Q3',    username:'lananh',     points:980,  registered:'01 Mar 2024', status:'Active' },
+  { id:6,  name:'Bao Long',    gender:'Male',   phone:'0956789012', email:'baolong@gmail.com',  address:'55 CMT8, Q10',         username:'baolong',    points:320,  registered:'10 Mar 2024', status:'Active' },
+  { id:7,  name:'Thu Hang',    gender:'Female', phone:'0967890123', email:'thuhang@gmail.com',  address:'33 Le Van Sy, Q3',     username:'thuhang',    points:1560, registered:'22 Mar 2024', status:'Active' },
+  { id:8,  name:'Quoc Viet',   gender:'Male',   phone:'0978901234', email:'quocviet@gmail.com', address:'88 Nguyen Dinh Chieu', username:'quocviet',   points:760,  registered:'05 Apr 2024', status:'Locked' },
+  { id:9,  name:'My Linh',     gender:'Female', phone:'0989012345', email:'mylinh@gmail.com',   address:'17 Tran Hung Dao, Q1', username:'mylinh',     points:430,  registered:'18 Apr 2024', status:'Active' },
+  { id:10, name:'Thanh Tung',  gender:'Male',   phone:'0990123456', email:'thanhtung@gmail.com',address:'9 Dinh Tien Hoang, Q1',username:'thanhtung',  points:95,   registered:'02 May 2024', status:'Locked' },
+];
+
+let staff = [
+  { id:1, name:'Alex Nguyen', phone:'0901111111', email:'alex@retailpro.vn',  username:'alex.nguyen', role:'Admin', address:'HCM City', status:'Active' },
+  { id:2, name:'Minh Tran',   phone:'0902222222', email:'minh@retailpro.vn',  username:'minh.tran',   role:'Staff', address:'HCM City', status:'Active' },
+  { id:3, name:'Lan Pham',    phone:'0903333333', email:'lan@retailpro.vn',   username:'lan.pham',    role:'Staff', address:'HCM City', status:'Active' },
+  { id:4, name:'Hung Le',     phone:'0904444444', email:'hung@retailpro.vn',  username:'hung.le',     role:'Staff', address:'HCM City', status:'Active' },
+  { id:5, name:'Thao Nguyen', phone:'0905555555', email:'thao@retailpro.vn',  username:'thao.nguyen', role:'Staff', address:'HCM City', status:'Locked' },
+];
+
+let lockTarget = null;
+let lockType = null;
+let editCustId = null;
+let editStaffId = null;
+
+// Avatar colors — alternating green/amber palette
+const avatarColors = ['#00694c','#b47b10','#00694c','#b47b10','#004d38','#854f0b','#00a86b','#f59e0b'];
+
+function initials(name) { return name.split(' ').map(w=>w[0]).slice(-2).join('').toUpperCase(); }
+
+function statusBadge(s) {
+  return s === 'Active'
+    ? `<span style="background:#e0f5ed;color:#004d38;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700">Active</span>`
+    : `<span style="background:#fee2e2;color:#7f1d1d;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700">Locked</span>`;
+}
+
+function roleBadge(r) {
+  return r === 'Admin'
+    ? `<span style="background:#fff3d6;color:#7a5c00;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600">Admin</span>`
+    : `<span style="background:#e0f5ed;color:#004d38;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600">Staff</span>`;
+}
+
+function filterCustomers() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const st = document.getElementById('custStatusFilter').value;
+  const g = document.getElementById('genderFilter').value;
+  return customers.filter(c =>
+    (!q || c.name.toLowerCase().includes(q) || c.phone.includes(q) || c.email.toLowerCase().includes(q)) &&
+    (!st || c.status === st) && (!g || c.gender === g)
+  );
+}
+
+function filterStaff() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const r = document.getElementById('roleFilter').value;
+  return staff.filter(s =>
+    (!q || s.name.toLowerCase().includes(q) || s.phone.includes(q) || s.email.toLowerCase().includes(q)) &&
+    (!r || s.role === r)
+  );
+}
+
+function renderCustomers() {
+  const data = filterCustomers();
+  document.getElementById('custInfo').textContent = `Showing ${data.length} of ${customers.length} customers`;
+  document.getElementById('custBody').innerHTML = data.map((c,i) => `
+    <tr class="transition-colors" style="border-color:#c8e4d8">
+      <td class="px-4 py-3"><input type="checkbox" class="rounded"></td>
+      <td class="px-4 py-3">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0" style="background:${avatarColors[i%avatarColors.length]};font-size:12px">
+            ${initials(c.name)}
+          </div>
+          <div>
+            <p class="font-bold text-on-surface" style="font-size:13px">${c.name}</p>
+            <p class="text-on-surface-variant" style="font-size:11px">${c.gender}</p>
+          </div>
+        </div>
+      </td>
+      <td class="px-4 py-3 text-on-surface" style="font-size:13px">${c.phone}</td>
+      <td class="px-4 py-3 text-on-surface-variant" style="font-size:12px">${c.email}</td>
+      <td class="px-4 py-3">
+        <div class="flex items-center gap-1">
+          <span class="material-symbols-outlined" style="font-size:16px;color:#f59e0b">star</span>
+          <span class="font-bold text-on-surface" style="font-size:13px">${c.points.toLocaleString()}</span>
+        </div>
+      </td>
+      <td class="px-4 py-3 text-on-surface-variant" style="font-size:12px">${c.registered}</td>
+      <td class="px-4 py-3">${statusBadge(c.status)}</td>
+      <td class="px-4 py-3">
+        <div class="flex items-center justify-center gap-2">
+          <button onclick="openEditCust(${c.id})" class="w-8 h-8 rounded-lg border flex items-center justify-center transition-colors" style="border-color:#c8e4d8" onmouseover="this.style.background='#e0f5ed';this.style.borderColor='#00694c'" onmouseout="this.style.background='';this.style.borderColor='#c8e4d8'" title="Edit">
+            <span class="material-symbols-outlined" style="font-size:16px;color:#3d4943">edit</span>
+          </button>
+          <button onclick="openLock(${c.id},'customer')" class="w-8 h-8 rounded-lg border flex items-center justify-center transition-colors" style="border-color:#c8e4d8" onmouseover="this.style.background='${c.status==='Active'?'#fff3d6':'#e0f5ed'}';this.style.borderColor='${c.status==='Active'?'#f59e0b':'#00694c'}'" onmouseout="this.style.background='';this.style.borderColor='#c8e4d8'" title="${c.status==='Active'?'Lock':'Unlock'}">
+            <span class="material-symbols-outlined" style="font-size:16px;color:#3d4943">${c.status==='Active'?'lock':'lock_open'}</span>
+          </button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function renderStaff() {
+  const data = filterStaff();
+  document.getElementById('staffBody').innerHTML = data.map((s,i) => `
+    <tr class="transition-colors" style="border-color:#c8e4d8">
+      <td class="px-4 py-3"><input type="checkbox" class="rounded"></td>
+      <td class="px-4 py-3">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0" style="background:${avatarColors[(i+2)%avatarColors.length]};font-size:12px">
+            ${initials(s.name)}
+          </div>
+          <div>
+            <p class="font-bold text-on-surface" style="font-size:13px">${s.name}</p>
+            <p class="text-on-surface-variant" style="font-size:11px">${s.username}</p>
+          </div>
+        </div>
+      </td>
+      <td class="px-4 py-3 text-on-surface" style="font-size:13px">${s.phone}</td>
+      <td class="px-4 py-3 text-on-surface-variant" style="font-size:12px">${s.email}</td>
+      <td class="px-4 py-3">${roleBadge(s.role)}</td>
+      <td class="px-4 py-3">${statusBadge(s.status)}</td>
+      <td class="px-4 py-3">
+        <div class="flex items-center justify-center gap-2">
+          <button onclick="openEditStaff(${s.id})" class="w-8 h-8 rounded-lg border flex items-center justify-center transition-colors" style="border-color:#c8e4d8" onmouseover="this.style.background='#e0f5ed';this.style.borderColor='#00694c'" onmouseout="this.style.background='';this.style.borderColor='#c8e4d8'" title="Edit">
+            <span class="material-symbols-outlined" style="font-size:16px;color:#3d4943">edit</span>
+          </button>
+          <button onclick="openLock(${s.id},'staff')" class="w-8 h-8 rounded-lg border flex items-center justify-center transition-colors" style="border-color:#c8e4d8" onmouseover="this.style.background='${s.status==='Active'?'#fff3d6':'#e0f5ed'}';this.style.borderColor='${s.status==='Active'?'#f59e0b':'#00694c'}'" onmouseout="this.style.background='';this.style.borderColor='#c8e4d8'" title="${s.status==='Active'?'Lock':'Unlock'}">
+            <span class="material-symbols-outlined" style="font-size:16px;color:#3d4943">${s.status==='Active'?'lock':'lock_open'}</span>
+          </button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function switchTab(tab, btn) {
+  ['customers','staff'].forEach(t => document.getElementById(`tab-${t}`).classList.add('hidden'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`tab-${tab}`).classList.remove('hidden');
+  btn.classList.add('active');
+}
+
+document.getElementById('searchInput').addEventListener('input', () => { renderCustomers(); renderStaff(); });
+document.getElementById('custStatusFilter').addEventListener('change', renderCustomers);
+document.getElementById('genderFilter').addEventListener('change', renderCustomers);
+document.getElementById('roleFilter').addEventListener('change', renderStaff);
+
+function openCustModal() {
+  editCustId = null;
+  document.getElementById('custModalTitle').textContent = 'Add Customer';
+  ['cName','cPhone','cEmail','cAddress','cUsername'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('cGender').value = 'Male';
+  document.getElementById('cStatus').value = 'Active';
+  document.getElementById('custModal').classList.add('open');
+}
+function openEditCust(id) {
+  const c = customers.find(x => x.id === id);
+  editCustId = id;
+  document.getElementById('custModalTitle').textContent = 'Edit Customer';
+  document.getElementById('cName').value = c.name;
+  document.getElementById('cGender').value = c.gender;
+  document.getElementById('cPhone').value = c.phone;
+  document.getElementById('cEmail').value = c.email;
+  document.getElementById('cAddress').value = c.address;
+  document.getElementById('cUsername').value = c.username;
+  document.getElementById('cStatus').value = c.status;
+  document.getElementById('custModal').classList.add('open');
+}
+function closeCustModal() { document.getElementById('custModal').classList.remove('open'); }
+function saveCust() {
+  const name = document.getElementById('cName').value.trim();
+  if (!name) return alert('Name is required');
+  if (editCustId) {
+    const c = customers.find(x => x.id === editCustId);
+    c.name = name; c.gender = document.getElementById('cGender').value;
+    c.phone = document.getElementById('cPhone').value;
+    c.email = document.getElementById('cEmail').value;
+    c.address = document.getElementById('cAddress').value;
+    c.username = document.getElementById('cUsername').value;
+    c.status = document.getElementById('cStatus').value;
+  } else {
+    customers.push({ id: Date.now(), name, gender: document.getElementById('cGender').value,
+      phone: document.getElementById('cPhone').value, email: document.getElementById('cEmail').value,
+      address: document.getElementById('cAddress').value, username: document.getElementById('cUsername').value,
+      points: 0, registered: new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}),
+      status: document.getElementById('cStatus').value });
+  }
+  closeCustModal(); renderCustomers();
+}
+
+function openStaffModal() {
+  editStaffId = null;
+  document.getElementById('staffModalTitle').textContent = 'Add Staff';
+  ['sName','sPhone','sEmail','sUsername','sPassword','sAddress'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('sRole').value = 'Staff';
+  document.getElementById('sStatus').value = 'Active';
+  document.getElementById('staffModal').classList.add('open');
+}
+function openEditStaff(id) {
+  const s = staff.find(x => x.id === id);
+  editStaffId = id;
+  document.getElementById('staffModalTitle').textContent = 'Edit Staff';
+  document.getElementById('sName').value = s.name;
+  document.getElementById('sPhone').value = s.phone;
+  document.getElementById('sEmail').value = s.email;
+  document.getElementById('sUsername').value = s.username;
+  document.getElementById('sPassword').value = '';
+  document.getElementById('sAddress').value = s.address;
+  document.getElementById('sRole').value = s.role;
+  document.getElementById('sStatus').value = s.status;
+  document.getElementById('staffModal').classList.add('open');
+}
+function closeStaffModal() { document.getElementById('staffModal').classList.remove('open'); }
+function saveStaff() {
+  const name = document.getElementById('sName').value.trim();
+  if (!name) return alert('Name is required');
+  if (editStaffId) {
+    const s = staff.find(x => x.id === editStaffId);
+    s.name = name; s.phone = document.getElementById('sPhone').value;
+    s.email = document.getElementById('sEmail').value;
+    s.username = document.getElementById('sUsername').value;
+    s.address = document.getElementById('sAddress').value;
+    s.role = document.getElementById('sRole').value;
+    s.status = document.getElementById('sStatus').value;
+  } else {
+    staff.push({ id: Date.now(), name, phone: document.getElementById('sPhone').value,
+      email: document.getElementById('sEmail').value, username: document.getElementById('sUsername').value,
+      address: document.getElementById('sAddress').value, role: document.getElementById('sRole').value,
+      status: document.getElementById('sStatus').value });
+  }
+  closeStaffModal(); renderStaff();
+}
+
+function openLock(id, type) {
+  lockTarget = id; lockType = type;
+  const list = type === 'customer' ? customers : staff;
+  const u = list.find(x => x.id === id);
+  const isLocking = u.status === 'Active';
+  document.getElementById('lockTitle').textContent = isLocking ? 'Lock account?' : 'Unlock account?';
+  document.getElementById('lockText').textContent = `${isLocking ? 'Lock' : 'Unlock'} account for "${u.name}"?`;
+  document.getElementById('lockIcon').style.background = isLocking ? '#fff3d6' : '#e0f5ed';
+  document.getElementById('lockIconSymbol').style.color = isLocking ? '#7a5c00' : '#004d38';
+  document.getElementById('lockIconSymbol').textContent = isLocking ? 'lock' : 'lock_open';
+  document.getElementById('lockConfirmBtn').style.background = isLocking ? '#f59e0b' : '#00694c';
+  document.getElementById('lockConfirmBtn').textContent = isLocking ? 'Lock' : 'Unlock';
+  document.getElementById('lockModal').classList.add('open');
+}
+function closeLockModal() { document.getElementById('lockModal').classList.remove('open'); }
+function confirmLock() {
+  const list = lockType === 'customer' ? customers : staff;
+  const u = list.find(x => x.id === lockTarget);
+  u.status = u.status === 'Active' ? 'Locked' : 'Active';
+  closeLockModal();
+  renderCustomers(); renderStaff();
+}
+
+document.querySelectorAll('.modal-backdrop').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+
+renderCustomers();
+renderStaff();
+</script>
+</body></html>

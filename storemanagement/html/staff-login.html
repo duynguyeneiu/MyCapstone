@@ -1,0 +1,340 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>RetailPro - Login</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Hanken+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<style>
+  body { font-family:'Inter',sans-serif; margin:0; background:#f2f4f6;
+    min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; }
+  .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; }
+
+  /* Screens */
+  .screen { display:none; width:100%; max-width:680px; }
+  .screen.active { display:block; }
+
+  /* Staff select screen */
+  .staff-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; margin-top:20px; }
+  .staff-card { background:#fff; border:1.5px solid #e0e3e5; border-radius:16px;
+    padding:20px 16px; text-align:center; cursor:pointer; transition:all .15s; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+  .staff-card:hover { background:#f0faf5; border-color:#00694c; transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,105,76,0.12); }
+  .staff-avatar { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:20px; font-weight:700; color:white; margin:0 auto 10px; }
+  .staff-name { font-size:13px; font-weight:600; color:#191c1e; }
+  .staff-role { font-size:11px; color:#6d7a73; margin-top:2px; }
+
+  /* PIN screen */
+  .pin-card { background:#fff; border-radius:20px; padding:36px 32px; text-align:center; box-shadow:0 24px 60px rgba(0,0,0,0.25); }
+  .pin-dots { display:flex; justify-content:center; gap:12px; margin:24px 0 20px; }
+  .pin-dot { width:14px; height:14px; border-radius:50%; background:#eceef0; transition:all .15s; }
+  .pin-dot.filled { background:#00694c; transform:scale(1.15); }
+  .pin-dot.error { background:#dc2626; }
+  .numpad { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; max-width:240px; margin:0 auto; }
+  .num-btn { padding:16px; border-radius:12px; border:1.5px solid #bccac1; background:#f7f9fb;
+    font-size:20px; font-weight:600; color:#191c1e; cursor:pointer; transition:all .1s; }
+  .num-btn:hover { background:#eceef0; border-color:#00694c; }
+  .num-btn:active { transform:scale(0.93); }
+  .num-btn.del { font-size:14px; color:#6d7a73; }
+  .num-btn.zero { grid-column:2; }
+
+  /* Admin login screen */
+  .admin-card { background:#fff; border-radius:20px; padding:40px; box-shadow:0 24px 60px rgba(0,0,0,0.25); max-width:400px; margin:0 auto; }
+  .form-input { width:100%; border:1.5px solid #bccac1; border-radius:10px; padding:11px 14px 11px 42px;
+    font-size:14px; background:#f7f9fb; color:#191c1e; outline:none; transition:all .15s; box-sizing:border-box; }
+  .form-input:focus { border-color:#00694c; background:#fff; box-shadow:0 0 0 3px #00694c18; }
+  .form-input.error { border-color:#dc2626; }
+  .input-wrap { position:relative; }
+  .input-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#6d7a73; font-size:20px; }
+  .eye-btn { position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:#6d7a73; padding:0; display:flex; align-items:center; }
+  .login-btn { width:100%; padding:13px; background:#00694c; color:white; border:none; border-radius:10px;
+    font-size:15px; font-weight:700; cursor:pointer; transition:all .15s; display:flex; align-items:center; justify-content:center; gap:8px; }
+  .login-btn:hover { background:#00513a; }
+  .login-btn:disabled { background:#bccac1; cursor:not-allowed; }
+
+  .back-btn { display:flex; align-items:center; gap:6px; color:#3d4943; background:none; border:none;
+    cursor:pointer; font-size:14px; font-weight:500; padding:0; margin-bottom:20px; }
+  .back-btn:hover { color:#00694c; }
+
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-6px)} 40%,80%{transform:translateX(6px)} }
+  .shake { animation:shake .35s ease; }
+  @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  .spinning { animation:spin .8s linear infinite; display:inline-block; }
+</style>
+</head>
+<body>
+
+<!-- ── Screen 1: Select Staff ── -->
+<div class="screen active" id="screen-select">
+  <div style="text-align:center;margin-bottom:32px">
+    <div style="width:52px;height:52px;background:#00694c18;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
+      <span class="material-symbols-outlined" style="font-size:28px;color:#00694c">store</span>
+    </div>
+    <h1 style="font-family:'Hanken Grotesk',sans-serif;font-size:26px;font-weight:700;color:#191c1e;margin:0 0 6px">RetailPro</h1>
+    <p style="font-size:14px;color:#6d7a73;margin:0">Who's working today?</p>
+  </div>
+
+  <div class="staff-grid" id="staffGrid"></div>
+
+  <div style="text-align:center;margin-top:24px">
+    <button onclick="goAdmin()" style="display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:99px;border:1.5px solid #bccac1;background:#fff;color:#3d4943;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='#00694c';this.style.color='#00694c'" onmouseout="this.style.borderColor='#bccac1';this.style.color='#3d4943'">
+      <span class="material-symbols-outlined" style="font-size:18px">admin_panel_settings</span>
+      Admin Login
+    </button>
+  </div>
+
+  <p style="text-align:center;font-size:12px;color:#6d7a73;margin-top:32px">
+    © 2024 RetailPro Management System
+  </p>
+</div>
+
+<!-- ── Screen 2: PIN Entry ── -->
+<div class="screen" id="screen-pin">
+  <button class="back-btn" onclick="goBack('select')">
+    <span class="material-symbols-outlined" style="font-size:20px">arrow_back</span> Back
+  </button>
+
+  <div class="pin-card" id="pinCard">
+    <div id="pinAvatar" style="width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:white;margin:0 auto 12px"></div>
+    <h2 style="font-size:20px;font-weight:700;color:#191c1e;margin:0 0 4px" id="pinName"></h2>
+    <p style="font-size:13px;color:#6d7a73;margin:0 0 4px" id="pinRole"></p>
+    <p style="font-size:13px;color:#6d7a73;margin:0">Enter your PIN</p>
+
+    <div class="pin-dots">
+      <div class="pin-dot" id="dot0"></div>
+      <div class="pin-dot" id="dot1"></div>
+      <div class="pin-dot" id="dot2"></div>
+      <div class="pin-dot" id="dot3"></div>
+    </div>
+
+    <p class="error-msg" id="pinError" style="color:#dc2626;font-size:13px;margin:0 0 12px;display:none">Incorrect PIN. Try again.</p>
+
+    <div class="numpad">
+      <button class="num-btn" onclick="pressNum('1')">1</button>
+      <button class="num-btn" onclick="pressNum('2')">2</button>
+      <button class="num-btn" onclick="pressNum('3')">3</button>
+      <button class="num-btn" onclick="pressNum('4')">4</button>
+      <button class="num-btn" onclick="pressNum('5')">5</button>
+      <button class="num-btn" onclick="pressNum('6')">6</button>
+      <button class="num-btn" onclick="pressNum('7')">7</button>
+      <button class="num-btn" onclick="pressNum('8')">8</button>
+      <button class="num-btn" onclick="pressNum('9')">9</button>
+      <button class="num-btn zero" onclick="pressNum('0')">0</button>
+      <button class="num-btn del" onclick="pressDelete()">
+        <span class="material-symbols-outlined" style="font-size:22px">backspace</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Screen 3: Admin Login ── -->
+<div class="screen" id="screen-admin">
+  <button class="back-btn" onclick="goBack('select')">
+    <span class="material-symbols-outlined" style="font-size:20px">arrow_back</span> Back
+  </button>
+
+  <div class="admin-card">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px">
+      <div style="width:40px;height:40px;background:#00694c;border-radius:10px;display:flex;align-items:center;justify-content:center">
+        <span class="material-symbols-outlined" style="color:white;font-size:22px">admin_panel_settings</span>
+      </div>
+      <div>
+        <p style="font-family:'Hanken Grotesk',sans-serif;font-size:16px;font-weight:700;color:#00694c;margin:0">Admin Login</p>
+        <p style="font-size:11px;color:#6d7a73;margin:0">Full system access</p>
+      </div>
+    </div>
+
+    <div id="adminAlert" style="background:#fee2e2;border:1px solid #fca5a5;border-radius:10px;padding:12px 14px;display:none;align-items:center;gap:8px;margin-bottom:16px">
+      <span class="material-symbols-outlined" style="color:#dc2626;font-size:18px">error</span>
+      <span style="font-size:13px;color:#991b1b">Invalid username or password</span>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <label style="font-size:12px;font-weight:600;color:#3d4943;display:block;margin-bottom:5px">Username</label>
+      <div class="input-wrap">
+        <span class="material-symbols-outlined input-icon">person</span>
+        <input id="adminUser" class="form-input" type="text" placeholder="Enter username">
+      </div>
+    </div>
+    <div style="margin-bottom:20px">
+      <label style="font-size:12px;font-weight:600;color:#3d4943;display:block;margin-bottom:5px">Password</label>
+      <div class="input-wrap">
+        <span class="material-symbols-outlined input-icon">lock</span>
+        <input id="adminPass" class="form-input" type="password" placeholder="Enter password" style="padding-right:44px">
+        <button class="eye-btn" onclick="togglePass()" type="button">
+          <span class="material-symbols-outlined" id="eyeIcon" style="font-size:20px">visibility</span>
+        </button>
+      </div>
+    </div>
+
+    <button class="login-btn" id="adminLoginBtn" onclick="handleAdminLogin()">
+      <span id="adminBtnText">Sign In</span>
+      <span class="material-symbols-outlined" id="adminBtnIcon" style="font-size:20px">arrow_forward</span>
+    </button>
+
+    <p style="text-align:center;font-size:12px;color:#6d7a73;margin-top:16px">
+      Staff? <button onclick="goBack('select')" style="background:none;border:none;color:#00694c;font-weight:600;cursor:pointer;font-size:12px">Select your name instead</button>
+    </p>
+  </div>
+</div>
+
+<script>
+const staffList = [
+  { id:1, name:'Minh Tran',    role:'Staff', pin:'1234', color:'#1d6fb8' },
+  { id:2, name:'Lan Pham',     role:'Staff', pin:'5678', color:'#6941c6' },
+  { id:3, name:'Hung Le',      role:'Staff', pin:'2468', color:'#D97706' },
+  { id:4, name:'Thao Nguyen',  role:'Staff', pin:'1357', color:'#dc2626' },
+  { id:5, name:'Bao Tran',     role:'Staff', pin:'9999', color:'#059669' },
+];
+
+const admins = [
+  { username:'alex.nguyen', password:'admin123', name:'Alex Nguyen' },
+  { username:'admin',       password:'admin',    name:'Admin'       },
+];
+
+let currentStaff = null;
+let pinInput = '';
+
+// Build staff grid
+function buildGrid() {
+  const grid = document.getElementById('staffGrid');
+  grid.innerHTML = staffList.map(s => `
+    <div class="staff-card" onclick="selectStaff(${s.id})">
+      <div class="staff-avatar" style="background:${s.color}">${initials(s.name)}</div>
+      <div class="staff-name">${s.name}</div>
+      <div class="staff-role">${s.role}</div>
+    </div>`).join('');
+}
+
+function initials(name) {
+  return name.split(' ').map(w=>w[0]).slice(-2).join('').toUpperCase();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+function goBack(to) { showScreen(to); }
+function goAdmin() { showScreen('admin'); }
+
+function selectStaff(id) {
+  currentStaff = staffList.find(s => s.id === id);
+  pinInput = '';
+  updateDots();
+  document.getElementById('pinName').textContent = currentStaff.name;
+  document.getElementById('pinRole').textContent = currentStaff.role;
+  document.getElementById('pinAvatar').style.background = currentStaff.color;
+  document.getElementById('pinAvatar').textContent = initials(currentStaff.name);
+  document.getElementById('pinError').style.display = 'none';
+  showScreen('pin');
+}
+
+function updateDots() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById('dot' + i);
+    dot.classList.remove('filled', 'error');
+    if (i < pinInput.length) dot.classList.add('filled');
+  }
+}
+
+function pressNum(n) {
+  if (pinInput.length >= 4) return;
+  pinInput += n;
+  updateDots();
+  if (pinInput.length === 4) setTimeout(checkPin, 120);
+}
+
+function pressDelete() {
+  pinInput = pinInput.slice(0, -1);
+  updateDots();
+  document.getElementById('pinError').style.display = 'none';
+}
+
+function checkPin() {
+  if (pinInput === currentStaff.pin) {
+    // Success
+    for (let i = 0; i < 4; i++) {
+      const dot = document.getElementById('dot' + i);
+      dot.classList.add('filled');
+      dot.style.background = '#059669';
+    }
+    setTimeout(() => {
+      alert(`Welcome ${currentStaff.name}! Redirecting to POS...`);
+      pinInput = '';
+      updateDots();
+      showScreen('select');
+    }, 600);
+  } else {
+    // Wrong PIN
+    for (let i = 0; i < 4; i++) document.getElementById('dot' + i).classList.add('error');
+    document.getElementById('pinError').style.display = 'block';
+    document.getElementById('pinCard').classList.add('shake');
+    setTimeout(() => {
+      document.getElementById('pinCard').classList.remove('shake');
+      pinInput = '';
+      updateDots();
+      for (let i = 0; i < 4; i++) document.getElementById('dot' + i).classList.remove('error');
+    }, 400);
+  }
+}
+
+function togglePass() {
+  const p = document.getElementById('adminPass');
+  const icon = document.getElementById('eyeIcon');
+  p.type = p.type === 'password' ? 'text' : 'password';
+  icon.textContent = p.type === 'password' ? 'visibility' : 'visibility_off';
+}
+
+function handleAdminLogin() {
+  const user = document.getElementById('adminUser').value.trim();
+  const pass = document.getElementById('adminPass').value;
+  if (!user || !pass) return;
+
+  const btn = document.getElementById('adminLoginBtn');
+  const btnText = document.getElementById('adminBtnText');
+  const btnIcon = document.getElementById('adminBtnIcon');
+  btn.disabled = true;
+  btnText.textContent = 'Signing in...';
+  btnIcon.innerHTML = '<span style="display:inline-block;animation:spin .8s linear infinite">autorenew</span>';
+
+  setTimeout(() => {
+    const account = admins.find(a => a.username === user && a.password === pass);
+    btn.disabled = false;
+    btnText.textContent = 'Sign In';
+    btnIcon.textContent = 'arrow_forward';
+
+    if (account) {
+      btn.style.background = '#059669';
+      btnText.textContent = 'Success!';
+      btnIcon.textContent = 'check_circle';
+      setTimeout(() => {
+        alert(`Welcome ${account.name}! Redirecting to Admin Dashboard...`);
+        btn.style.background = '#00694c';
+        btnText.textContent = 'Sign In';
+        btnIcon.textContent = 'arrow_forward';
+      }, 700);
+    } else {
+      document.getElementById('adminAlert').style.display = 'flex';
+      document.getElementById('adminUser').classList.add('error');
+      document.getElementById('adminPass').classList.add('error');
+      document.querySelector('.admin-card').classList.add('shake');
+      setTimeout(() => document.querySelector('.admin-card').classList.remove('shake'), 400);
+    }
+  }, 1000);
+}
+
+document.addEventListener('keydown', e => {
+  const pinVisible = document.getElementById('screen-pin').classList.contains('active');
+  if (pinVisible) {
+    if (e.key >= '0' && e.key <= '9') pressNum(e.key);
+    if (e.key === 'Backspace') pressDelete();
+  }
+  if (document.getElementById('screen-admin').classList.contains('active') && e.key === 'Enter') {
+    handleAdminLogin();
+  }
+});
+
+buildGrid();
+</script>
+</body></html>

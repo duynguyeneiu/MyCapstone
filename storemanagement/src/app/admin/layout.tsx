@@ -1,38 +1,24 @@
-import Link from 'next/link'
+import Script from "next/script";
 
-// Admin layout: dùng chung Navbar (từ root layout) + sidebar riêng
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <div className="container admin-content-wrap">
-      <div className="row">
-        {/* Sidebar */}
-        <div className="col-2">
-          <nav className="admin-sidebar">
-            <ul className="nav flex-column">
-              <li className="nav-item">
-                <Link className="nav-link" href="/admin/dashboard">Dashboard</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" href="/admin/products">Products</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" href="/admin/categories">Categories</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" href="/admin/brands">Brands</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" href="/admin/users">Users</Link>
-              </li>
-            </ul>
-          </nav>
-        </div>
+    <div
+      style={{
+        minHeight: "100vh",
+        width: "100%",
+        background: "#f7fbf9",
+      }}
+    >
+      <Script
+        src="https://cdn.tailwindcss.com?plugins=forms,container-queries"
+        strategy="afterInteractive"
+      />
 
-        {/* Content */}
-        <div className="col-10">
-          <div className="body-content">{children}</div>
-        </div>
-      </div>
+      {children}
     </div>
-  )
+  );
 }
