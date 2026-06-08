@@ -16,7 +16,9 @@ function DeleteModal({ state, onClose }: { state: DeleteState; onClose: () => vo
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={onClose}>
       <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: '1.25rem', padding: '2rem', width: '90%', maxWidth: 380, boxShadow: '0 20px 60px rgba(0,0,0,.2)', textAlign: 'center' }}>
-        <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', margin: '0 auto 1rem' }}>🗑️</div>
+        <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '28px', color: '#ef4444' }}>delete</span>
+        </div>
         <h3 className="serif" style={{ fontWeight: 700, fontSize: '1.15rem', marginBottom: '0.5rem' }}>Delete this review?</h3>
         <p style={{ color: '#64748b', fontSize: '.875rem', marginBottom: '1.5rem' }}>
           Are you sure you want to delete your review for <strong style={{ color: '#1e293b' }}>{state.label}</strong>? This action cannot be undone.
@@ -35,12 +37,16 @@ function DeleteModal({ state, onClose }: { state: DeleteState; onClose: () => vo
 function SuccessToast({ message, onClose }: { message: string; onClose: () => void }) {
   return (
     <div style={{ position: 'fixed', top: '1.5rem', right: '1.5rem', background: '#fff', borderRadius: '0.75rem', padding: '1rem 1.25rem', boxShadow: '0 8px 30px rgba(0,0,0,.15)', display: 'flex', alignItems: 'center', gap: '0.75rem', zIndex: 400, border: '1px solid #e2e8f0', minWidth: 280, animation: 'fadeUp .3s ease' }}>
-      <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', flexShrink: 0 }}>✓</div>
+      <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#166534' }}>check</span>
+      </div>
       <div style={{ flex: 1 }}>
         <p style={{ fontWeight: 600, fontSize: '.875rem', color: '#166534' }}>{message}</p>
         <p style={{ fontSize: '.75rem', color: '#94a3b8', marginTop: 2 }}>The review has been removed.</p>
       </div>
-      <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', fontSize: '1rem', flexShrink: 0 }}>✕</button>
+      <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+        <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>close</span>
+      </button>
     </div>
   );
 }
@@ -109,10 +115,10 @@ export default function ReviewsContent() {
   };
 
   // ── Tab labels ─────────────────────────────────────────────────
-  const tabs: { id: ReviewTab; label: string }[] = [
-    { id: 'pending', label: `⏳ Pending (${pendingPids.length})` },
-    { id: 'write',   label: '✍️ Write Review' },
-    { id: 'mine',    label: `📋 My Reviews (${myReviews.length})` },
+  const tabs: { id: ReviewTab; icon: string; label: string }[] = [
+    { id: 'pending', icon: 'schedule',  label: `Pending (${pendingPids.length})` },
+    { id: 'write',   icon: 'edit',      label: 'Write Review' },
+    { id: 'mine',    icon: 'list_alt',  label: `My Reviews (${myReviews.length})` },
   ];
 
   return (
@@ -131,7 +137,8 @@ export default function ReviewsContent() {
       <div style={{ display: 'flex', gap: '0.5rem', background: '#fff', borderRadius: '1rem', padding: '0.5rem', boxShadow: '0 2px 8px rgba(0,0,0,.04)', width: 'fit-content', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
         {tabs.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
-            style={{ padding: '.4rem 1rem', borderRadius: 9999, border: 'none', background: tab === t.id ? 'var(--teal)' : 'transparent', color: tab === t.id ? '#fff' : '#64748b', fontWeight: 500, fontSize: '.85rem', cursor: 'pointer', transition: '.2s' }}>
+            style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '.4rem 1rem', borderRadius: 9999, border: 'none', background: tab === t.id ? 'var(--teal)' : 'transparent', color: tab === t.id ? '#fff' : '#64748b', fontWeight: 500, fontSize: '.85rem', cursor: 'pointer', transition: '.2s' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>{t.icon}</span>
             {t.label}
           </button>
         ))}
@@ -143,7 +150,7 @@ export default function ReviewsContent() {
           {/* Chưa mua gì */}
           {!hasDeliveredOrders && (
             <div style={{ textAlign: 'center', padding: '4rem 1rem', background: '#fff', borderRadius: '1.25rem', boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
-              <span style={{ fontSize: '3.5rem' }}>🛍️</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '3.5rem', color: '#94a3b8' }}>shopping_bag</span>
               <p className="serif" style={{ fontSize: '1.25rem', fontWeight: 700, marginTop: '1rem', marginBottom: '0.5rem' }}>
                 No purchases yet
               </p>
@@ -157,7 +164,7 @@ export default function ReviewsContent() {
           {/* Đã mua nhưng đã review hết */}
           {hasDeliveredOrders && pendingPids.length === 0 && (
             <div style={{ textAlign: 'center', padding: '4rem 1rem', background: '#fff', borderRadius: '1.25rem', boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
-              <span style={{ fontSize: '3.5rem' }}>✅</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '3.5rem', color: '#16a34a' }}>check_circle</span>
               <p className="serif" style={{ fontSize: '1.25rem', fontWeight: 700, marginTop: '1rem', marginBottom: '0.5rem' }}>
                 All reviewed!
               </p>
@@ -208,7 +215,7 @@ export default function ReviewsContent() {
           {/* Chưa có đơn hàng delivered */}
           {!hasDeliveredOrders && (
             <div style={{ background: '#fff', borderRadius: '1.25rem', padding: '2rem', boxShadow: '0 2px 10px rgba(0,0,0,.05)', textAlign: 'center' }}>
-              <span style={{ fontSize: '3rem' }}>🔒</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: '#94a3b8' }}>lock</span>
               <p className="serif" style={{ fontSize: '1.15rem', fontWeight: 700, marginTop: '1rem', marginBottom: '0.5rem' }}>
                 Purchase required
               </p>
@@ -222,7 +229,7 @@ export default function ReviewsContent() {
           {/* Đã review hết rồi */}
           {hasDeliveredOrders && pendingPids.length === 0 && !picked && (
             <div style={{ background: '#fff', borderRadius: '1.25rem', padding: '2rem', boxShadow: '0 2px 10px rgba(0,0,0,.05)', textAlign: 'center' }}>
-              <span style={{ fontSize: '3rem' }}>✅</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: '#16a34a' }}>check_circle</span>
               <p className="serif" style={{ fontSize: '1.15rem', fontWeight: 700, marginTop: '1rem', marginBottom: '0.5rem' }}>
                 Nothing left to review
               </p>
@@ -269,7 +276,9 @@ export default function ReviewsContent() {
                   <p style={{ fontSize: '.75rem', color: '#64748b' }}>{picked.category}</p>
                 </div>
                 <button onClick={() => { setPicked(null); setStar(0); setTitle(''); setBody(''); }}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', fontSize: '1.1rem' }}>✕</button>
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', display: 'flex', alignItems: 'center' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>close</span>
+                </button>
               </div>
 
               {/* Rating */}
@@ -316,11 +325,15 @@ export default function ReviewsContent() {
               {/* Pros / Cons */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
                 <div>
-                  <label style={{ fontSize: '.75rem', fontWeight: 600, display: 'block', marginBottom: 4 }}>👍 Pros</label>
+                  <label style={{ fontSize: '.75rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#16a34a' }}>thumb_up</span>Pros
+                  </label>
                   <input value={pros} onChange={e => setPros(e.target.value)} placeholder="e.g. Great quality" />
                 </div>
                 <div>
-                  <label style={{ fontSize: '.75rem', fontWeight: 600, display: 'block', marginBottom: 4 }}>👎 Cons</label>
+                  <label style={{ fontSize: '.75rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#dc2626' }}>thumb_down</span>Cons
+                  </label>
                   <input value={cons} onChange={e => setCons(e.target.value)} placeholder="e.g. Packaging" />
                 </div>
               </div>
@@ -333,15 +346,17 @@ export default function ReviewsContent() {
 
               {/* Submit */}
               {(!star || !title.trim() || !body.trim()) && (
-                <p style={{ fontSize: '.75rem', color: '#f59e0b', marginBottom: '0.75rem' }}>
-                  ⚠️ Rating, title and review are required.
+                <p style={{ fontSize: '.75rem', color: '#f59e0b', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#f59e0b' }}>warning</span>
+                  Rating, title and review are required.
                 </p>
               )}
               <div style={{ display: 'flex', gap: '0.75rem' }}>
                 <BtnTeal
                   onClick={submitReview}
-                  style={{ flex: 1, padding: '0.75rem', opacity: (!star || !title.trim() || !body.trim()) ? 0.6 : 1 }}>
-                  Submit Review ✓
+                  style={{ flex: 1, padding: '0.75rem', opacity: (!star || !title.trim() || !body.trim()) ? 0.6 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                  Submit Review
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>check</span>
                 </BtnTeal>
                 <BtnOutline onClick={() => { setPicked(null); setStar(0); }}
                   style={{ padding: '0.75rem 1.25rem' } as React.CSSProperties}>
@@ -358,7 +373,7 @@ export default function ReviewsContent() {
         <div>
           {myReviews.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '4rem', background: '#fff', borderRadius: '1.25rem', boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
-              <span style={{ fontSize: '3rem' }}>📝</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: '#94a3b8' }}>edit_note</span>
               <p className="serif" style={{ fontSize: '1.15rem', fontWeight: 700, marginTop: '1rem', marginBottom: '0.5rem' }}>
                 No reviews yet
               </p>
@@ -413,13 +428,17 @@ export default function ReviewsContent() {
                       <div style={{ display: 'grid', gridTemplateColumns: r.pros && r.cons ? '1fr 1fr' : '1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
                         {r.pros && (
                           <div style={{ background: '#f0fdf4', borderRadius: '0.6rem', padding: '0.6rem .75rem', fontSize: '.8rem' }}>
-                            <span style={{ fontWeight: 700, color: '#166534', display: 'block', marginBottom: 2 }}>👍 Pros</span>
+                            <span style={{ fontWeight: 700, color: '#166534', display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
+                              <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>thumb_up</span>Pros
+                            </span>
                             <span style={{ color: '#15803d' }}>{r.pros}</span>
                           </div>
                         )}
                         {r.cons && (
                           <div style={{ background: '#fff7ed', borderRadius: '0.6rem', padding: '0.6rem .75rem', fontSize: '.8rem' }}>
-                            <span style={{ fontWeight: 700, color: '#9a3412', display: 'block', marginBottom: 2 }}>👎 Cons</span>
+                            <span style={{ fontWeight: 700, color: '#9a3412', display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
+                              <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>thumb_down</span>Cons
+                            </span>
                             <span style={{ color: '#c2410c' }}>{r.cons}</span>
                           </div>
                         )}
@@ -427,9 +446,13 @@ export default function ReviewsContent() {
                     )}
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '0.75rem', borderTop: '1px solid #f1f5f9', alignItems: 'center' }}>
-                      <span style={{ fontSize: '.75rem', color: '#94a3b8' }}>👍 {r.helpful} found this helpful</span>
-                      <span style={{ background: '#dcfce7', color: '#166534', borderRadius: 9999, padding: '.15rem .65rem', fontSize: '.75rem', fontWeight: 600 }}>
-                        ✓ Verified Purchase
+                      <span style={{ fontSize: '.75rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>thumb_up</span>
+                        {r.helpful} found this helpful
+                      </span>
+                      <span style={{ background: '#dcfce7', color: '#166534', borderRadius: 9999, padding: '.15rem .65rem', fontSize: '.75rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>verified</span>
+                        Verified Purchase
                       </span>
                     </div>
                   </div>

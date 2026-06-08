@@ -22,9 +22,8 @@ export default function Navbar() {
     router.push('/');
   };
 
-  // Initials from user name
   const initials = user
-    ? user.name.split(' ').map(w => w[0]).slice(-2).join('').toUpperCase()
+    ? user.name.split(' ').map((w: string) => w[0]).slice(-2).join('').toUpperCase()
     : 'JD';
 
   return (
@@ -45,9 +44,7 @@ export default function Navbar() {
           style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', marginRight: 8, flexShrink: 0 }}
         >
           <div style={{ width: 36, height: 36, borderRadius: '0.7rem', background: 'var(--teal)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" fill="#fff" />
-            </svg>
+            <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '20px' }}>storefront</span>
           </div>
           <span style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--teal)', fontFamily: "'Playfair Display', serif" }}>
             Happy Market
@@ -78,22 +75,24 @@ export default function Navbar() {
             onClick={doSearch}
             style={{ position: 'absolute', right: 4, top: '50%', transform: 'translateY(-50%)', width: 32, height: 32, borderRadius: '50%', background: 'var(--teal)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24">
-              <path d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" />
-            </svg>
+            <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '16px' }}>search</span>
           </button>
         </div>
 
         {/* Nav links */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 4 }}>
-          {([['Shop', '/shop'], ['My Orders', '/orders']] as const).map(([label, href]) => (
+          {([
+            ['Shop',      '/shop',   'shopping_bag' ],
+            ['My Orders', '/orders', 'receipt_long' ],
+          ] as const).map(([label, href, icon]) => (
             <button
               key={label}
               onClick={() => router.push(href)}
-              style={{ padding: '.4rem 0.75rem', borderRadius: 9999, fontSize: '.875rem', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--teal-dk)', whiteSpace: 'nowrap', fontFamily: "'DM Sans', sans-serif" }}
+              style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '.4rem 0.75rem', borderRadius: 9999, fontSize: '.875rem', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--teal-dk)', whiteSpace: 'nowrap', fontFamily: "'DM Sans', sans-serif" }}
               onMouseEnter={e => { e.currentTarget.style.background = 'var(--teal-xs)'; }}
               onMouseLeave={e => { e.currentTarget.style.background = 'none'; }}
             >
+              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>{icon}</span>
               {label}
             </button>
           ))}
@@ -124,100 +123,103 @@ export default function Navbar() {
             </>
           )}
 
-          {/* Cart (only shown when logged in) */}
-          {user && <button
-            onClick={() => router.push('/cart')}
-            style={{ position: 'relative', padding: '0.5rem', borderRadius: '50%', background: 'none', border: 'none', cursor: 'pointer' }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'var(--teal-xs)'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'none'; }}
-          >
-            <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
-              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" stroke="currentColor" strokeWidth="1.8" />
-              <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" strokeWidth="1.8" />
-              <path d="M16 10a4 4 0 0 1-8 0" stroke="currentColor" strokeWidth="1.8" />
-            </svg>
-            {cartCount > 0 && (
-              <span style={{ position: 'absolute', top: -2, right: -2, width: 18, height: 18, borderRadius: '50%', background: 'var(--teal)', color: '#fff', fontSize: '.7rem', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>
-                {cartCount}
-              </span>
-            )}
-          </button>}
-
-          {/* User avatar + dropdown (logged in only) */}
-          {user && <div style={{ position: 'relative' }}>
+          {/* Cart (logged in) */}
+          {user && (
             <button
-              onClick={() => setShowDropdown(v => !v)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 7,
-                padding: '5px 12px 5px 5px',
-                borderRadius: 9999,
-                background: showDropdown ? 'var(--teal-xs)' : 'var(--teal-xs)',
-                border: '1.5px solid var(--teal-lt)',
-                cursor: 'pointer',
-                transition: '.15s',
-              }}
-              title={user?.name}
+              onClick={() => router.push('/cart')}
+              style={{ position: 'relative', padding: '0.45rem', borderRadius: '0.6rem', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'var(--teal-xs)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'none'; }}
+              title="Cart"
             >
-              {/* Avatar circle */}
-              <div style={{
-                width: 30, height: 30, borderRadius: '50%',
-                background: 'linear-gradient(135deg,var(--teal),var(--teal-dk))',
-                color: '#fff', fontWeight: 700, fontSize: '.75rem',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                flexShrink: 0,
-              }}>
-                {initials}
-              </div>
-              <span style={{ fontSize: '.8rem', fontWeight: 600, color: 'var(--teal-dk)', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {user?.name.split(' ')[0] ?? 'Guest'}
-              </span>
-              <span style={{ fontSize: '.65rem', color: 'var(--teal)', marginLeft: -2 }}>▾</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '24px', color: 'var(--teal-dk)' }}>shopping_bag</span>
+              {cartCount > 0 && (
+                <span style={{ position: 'absolute', top: 0, right: 0, width: 17, height: 17, borderRadius: '50%', background: 'var(--teal)', color: '#fff', fontSize: '.65rem', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>
+                  {cartCount}
+                </span>
+              )}
             </button>
+          )}
 
-            {/* Dropdown */}
-            {showDropdown && (
-              <div style={{
-                position: 'absolute', top: 'calc(100% + 6px)', right: 0,
-                background: '#fff', borderRadius: '0.75rem', padding: '0.5rem',
-                boxShadow: '0 8px 24px rgba(0,0,0,.12)',
-                border: '1px solid #e2e8f0',
-                minWidth: 180, zIndex: 200,
-                animation: 'fadeUp .15s ease',
-              }}>
-                {/* User info */}
-                <div style={{ padding: '0.5rem 0.75rem', borderBottom: '1px solid #f1f5f9', marginBottom: '0.25rem' }}>
-                  <p style={{ fontWeight: 600, fontSize: '.875rem', color: '#1e293b' }}>{user?.name}</p>
-                  <p style={{ fontSize: '.75rem', color: '#94a3b8' }}>{user?.email}</p>
-                  <span style={{ display: 'inline-block', marginTop: 4, background: 'var(--teal-lt)', color: 'var(--teal-dk)', borderRadius: 99, padding: '1px 8px', fontSize: '0.7rem', fontWeight: 700 }}>
-                    {user?.role}
-                  </span>
+          {/* User avatar + dropdown (logged in) */}
+          {user && (
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={() => setShowDropdown(v => !v)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 7,
+                  padding: '5px 10px 5px 5px',
+                  borderRadius: 9999,
+                  background: 'var(--teal-xs)',
+                  border: '1.5px solid var(--teal-lt)',
+                  cursor: 'pointer',
+                  transition: '.15s',
+                }}
+                title={user?.name}
+              >
+                <div style={{
+                  width: 30, height: 30, borderRadius: '50%',
+                  background: 'linear-gradient(135deg,var(--teal),var(--teal-dk))',
+                  color: '#fff', fontWeight: 700, fontSize: '.75rem',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  flexShrink: 0,
+                }}>
+                  {initials}
                 </div>
+                <span style={{ fontSize: '.8rem', fontWeight: 600, color: 'var(--teal-dk)', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {user?.name.split(' ')[0] ?? 'Guest'}
+                </span>
+                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--teal)', marginLeft: -2 }}>expand_more</span>
+              </button>
 
-                <button onClick={() => { setShowDropdown(false); router.push('/profile'); }}
-                  style={menuItemStyle}
-                  onMouseEnter={e => e.currentTarget.style.background = 'var(--teal-xs)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                >
-                  👤 My Profile
-                </button>
-                <button onClick={() => { setShowDropdown(false); router.push('/orders'); }}
-                  style={menuItemStyle}
-                  onMouseEnter={e => e.currentTarget.style.background = 'var(--teal-xs)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                >
-                  📦 My Orders
-                </button>
-                <hr style={{ border: 'none', borderTop: '1px solid #f1f5f9', margin: '0.25rem 0' }} />
-                <button onClick={handleLogout}
-                  style={{ ...menuItemStyle, color: '#ef4444' }}
-                  onMouseEnter={e => e.currentTarget.style.background = '#fff1f2'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                >
-                  🚪 Sign Out
-                </button>
-              </div>
-            )}
-          </div>}
+              {/* Dropdown */}
+              {showDropdown && (
+                <div style={{
+                  position: 'absolute', top: 'calc(100% + 6px)', right: 0,
+                  background: '#fff', borderRadius: '0.75rem', padding: '0.5rem',
+                  boxShadow: '0 8px 24px rgba(0,0,0,.12)',
+                  border: '1px solid #e2e8f0',
+                  minWidth: 190, zIndex: 200,
+                  animation: 'fadeUp .15s ease',
+                }}>
+                  {/* User info */}
+                  <div style={{ padding: '0.5rem 0.75rem', borderBottom: '1px solid #f1f5f9', marginBottom: '0.25rem' }}>
+                    <p style={{ fontWeight: 600, fontSize: '.875rem', color: '#1e293b' }}>{user?.name}</p>
+                    <p style={{ fontSize: '.75rem', color: '#94a3b8' }}>{user?.email}</p>
+                    <span style={{ display: 'inline-block', marginTop: 4, background: 'var(--teal-lt)', color: 'var(--teal-dk)', borderRadius: 99, padding: '1px 8px', fontSize: '0.7rem', fontWeight: 700 }}>
+                      {user?.role}
+                    </span>
+                  </div>
+
+                  <button onClick={() => { setShowDropdown(false); router.push('/profile'); }}
+                    style={menuItemStyle}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--teal-xs)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                  >
+                    <span className="material-symbols-outlined" style={menuIconStyle}>person</span>
+                    My Profile
+                  </button>
+                  <button onClick={() => { setShowDropdown(false); router.push('/orders'); }}
+                    style={menuItemStyle}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--teal-xs)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                  >
+                    <span className="material-symbols-outlined" style={menuIconStyle}>receipt_long</span>
+                    My Orders
+                  </button>
+                  <hr style={{ border: 'none', borderTop: '1px solid #f1f5f9', margin: '0.25rem 0' }} />
+                  <button onClick={handleLogout}
+                    style={{ ...menuItemStyle, color: '#ef4444' }}
+                    onMouseEnter={e => e.currentTarget.style.background = '#fff1f2'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                  >
+                    <span className="material-symbols-outlined" style={{ ...menuIconStyle, color: '#ef4444' }}>logout</span>
+                    Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -236,4 +238,9 @@ const menuItemStyle: React.CSSProperties = {
   fontSize: '.8rem', fontWeight: 500, color: '#374151',
   borderRadius: '0.5rem', textAlign: 'left', transition: '.1s',
   fontFamily: "'DM Sans', sans-serif",
+};
+
+const menuIconStyle: React.CSSProperties = {
+  fontSize: '18px',
+  color: 'var(--teal)',
 };
