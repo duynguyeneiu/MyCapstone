@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Product } from '../../lib/types';
 import { fmt, disc } from '../../lib/utils';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 import Badge from './Badge';
 import StarRow from './StarRow';
 
@@ -15,6 +16,7 @@ interface ProductCardProps {
 export default function ProductCard({ p }: ProductCardProps) {
   const router = useRouter();
   const { addToCart } = useCart();
+  const { user } = useAuth();
   const d = disc(p);
 
   return (
@@ -49,7 +51,11 @@ export default function ProductCard({ p }: ProductCardProps) {
             )}
           </div>
           <button
-            onClick={e => { e.stopPropagation(); addToCart(p.id); }}
+            onClick={e => {
+              e.stopPropagation();
+              if (!user) { router.push('/login'); return; }
+              addToCart(p.id);
+            }}
             style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--teal)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '1.1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
             +

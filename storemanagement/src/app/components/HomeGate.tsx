@@ -1,5 +1,5 @@
-import HomeContent from './home/HomeContent';
-import CategoryBar from './CategoryBar';
+import HomeContent from "./home/HomeContent";
+import CategoryBar from "./CategoryBar";
 
 export default function HomeGate() {
   // All users (including admin/staff) → show the shopping homepage

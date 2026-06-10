@@ -4,10 +4,12 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 
 const cats = [
-  ['all',        'All Products', 'apps'       ],
-  ['appliances', 'Appliances',   'home'       ],
-  ['food',       'Food & Drinks','restaurant' ],
-  ['beauty',     'Beauty',       'face'       ],
+  ['all',           'All Products',          'apps'             ],
+  ['beverages',     'Beverages',             'local_drink'      ],
+  ['snacks',        'Snacks & Confectionery','cookie'           ],
+  ['food',          'Food',                  'lunch_dining'     ],
+  ['personal-care', 'Personal Care',         'self_care'        ],
+  ['household',     'Household Essentials',  'cleaning_services'],
 ] as const;
 
 export default function CategoryBar() {

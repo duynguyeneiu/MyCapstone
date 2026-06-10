@@ -7,8 +7,12 @@ import Footer from './Footer';
 import ToastDisplay from './ui/ToastDisplay';
 import { useAuth } from '../context/AuthContext';
 
-// Pages accessible without login
-const PUBLIC_PATHS = ['/', '/login', '/register'];
+// Pages accessible without login (exact match or prefix)
+const PUBLIC_PREFIXES = ['/login', '/register', '/shop', '/search', '/product'];
+
+function isPublicPath(pathname: string) {
+  return pathname === '/' || PUBLIC_PREFIXES.some(p => pathname === p || pathname.startsWith(p + '/') || pathname.startsWith(p + '?'));
+}
 
 export default function ClientShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -16,10 +20,10 @@ export default function ClientShell({ children }: { children: React.ReactNode })
   const { user } = useAuth();
 
   const isAdmin    = pathname.startsWith('/admin');
-  const isPublic   = PUBLIC_PATHS.includes(pathname);
+  const isPublic   = isPublicPath(pathname);
   const isAuthPage = pathname === '/login' || pathname === '/register';
 
-  // Protected shopping pages: redirect to /login if not logged in
+  // Protected pages: redirect to /login if not logged in
   useEffect(() => {
     if (isAdmin || isPublic) return;
     if (!user) {
@@ -35,6 +39,7 @@ export default function ClientShell({ children }: { children: React.ReactNode })
 
   // Protected pages: unauthenticated → render nothing while redirecting
   if (!isPublic && !user) return null;
+
 
   // Homepage (public) + logged-in client pages → full shell
   return (

@@ -9,7 +9,7 @@ interface ShopPageProps {
 export default async function ShopPage({ searchParams }: ShopPageProps) {
   const params = await searchParams;
   const cat = params.category as Category | undefined;
-  const validCats: Category[] = ['appliances', 'food', 'beauty'];
+  const validCats: Category[] = ['beverages', 'snacks', 'food', 'personal-care', 'household'];
   const initCategory = cat && validCats.includes(cat) ? cat : 'all';
 
   return (
