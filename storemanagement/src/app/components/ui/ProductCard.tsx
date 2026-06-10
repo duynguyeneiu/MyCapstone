@@ -22,9 +22,9 @@ export default function ProductCard({ p }: ProductCardProps) {
   return (
     <div
       onClick={() => router.push(`/product/${p.id}`)}
-      style={{ background: '#fff', borderRadius: '1.25rem', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,.06)', cursor: 'pointer', transition: 'all .25s' }}
-      onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-4px)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 12px 30px rgba(0,105,76,.18)'; }}
-      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = ''; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 12px rgba(0,0,0,.06)'; }}
+      style={{ background: '#fff', borderRadius: '1.25rem', overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,.10)', cursor: 'pointer', transition: 'all .25s' }}
+      onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-4px)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 12px 36px rgba(0,105,76,.22)'; }}
+      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = ''; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 24px rgba(0,0,0,.10)'; }}
     >
       <div style={{ background: 'var(--teal-xs)', height: 160, position: 'relative', overflow: 'hidden' }}>
         <img

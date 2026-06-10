@@ -91,9 +91,17 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '0.75rem' }}>
-            {[['🚚', 'Free Shipping'], ['↩️', 'Easy Returns'], ['🔒', 'Secure Pay']].map(([icon, label]) => (
-              <div key={label} style={{ background: 'var(--teal-xs)', borderRadius: '0.75rem', padding: '0.75rem', textAlign: 'center', fontSize: '.8rem' }}>
-                <span style={{ fontSize: '1.25rem', display: 'block' }}>{icon}</span>{label}
+            {[
+              { icon: 'local_shipping', label: 'Free Shipping',  sub: 'On all orders',      iconBg: '#d1fae5', iconColor: '#065f46' },
+              { icon: 'autorenew',      label: 'Easy Returns',   sub: '30-day policy',       iconBg: '#fef3c7', iconColor: '#92400e' },
+              { icon: 'shield',         label: 'Secure Pay',     sub: '256-bit encryption',  iconBg: '#dbeafe', iconColor: '#1e40af' },
+            ].map(({ icon, label, sub, iconBg, iconColor }) => (
+              <div key={label} style={{ background: '#fff', borderRadius: '1rem', padding: '1.25rem 0.75rem', textAlign: 'center', border: '1px solid #e2e8f0', boxShadow: '0 1px 6px rgba(0,0,0,.05)' }}>
+                <div style={{ width: 48, height: 48, borderRadius: '50%', background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.75rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.375rem', color: iconColor }}>{icon}</span>
+                </div>
+                <p style={{ fontWeight: 700, fontSize: '.875rem', color: '#1e293b', marginBottom: '0.2rem' }}>{label}</p>
+                <p style={{ fontSize: '.775rem', color: '#64748b' }}>{sub}</p>
               </div>
             ))}
           </div>

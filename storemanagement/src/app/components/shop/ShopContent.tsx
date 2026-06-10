@@ -103,7 +103,7 @@ export default function ShopContent({ initCategory = 'all', initSubcategory = 'a
 
         {/* ── Sidebar ── */}
         <aside style={{ width: 240, flexShrink: 0 }}>
-          <div style={{ background: '#fff', borderRadius: '1.25rem', padding: '1.25rem', boxShadow: '0 2px 12px rgba(0,0,0,.05)', position: 'sticky', top: 76 }}>
+          <div style={{ background: '#fff', borderRadius: '1.25rem', padding: '1.25rem', boxShadow: '0 4px 24px rgba(0,0,0,.10)', position: 'sticky', top: 76 }}>
             <h3 className="serif" style={{ fontWeight: 700, fontSize: '1.1rem', marginBottom: '1.25rem' }}>Filters</h3>
 
             {/* Category + Subcategory — hierarchical */}

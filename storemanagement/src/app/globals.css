@@ -31,7 +31,7 @@
 .aqua-page {
   font-family: 'DM Sans', sans-serif;
   min-height: 100vh;
-  background: var(--teal-xs);  /* #f4fbf7 – light green surface */
+  background: #f0f4f8;
 }
 .aqua-page .serif,
 .aqua-page h1,
