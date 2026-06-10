@@ -33,6 +33,7 @@ export interface Product {
   rating: number;
   reviews: number;
   emoji: string;
+  image: string;
   desc: string;
 }
 

@@ -50,8 +50,12 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
 
       <div style={{ display: 'flex', gap: '2.5rem', flexWrap: 'wrap' }}>
         <div style={{ flex: 1, minWidth: 240 }}>
-          <div style={{ background: 'var(--teal-xs)', borderRadius: '1.5rem', height: 380, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '8rem' }}>
-            {p.emoji}
+          <div style={{ background: 'var(--teal-xs)', borderRadius: '1.5rem', height: 380, overflow: 'hidden' }}>
+            <img
+              src={p.image}
+              alt={p.name}
+              style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '1.5rem' }}
+            />
           </div>
         </div>
         <div style={{ flex: 1, minWidth: 280 }}>

@@ -26,8 +26,12 @@ export default function ProductCard({ p }: ProductCardProps) {
       onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-4px)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 12px 30px rgba(0,105,76,.18)'; }}
       onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = ''; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 12px rgba(0,0,0,.06)'; }}
     >
-      <div style={{ background: 'var(--teal-xs)', height: 160, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '4.5rem', position: 'relative' }}>
-        {p.emoji}
+      <div style={{ background: 'var(--teal-xs)', height: 160, position: 'relative', overflow: 'hidden' }}>
+        <img
+          src={p.image}
+          alt={p.name}
+          style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '0.5rem' }}
+        />
         {d > 0 && (
           <span style={{ position: 'absolute', top: 8, right: 8, background: '#fef9c3', color: '#854d0e', borderRadius: 9999, padding: '.15rem .6rem', fontSize: '.72rem', fontWeight: 600 }}>
             -{d}%
