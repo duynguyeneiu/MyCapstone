@@ -39,7 +39,7 @@ export default function ProductCard({ p }: ProductCardProps) {
         )}
       </div>
       <div style={{ padding: '1rem' }}>
-        <Badge>{p.category}</Badge>
+        <Badge>{p.category.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}</Badge>
         <p style={{ fontWeight: 600, fontSize: '.875rem', lineHeight: 1.4, margin: '.3rem 0 .25rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
           {p.name}
         </p>
