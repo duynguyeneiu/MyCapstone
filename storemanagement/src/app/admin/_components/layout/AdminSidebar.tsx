@@ -50,51 +50,6 @@ export default function Sidebar({
         <p style={{ fontSize: 11, color: C.textFaint, marginTop: 2 }}>
           Management System
         </p>
-        {adminName && (
-          <div
-            style={{
-              marginTop: 10,
-              display: "flex",
-              alignItems: "center",
-              gap: 7,
-            }}
-          >
-            <div
-              style={{
-                width: 26,
-                height: 26,
-                borderRadius: "50%",
-                background: C.primary,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 10,
-                fontWeight: 700,
-                color: "#fff",
-                flexShrink: 0,
-              }}
-            >
-              {adminName
-                .split(" ")
-                .map((w) => w[0])
-                .slice(-2)
-                .join("")
-                .toUpperCase()}
-            </div>
-            <span
-              style={{
-                fontSize: 12,
-                fontWeight: 600,
-                color: C.textMuted,
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {adminName}
-            </span>
-          </div>
-        )}
       </div>
 
       {/* Nav items */}

@@ -1,45 +1,12 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { PRODUCTS } from "../../../lib/data";
 
 interface Props {
-  activePage: string;
   onNav: (p: string) => void;
+  search: string;
 }
 
-const pageCSS = `
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Hanken+Grotesk:wght@600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
-body { font-family: 'Inter', sans-serif; }
-.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-aside { border-right: 2px solid #ffe08a; background: linear-gradient(180deg, #f4fbf7 0%, #fffdf5 100%); }
-header { background: linear-gradient(90deg, #f7fbf9 0%, #fffdf5 100%); border-bottom: 1.5px solid #ffe08a; }
-.nav-active { background: linear-gradient(90deg, #fff3d6 0%, #fde68a44 100%) !important; border-left: 3px solid #f59e0b; color: #00694c !important; font-weight: 700; }
-.search-bar { background: #fff8e6; border: 1.5px solid #fcd97a; border-radius: 999px; display: flex; align-items: center; padding: 8px 16px; gap: 8px; }
-.search-bar:focus-within { border-color: #f59e0b; box-shadow: 0 0 0 3px #f59e0b22; }
-.search-bar input { background: transparent; border: none; outline: none; width: 100%; font-size: 14px; }
-.stat-card { transition: transform 0.18s ease, box-shadow 0.18s ease; }
-.stat-card:hover { transform: translateY(-2px); }
-.btn-primary { background: linear-gradient(135deg, #00694c 0%, #00a86b 100%); color: #fff; transition: all .15s; box-shadow: 0 2px 8px #00694c33; }
-.btn-primary:hover { box-shadow: 0 4px 14px #00694c55; }
-.btn-amber { background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); color: #431d00; font-weight: 600; box-shadow: 0 2px 8px #f59e0b44; transition: all .15s; }
-.btn-amber:hover { background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%); }
-tbody tr:hover { background: #f4fbf7 !important; }
-.brand-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #00694c); margin-right: 6px; vertical-align: middle; }
-`;
-
-const navItems = [
-  { id: "dashboard", label: "Dashboard", icon: "dashboard" },
-  { id: "products", label: "Products", icon: "shopping_bag" },
-  { id: "categories", label: "Categories", icon: "category" },
-  { id: "orders", label: "Orders", icon: "receipt_long" },
-  { id: "inventory", label: "Inventory", icon: "inventory_2" },
-  { id: "promotions", label: "Promotions", icon: "campaign" },
-  { id: "users", label: "Users", icon: "group" },
-  { id: "pos", label: "POS", icon: "point_of_sale" },
-  { id: "settings", label: "Settings", icon: "settings" },
-];
 
 const CAT_LABELS: Record<string, string> = {
   beverages: "Beverages",
@@ -120,10 +87,8 @@ const emptyForm = {
   status: "Active",
 };
 
-export default function AdminProductsPage({ activePage, onNav }: Props) {
-  const router = useRouter();
+export default function AdminProductsPage({ onNav, search }: Props) {
   const [products, setProducts] = useState<AdminProduct[]>(toAdmin());
-  const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [curPage, setCurPage] = useState(1);
@@ -262,144 +227,8 @@ export default function AdminProductsPage({ activePage, onNav }: Props) {
   const activeCount = products.filter((p) => p.status === "Active").length;
 
   return (
-    <div
-      className="bg-background text-on-surface"
-      style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
-    >
-      <style>{pageCSS}</style>
-
-      {/* Sidebar */}
-      <aside className="h-screen w-64 fixed left-0 top-0 z-40 flex flex-col py-5 px-3 overflow-y-auto">
-        <div className="mb-8 px-4">
-          <h1
-            className="font-headline-sm text-headline-sm font-bold flex items-center"
-            style={{ color: "#00694c", fontSize: "24px" }}
-          >
-            Happy Market
-          </h1>
-          <p
-            className="font-label-md text-label-md text-on-surface-variant"
-            style={{ fontSize: "14px" }}
-          >
-            Management System
-          </p>
-        </div>
-        <nav className="flex-1 space-y-1">
-          {navItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => onNav(item.id)}
-              className={`flex items-center gap-3 px-4 py-3 transition-colors rounded-lg w-full text-left ${activePage === item.id ? "nav-active" : "text-on-surface-variant hover:bg-surface-container-high"}`}
-            >
-              <span className="material-symbols-outlined">{item.icon}</span>
-              <span className="font-label-md text-label-md">{item.label}</span>
-            </button>
-          ))}
-          <button
-            onClick={() => router.push("/")}
-            className="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg w-full text-left"
-          >
-            <span className="material-symbols-outlined">home</span>
-            <span className="font-label-md text-label-md">Home</span>
-          </button>
-        </nav>
-        <div
-          className="mt-auto p-4 border-t"
-          style={{ borderColor: "#ffe08a" }}
-        >
-          <div className="flex items-center gap-3">
-            <span className="material-symbols-outlined text-on-surface-variant">
-              help_outline
-            </span>
-            <div>
-              <p
-                className="font-bold text-on-surface"
-                style={{ fontSize: "13px" }}
-              >
-                Need Help?
-              </p>
-              <p
-                className="text-on-surface-variant"
-                style={{ fontSize: "11px" }}
-              >
-                Check our documentation
-              </p>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      <main className="ml-64 min-h-screen flex flex-col">
-        <header className="sticky top-0 z-30 flex justify-between items-center px-8 py-4">
-          <div className="flex items-center gap-4">
-            <h2
-              className="font-bold"
-              style={{ fontSize: "24px", color: "#00694c" }}
-            >
-              Products
-            </h2>
-            <div className="search-bar hidden lg:flex w-80">
-              <span
-                className="material-symbols-outlined"
-                style={{ color: "#b47b10", fontSize: "20px" }}
-              >
-                search
-              </span>
-              <input
-                placeholder="Search name or code..."
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setCurPage(1);
-                }}
-              />
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <button className="material-symbols-outlined text-on-surface-variant hover:bg-surface-container rounded-full p-2">
-              notifications
-            </button>
-            <div
-              className="h-8 w-px mx-2"
-              style={{ background: "#ffe08a" }}
-            ></div>
-            <div className="flex items-center gap-2 px-2">
-              <div
-                className="w-8 h-8 rounded-full flex items-center justify-center"
-                style={{
-                  background: "linear-gradient(135deg,#00694c,#f59e0b)",
-                }}
-              >
-                <span
-                  className="material-symbols-outlined text-white"
-                  style={{ fontSize: "16px" }}
-                >
-                  person
-                </span>
-              </div>
-              <div>
-                <p
-                  className="font-bold text-on-surface leading-none"
-                  style={{ fontSize: "13px" }}
-                >
-                  ADMIN USER
-                </p>
-                <p
-                  className="text-on-surface-variant"
-                  style={{
-                    fontSize: "10px",
-                    textTransform: "uppercase",
-                    letterSpacing: ".05em",
-                  }}
-                >
-                  Store Manager
-                </p>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <div className="p-8 space-y-6">
+    <>
+      <div className="p-8 space-y-6">
           {/* Stats */}
           <div className="grid grid-cols-4 gap-5">
             <div
@@ -980,16 +809,6 @@ export default function AdminProductsPage({ activePage, onNav }: Props) {
           </div>
         </div>
 
-        <footer
-          className="mt-auto p-8 text-center border-t"
-          style={{ borderColor: "#c8e4d8" }}
-        >
-          <p className="text-on-surface-variant" style={{ fontSize: "14px" }}>
-            © 2024 RetailPro Management System. All rights reserved.
-          </p>
-        </footer>
-      </main>
-
       {/* Add / Edit Modal */}
       {formOpen && (
         <div
@@ -1270,6 +1089,6 @@ export default function AdminProductsPage({ activePage, onNav }: Props) {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

@@ -1,17 +1,12 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 
-interface Props { activePage: string; onNav: (p: string) => void; }
+interface Props { onNav: (p: string) => void; }
 
 const pageCSS = `
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Hanken+Grotesk:wght@600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
-body { font-family: 'Inter', sans-serif; }
 .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-aside { border-right: 2px solid #ffe08a !important; background: linear-gradient(180deg, #f4fbf7 0%, #fffdf5 100%) !important; }
-header { background: linear-gradient(90deg, #f7fbf9 0%, #fffdf5 100%) !important; border-bottom: 1.5px solid #ffe08a !important; }
-.nav-active { background: linear-gradient(90deg, #fff3d6 0%, #fde68a44 100%) !important; border-left: 3px solid #f59e0b !important; color: #00694c !important; font-weight: 700; }
 .setting-nav-btn { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; color: #3d4943; cursor: pointer; transition: all .15s; width: 100%; background: none; border: none; text-align: left; }
 .setting-nav-btn:hover { background: #e8f5ee; }
 .setting-nav-btn.snav-active { background: #fff3d6; color: #00694c; font-weight: 700; border-left: 3px solid #f59e0b; }
@@ -40,18 +35,6 @@ header { background: linear-gradient(90deg, #f7fbf9 0%, #fffdf5 100%) !important
 .toggle input:checked ~ .toggle-thumb { transform: translateX(20px); }
 `;
 
-const navItems = [
-  { id: 'dashboard',  label: 'Dashboard',  icon: 'dashboard' },
-  { id: 'products',   label: 'Products',   icon: 'shopping_bag' },
-  { id: 'categories', label: 'Categories', icon: 'category' },
-  { id: 'orders',     label: 'Orders',     icon: 'receipt_long' },
-  { id: 'inventory',  label: 'Inventory',  icon: 'inventory_2' },
-  { id: 'promotions', label: 'Promotions', icon: 'campaign' },
-  { id: 'users',      label: 'Users',      icon: 'group' },
-  { id: 'pos',        label: 'POS',        icon: 'point_of_sale' },
-  { id: 'settings',   label: 'Settings',   icon: 'settings' },
-];
-
 type Section = 'store' | 'profile' | 'notifications' | 'payment' | 'pos' | 'security';
 
 interface ToggleItem { label: string; desc: string; on: boolean; }
@@ -66,8 +49,7 @@ function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) =>
   );
 }
 
-export default function AdminSettingsPage({ activePage, onNav }: Props) {
-  const router = useRouter();
+export default function AdminSettingsPage({ onNav }: Props) {
   const [activeSection, setActiveSection] = useState<Section>('store');
   const [toast, setToast] = useState<{ msg: string; visible: boolean; fading: boolean }>({ msg: '', visible: false, fading: false });
 
@@ -131,60 +113,9 @@ export default function AdminSettingsPage({ activePage, onNav }: Props) {
   ] as const;
 
   return (
-    <div className="bg-background text-on-surface" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <>
       <style>{pageCSS}</style>
-
-      {/* Sidebar — different style for settings */}
-      <aside className="h-screen w-64 fixed left-0 top-0 z-40 flex flex-col py-5 px-3 overflow-y-auto">
-        <div className="mb-8 px-4">
-          <h1 className="font-headline-sm text-headline-sm font-bold" style={{ color: '#00694c' }}>RetailPro</h1>
-          <p className="font-label-md text-label-md text-on-surface-variant">Management System</p>
-        </div>
-        <nav className="flex-1 space-y-1">
-          {navItems.map(item => (
-            <button key={item.id} onClick={() => onNav(item.id)}
-              style={{ color: activePage === item.id ? '#00694c' : undefined }}
-              className={`flex items-center gap-3 px-4 py-3 transition-colors rounded-lg w-full text-left ${activePage === item.id ? 'nav-active' : 'text-on-surface-variant hover:bg-surface-container-high'}`}>
-              <span className="material-symbols-outlined">{item.icon}</span>
-              <span className="font-label-md text-label-md">{item.label}</span>
-            </button>
-          ))}
-          <button onClick={() => router.push('/')} className="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg w-full text-left">
-            <span className="material-symbols-outlined">home</span>
-            <span className="font-label-md text-label-md">Home</span>
-          </button>
-        </nav>
-        <div className="mt-auto p-4" style={{ borderTop: '1px solid #ffe08a' }}>
-          <div className="flex items-center gap-3">
-            <span className="material-symbols-outlined text-on-surface-variant">help_outline</span>
-            <div>
-              <p className="font-bold text-on-surface" style={{ fontSize: '13px' }}>Need Help?</p>
-              <p className="text-on-surface-variant" style={{ fontSize: '11px' }}>Check our documentation</p>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      <main className="ml-64 min-h-screen flex flex-col">
-        <header className="sticky top-0 z-30 flex justify-between items-center px-8 py-4">
-          <h2 className="font-bold" style={{ fontSize: '24px', color: '#00694c' }}>Settings</h2>
-          <div className="flex items-center gap-3">
-            <button className="material-symbols-outlined text-on-surface-variant hover:bg-surface-container rounded-full p-2">notifications</button>
-            <button className="material-symbols-outlined text-on-surface-variant hover:bg-surface-container rounded-full p-2">help_outline</button>
-            <div className="h-8 w-px bg-outline-variant mx-2"></div>
-            <div className="flex items-center gap-2 px-2">
-              <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center">
-                <span className="material-symbols-outlined text-white" style={{ fontSize: '16px' }}>person</span>
-              </div>
-              <div>
-                <p className="font-bold text-on-surface leading-none" style={{ fontSize: '13px' }}>ADMIN USER</p>
-                <p className="text-on-surface-variant" style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '.05em' }}>Store Manager</p>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <div className="p-8">
+      <div className="p-8 space-y-6">
           <div className="flex gap-5">
             {/* Settings Nav */}
             <div className="w-56 flex-shrink-0">
@@ -460,11 +391,6 @@ export default function AdminSettingsPage({ activePage, onNav }: Props) {
           </div>
         </div>
 
-        <footer className="mt-auto p-8 text-center" style={{ borderTop: '1px solid #ffe08a' }}>
-          <p className="text-on-surface-variant" style={{ fontSize: '14px' }}>© 2024 RetailPro Management System. All rights reserved.</p>
-        </footer>
-      </main>
-
       {/* Toast */}
       {toast.visible && (
         <div style={{ position: 'fixed', bottom: 32, right: 32, background: '#191c1e', color: '#fff', padding: '12px 20px', borderRadius: 10, fontSize: 14, fontWeight: 500, zIndex: 999, display: 'flex', alignItems: 'center', gap: 8, opacity: toast.fading ? 0 : 1, transition: 'opacity .3s' }}>
@@ -472,6 +398,6 @@ export default function AdminSettingsPage({ activePage, onNav }: Props) {
           <span>{toast.msg}</span>
         </div>
       )}
-    </div>
+    </>
   );
 }

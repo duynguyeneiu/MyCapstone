@@ -1,9 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { PRODUCTS } from '../../../lib/data';
 
-interface Props { activePage: string; onNav: (p: string) => void; }
+interface Props { onNav: (p: string) => void; search: string; }
 
 const STOCK = (id: number) => (id * 17 + 3) % 120;
 const CAT_LABELS: Record<string, string> = {
@@ -25,41 +24,21 @@ const lowStockProducts = [...PRODUCTS]
 const pageCSS = `
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Hanken+Grotesk:wght@600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
-body { font-family: 'Inter', sans-serif; }
 .font-hanken { font-family: 'Hanken Grotesk', sans-serif; }
 .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-aside { border-right: 2px solid #ffe08a; background: linear-gradient(180deg, #f4fbf7 0%, #fffdf5 100%); }
-.nav-active { background: linear-gradient(90deg, #fff3d6 0%, #fde68a44 100%) !important; border-left: 3px solid #f59e0b; color: #00694c !important; font-weight: 700; }
-header { background: linear-gradient(90deg, #f7fbf9 0%, #fffdf5 100%); border-bottom: 1.5px solid #ffe08a; }
-.stat-card { transition: transform 0.18s ease, box-shadow 0.18s ease; }
-.stat-card:hover { transform: translateY(-2px); }
-.fab { background: linear-gradient(135deg, #00694c 0%, #00a86b 100%); box-shadow: 0 4px 16px #00694c44; }
-.fab:hover { box-shadow: 0 6px 24px #00694c66; }
-tbody tr:hover { background: #f4fbf7 !important; }
-.btn-amber { background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); color: #431d00; font-weight: 600; box-shadow: 0 2px 8px #f59e0b44; transition: all 0.15s; }
-.btn-amber:hover { background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%); box-shadow: 0 4px 14px #f59e0b55; }
-.search-bar { background: #fff8e6; border: 1.5px solid #fcd97a; border-radius: 999px; }
-.search-bar input { background: transparent; }
-.search-bar:focus-within { border-color: #f59e0b; box-shadow: 0 0 0 3px #f59e0b22; }
-.brand-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #00694c); margin-right: 6px; vertical-align: middle; }
 `;
 
-const navItems = [
-  { id: 'dashboard',  label: 'Dashboard',  icon: 'dashboard' },
-  { id: 'products',   label: 'Products',   icon: 'shopping_bag' },
-  { id: 'categories', label: 'Categories', icon: 'category' },
-  { id: 'orders',     label: 'Orders',     icon: 'receipt_long' },
-  { id: 'inventory',  label: 'Inventory',  icon: 'inventory_2' },
-  { id: 'promotions', label: 'Promotions', icon: 'campaign' },
-  { id: 'users',      label: 'Users',      icon: 'group' },
-  { id: 'pos',        label: 'POS',        icon: 'point_of_sale' },
-  { id: 'settings',   label: 'Settings',   icon: 'settings' },
+const RECENT_ORDERS = [
+  { id: '#ORD-2584', customer: 'Minh Hoang',   amount: '1,250,000 VND', status: 'Delivered',  statusBg: '#e0f5ed', statusColor: '#004d38' },
+  { id: '#ORD-2583', customer: 'Phuong Linh',  amount: '850,000 VND',   status: 'Processing', statusBg: '#fff3d6', statusColor: '#7a5c00' },
+  { id: '#ORD-2582', customer: 'Tran Anh',     amount: '2,100,000 VND', status: 'Pending',    statusBg: '#fde68a', statusColor: '#78350f' },
+  { id: '#ORD-2581', customer: 'Duc Huy',      amount: '450,000 VND',   status: 'Cancelled',  statusBg: '#FECACA', statusColor: '#7F1D1D' },
 ];
 
-export default function DashboardPage({ activePage, onNav }: Props) {
-  const router = useRouter();
+export default function DashboardPage({ onNav, search }: Props) {
+  const q = search.toLowerCase();
   useEffect(() => {
     const script = document.createElement('script');
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js';
@@ -182,71 +161,9 @@ export default function DashboardPage({ activePage, onNav }: Props) {
   }, []);
 
   return (
-    <div className="bg-background text-on-surface" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <>
       <style>{pageCSS}</style>
-
-      {/* Sidebar */}
-      <aside className="h-screen w-64 fixed left-0 top-0 z-40 border-r flex flex-col py-5 px-3 overflow-y-auto">
-        <div className="mb-8 px-4">
-          <h1 className="font-headline-sm text-headline-sm font-bold flex items-center" style={{ color: '#00694c' }}>
-            <span className="brand-dot"></span>RetailPro
-          </h1>
-          <p className="font-label-md text-label-md text-on-surface-variant">Management System</p>
-        </div>
-        <nav className="flex-1 space-y-1">
-          {navItems.map(item => (
-            <button
-              key={item.id}
-              onClick={() => onNav(item.id)}
-              className={`flex items-center gap-3 px-4 py-3 transition-colors rounded-lg w-full text-left ${activePage === item.id ? 'nav-active' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
-            >
-              <span className="material-symbols-outlined">{item.icon}</span>
-              <span className="font-label-md text-label-md">{item.label}</span>
-            </button>
-          ))}
-          <button onClick={() => router.push('/')} className="text-on-surface-variant flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg w-full text-left">
-            <span className="material-symbols-outlined">home</span>
-            <span className="font-label-md text-label-md">Home</span>
-          </button>
-        </nav>
-        <div className="mt-auto p-4 border-t" style={{ borderColor: '#ffe08a' }}>
-          <div className="flex items-center gap-3">
-            <span className="material-symbols-outlined text-on-surface-variant">help_outline</span>
-            <div>
-              <p className="font-bold text-on-surface" style={{ fontSize: '13px' }}>Need Help?</p>
-              <p className="text-on-surface-variant" style={{ fontSize: '11px' }}>Check our documentation</p>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="ml-64 min-h-screen flex flex-col">
-        <header className="sticky top-0 w-full z-30 flex justify-between items-center px-8 py-4">
-          <div className="flex items-center gap-4">
-            <h2 className="font-headline-md text-headline-md font-bold" style={{ fontSize: '28px', color: '#00694c' }}>Dashboard</h2>
-            <div className="search-bar hidden lg:flex items-center px-4 py-2 w-80 gap-2">
-              <span className="material-symbols-outlined" style={{ color: '#b47b10', fontSize: '20px' }}>search</span>
-              <input className="border-none focus:ring-0 w-full" style={{ fontSize: '14px', outline: 'none', background: 'transparent' }} placeholder="Search product name, barcode..." />
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <button className="material-symbols-outlined text-on-surface-variant hover:bg-surface-container rounded-full p-2 transition-all">notifications</button>
-            <button className="material-symbols-outlined text-on-surface-variant hover:bg-surface-container rounded-full p-2 transition-all">help_outline</button>
-            <div className="h-8 w-px mx-2" style={{ background: '#ffe08a' }}></div>
-            <div className="flex items-center gap-2 px-2">
-              <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#00694c,#f59e0b)' }}>
-                <span className="material-symbols-outlined text-white text-[16px]">person</span>
-              </div>
-              <div className="text-right">
-                <p className="font-label-md text-label-md font-bold text-on-surface leading-none">ADMIN USER</p>
-                <p className="text-[10px] uppercase tracking-wider text-on-surface-variant">Store Manager</p>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <div className="p-8 space-y-6 max-w-7xl">
+      <div className="p-8 space-y-6 max-w-7xl">
           {/* Stats Row */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
             <div className="stat-card bg-surface-container-lowest border rounded-xl p-6 flex flex-col justify-between" style={{ borderColor: '#b8e0cc', boxShadow: '0 0 0 1px #00694c1a, 0 4px 20px #00694c14' }}>
@@ -379,30 +296,19 @@ export default function DashboardPage({ activePage, onNav }: Props) {
                     </tr>
                   </thead>
                   <tbody className="divide-y" style={{ borderColor: '#c8e4d8' }}>
-                    <tr className="transition-colors">
-                      <td className="px-6 py-4 font-body-sm text-body-sm">#ORD-2584</td>
-                      <td className="px-6 py-4 font-body-sm text-body-sm">Minh Hoang</td>
-                      <td className="px-6 py-4 font-body-sm text-body-sm">1,250,000 VND</td>
-                      <td className="px-6 py-4"><span className="px-3 py-1 rounded-full text-[12px] font-bold" style={{ background: '#e0f5ed', color: '#004d38' }}>Delivered</span></td>
-                    </tr>
-                    <tr className="transition-colors">
-                      <td className="px-6 py-4 font-body-sm text-body-sm">#ORD-2583</td>
-                      <td className="px-6 py-4 font-body-sm text-body-sm">Phuong Linh</td>
-                      <td className="px-6 py-4 font-body-sm text-body-sm">850,000 VND</td>
-                      <td className="px-6 py-4"><span className="px-3 py-1 rounded-full text-[12px] font-bold" style={{ background: '#fff3d6', color: '#7a5c00' }}>Processing</span></td>
-                    </tr>
-                    <tr className="transition-colors">
-                      <td className="px-6 py-4 font-body-sm text-body-sm">#ORD-2582</td>
-                      <td className="px-6 py-4 font-body-sm text-body-sm">Tran Anh</td>
-                      <td className="px-6 py-4 font-body-sm text-body-sm">2,100,000 VND</td>
-                      <td className="px-6 py-4"><span className="px-3 py-1 rounded-full text-[12px] font-bold" style={{ background: '#fde68a', color: '#78350f' }}>Pending</span></td>
-                    </tr>
-                    <tr className="transition-colors">
-                      <td className="px-6 py-4 font-body-sm text-body-sm">#ORD-2581</td>
-                      <td className="px-6 py-4 font-body-sm text-body-sm">Duc Huy</td>
-                      <td className="px-6 py-4 font-body-sm text-body-sm">450,000 VND</td>
-                      <td className="px-6 py-4"><span className="px-3 py-1 rounded-full text-[12px] font-bold" style={{ background: '#FECACA', color: '#7F1D1D' }}>Cancelled</span></td>
-                    </tr>
+                    {RECENT_ORDERS.filter(o =>
+                      !q || o.id.toLowerCase().includes(q) || o.customer.toLowerCase().includes(q) || o.status.toLowerCase().includes(q)
+                    ).map(o => (
+                      <tr key={o.id} className="transition-colors">
+                        <td className="px-6 py-4 font-body-sm text-body-sm">{o.id}</td>
+                        <td className="px-6 py-4 font-body-sm text-body-sm">{o.customer}</td>
+                        <td className="px-6 py-4 font-body-sm text-body-sm">{o.amount}</td>
+                        <td className="px-6 py-4"><span className="px-3 py-1 rounded-full text-[12px] font-bold" style={{ background: o.statusBg, color: o.statusColor }}>{o.status}</span></td>
+                      </tr>
+                    ))}
+                    {RECENT_ORDERS.filter(o => !q || o.id.toLowerCase().includes(q) || o.customer.toLowerCase().includes(q) || o.status.toLowerCase().includes(q)).length === 0 && (
+                      <tr><td colSpan={4} className="px-6 py-8 text-center text-sm" style={{ color: '#6b7280' }}>No orders match &ldquo;{search}&rdquo;</td></tr>
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -423,7 +329,7 @@ export default function DashboardPage({ activePage, onNav }: Props) {
                     </tr>
                   </thead>
                   <tbody className="divide-y" style={{ borderColor: '#c8e4d8' }}>
-                    {lowStockProducts.map(p => {
+                    {lowStockProducts.filter(p => !q || p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q)).map(p => {
                       const cc = CAT_COLORS[p.category] ?? { bg: '#e0f5ed', color: '#004d38' };
                       const stockColor = p.stock === 0 ? '#dc2626' : p.stock <= 10 ? '#854f0b' : undefined;
                       return (
@@ -453,16 +359,11 @@ export default function DashboardPage({ activePage, onNav }: Props) {
               </div>
             </div>
           </div>
-        </div>
-
-        <footer className="mt-auto p-8 text-center border-t" style={{ borderColor: '#c8e4d8' }}>
-          <p className="font-body-sm text-body-sm text-on-surface-variant">© 2024 RetailPro Management System. All rights reserved.</p>
-        </footer>
-      </main>
+      </div>
 
       <button className="fab fixed bottom-8 right-8 w-14 h-14 text-white rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all z-50">
         <span className="material-symbols-outlined">add</span>
       </button>
-    </div>
+    </>
   );
 }
