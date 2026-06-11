@@ -36,8 +36,8 @@ export default function CartContent() {
             const p = PRODUCTS.find(x => x.id === item.id)!;
             return (
               <div key={item.id} style={{ background: '#fff', borderRadius: '1.25rem', padding: '1rem', boxShadow: '0 2px 10px rgba(0,0,0,.05)', display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem' }}>
-                <div style={{ width: 64, height: 64, borderRadius: '0.75rem', background: 'var(--teal-xs)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', flexShrink: 0 }}>
-                  {p.emoji}
+                <div style={{ width: 64, height: 64, borderRadius: '0.75rem', background: 'var(--teal-xs)', overflow: 'hidden', flexShrink: 0 }}>
+                  <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '6px' }} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ fontWeight: 600, fontSize: '.9rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</p>

@@ -10,6 +10,7 @@ import StarRow from '../ui/StarRow';
 import BtnTeal from '../ui/BtnTeal';
 import BtnOutline from '../ui/BtnOutline';
 import ProductCard from '../ui/ProductCard';
+import ReviewSection from './ReviewSection';
 
 interface ProductDetailProps {
   productId: number;
@@ -107,6 +108,8 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
           </div>
         </div>
       </div>
+
+      <ReviewSection productId={p.id} rating={p.rating} reviewCount={p.reviews} />
 
       {related.length > 0 && (
         <div style={{ marginTop: '3.5rem' }}>

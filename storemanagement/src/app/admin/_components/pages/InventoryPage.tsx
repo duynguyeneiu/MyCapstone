@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { PRODUCTS } from '../../../lib/data';
 
 interface Props { activePage: string; onNav: (p: string) => void; }
 
@@ -44,11 +45,19 @@ const navItems = [
 const fmt = (n: number) => new Intl.NumberFormat('vi-VN').format(n) + '₫';
 
 const catColors: Record<string, { bg: string; color: string }> = {
-  'Electronics':     { bg: '#e0f5ed', color: '#004d38' },
-  'Food & Beverage': { bg: '#fff3d6', color: '#7a5c00' },
-  'Household':       { bg: '#e0f5ed', color: '#004d38' },
-  'Personal Care':   { bg: '#fff3d6', color: '#7a5c00' },
+  'beverages':     { bg: '#e0f5ed', color: '#004d38' },
+  'snacks':        { bg: '#fff3d6', color: '#7a5c00' },
+  'food':          { bg: '#fef3c7', color: '#92400e' },
+  'personal-care': { bg: '#ede9fe', color: '#4c1d95' },
+  'household':     { bg: '#e0f2fe', color: '#075985' },
 };
+
+const CAT_LABELS: Record<string, string> = {
+  beverages: 'Beverages', snacks: 'Snacks', food: 'Food',
+  'personal-care': 'Personal Care', household: 'Household',
+};
+
+const STOCK = (id: number) => (id * 17 + 3) % 120;
 
 const typeConfig: Record<string, { bg: string; color: string }> = {
   'Sale':   { bg: '#fee2e2', color: '#7f1d1d' },
@@ -56,23 +65,21 @@ const typeConfig: Record<string, { bg: string; color: string }> = {
   'Adjust': { bg: '#fff3d6', color: '#7a5c00' },
 };
 
-interface StockProduct { id: number; name: string; code: string; barcode: string; cat: string; stock: number; importPrice: number; }
+interface StockProduct { id: number; name: string; code: string; barcode: string; cat: string; stock: number; importPrice: number; image: string; }
 interface ImportReceipt { id: string; date: string; staff: string; items: number; total: number; status: string; }
 interface Transaction { date: string; product: string; type: string; qty: number; after: number; ref: string; }
 interface ImportRow { id: number; productName: string; productPrice: number; qty: number; price: number; }
 
-const initialProducts: StockProduct[] = [
-  { id:1,  name:'Wireless Earbuds Pro',  code:'SP001', barcode:'8935217480010', cat:'Electronics',     stock:85, importPrice:320000 },
-  { id:2,  name:'Green Tea 500ml',       code:'SP002', barcode:'8935217480027', cat:'Food & Beverage', stock:5,  importPrice:8000 },
-  { id:3,  name:'Dish Soap 750ml',       code:'SP003', barcode:'8935217480034', cat:'Household',       stock:120,importPrice:22000 },
-  { id:4,  name:'Face Wash Foam',        code:'SP004', barcode:'8935217480041', cat:'Personal Care',   stock:0,  importPrice:65000 },
-  { id:5,  name:'USB-C Hub 7-in-1',     code:'SP005', barcode:'8935217480058', cat:'Electronics',     stock:32, importPrice:480000 },
-  { id:6,  name:'Instant Noodles Pack', code:'SP006', barcode:'8935217480065', cat:'Food & Beverage', stock:3,  importPrice:4500 },
-  { id:7,  name:'Floor Cleaner 1L',     code:'SP007', barcode:'8935217480072', cat:'Household',       stock:67, importPrice:35000 },
-  { id:8,  name:'Sunscreen SPF50+',     code:'SP008', barcode:'8935217480089', cat:'Personal Care',   stock:41, importPrice:120000 },
-  { id:9,  name:'AA Battery Pack',      code:'SP009', barcode:'8935217480096', cat:'Electronics',     stock:8,  importPrice:25000 },
-  { id:10, name:'Coconut Milk Organic', code:'SP010', barcode:'8935217480102', cat:'Food & Beverage', stock:0,  importPrice:18000 },
-];
+const initialProducts: StockProduct[] = PRODUCTS.map(p => ({
+  id: p.id,
+  name: p.name,
+  code: `P${String(p.id).padStart(3, '0')}`,
+  barcode: `893521748${String(p.id).padStart(4, '0')}`,
+  cat: p.category,
+  stock: STOCK(p.id),
+  importPrice: Math.round(p.price * 0.7),
+  image: p.image,
+}));
 
 const initialImports: ImportReceipt[] = [
   { id:'IMP-001', date:'24 May 2024', staff:'Alex Nguyen', items:5, total:2450000, status:'Completed' },
@@ -82,14 +89,14 @@ const initialImports: ImportReceipt[] = [
 ];
 
 const initialTransactions: Transaction[] = [
-  { date:'24 May 09:32', product:'Wireless Earbuds Pro', type:'Sale',   qty:-1,  after:85,  ref:'#ORD-2584' },
-  { date:'24 May 08:00', product:'Green Tea 500ml',      type:'Import', qty:+20, after:5,   ref:'IMP-001' },
-  { date:'23 May 17:20', product:'Dish Soap 750ml',      type:'Sale',   qty:-3,  after:120, ref:'#ORD-2581' },
-  { date:'23 May 15:10', product:'Sunscreen SPF50+',     type:'Sale',   qty:-3,  after:41,  ref:'#ORD-2580' },
-  { date:'23 May 12:30', product:'Instant Noodles Pack', type:'Sale',   qty:-20, after:3,   ref:'#ORD-2579' },
-  { date:'22 May 10:00', product:'Face Wash Foam',       type:'Adjust', qty:-5,  after:0,   ref:'Damaged' },
-  { date:'22 May 09:00', product:'USB-C Hub 7-in-1',    type:'Import', qty:+10, after:32,  ref:'IMP-002' },
-  { date:'20 May 14:00', product:'AA Battery Pack',      type:'Import', qty:+50, after:8,   ref:'IMP-003' },
+  { date:'24 May 09:32', product:'Lay\'s Classic Potato Chips 52g',  type:'Sale',   qty:-1,  after:56, ref:'#ORD-2584' },
+  { date:'24 May 08:00', product:'C2 Green Tea 455ml',               type:'Import', qty:+20, after:125,ref:'IMP-001' },
+  { date:'23 May 17:20', product:'OMO Matic Detergent 3kg',          type:'Sale',   qty:-3,  after:49, ref:'#ORD-2581' },
+  { date:'23 May 15:10', product:'Nivea Body Lotion 400ml',          type:'Sale',   qty:-3,  after:118,ref:'#ORD-2580' },
+  { date:'23 May 12:30', product:'Vifon Chicken Porridge',           type:'Sale',   qty:-5,  after:0,  ref:'#ORD-2579' },
+  { date:'22 May 10:00', product:'Alpenliebe Original Caramel 119g', type:'Adjust', qty:-2,  after:1,  ref:'Damaged' },
+  { date:'22 May 09:00', product:'Aquafina Purified Water 500ml',    type:'Import', qty:+10, after:20, ref:'IMP-002' },
+  { date:'20 May 14:00', product:'Spam Classic Luncheon Meat 340g',  type:'Import', qty:+50, after:51, ref:'IMP-003' },
 ];
 
 function stockStatus(stock: number) {
@@ -268,36 +275,43 @@ export default function InventoryPage({ activePage, onNav }: Props) {
 
         <div className="p-8 space-y-6">
           {/* Stats */}
+          {(() => {
+            const totalValue = products.reduce((s, p) => s + p.stock * p.importPrice, 0);
+            const lowCnt = products.filter(p => p.stock > 0 && p.stock <= 10).length;
+            const outCnt = products.filter(p => p.stock === 0).length;
+            return (
           <div className="grid grid-cols-4 gap-5">
             <div className="stat-card bg-surface-container-lowest border rounded-xl p-6 flex flex-col justify-between" style={{ borderColor: '#b8e0cc', boxShadow: '0 0 0 1px #00694c1a,0 4px 20px #00694c14' }}>
               <div className="flex justify-between items-start">
-                <div><p className="text-on-surface-variant font-label-md text-label-md mb-1">Total Stock Value</p><h3 className="font-bold" style={{ fontSize: '22px' }}>124,500,000₫</h3></div>
+                <div><p className="text-on-surface-variant font-label-md text-label-md mb-1">Total Stock Value</p><h3 className="font-bold" style={{ fontSize: '22px' }}>{fmt(totalValue)}</h3></div>
                 <span className="material-symbols-outlined p-2 rounded-lg" style={{ color: '#00694c', background: '#e0f5ed' }}>payments</span>
               </div>
               <div className="mt-4 flex items-center gap-1"><span className="material-symbols-outlined" style={{ color: '#00694c', fontSize: '18px' }}>trending_up</span><span className="font-label-sm text-label-sm" style={{ color: '#00694c' }}>+8% from last month</span></div>
             </div>
             <div className="stat-card bg-surface-container-lowest border rounded-xl p-6 flex flex-col justify-between" style={{ borderColor: '#fcd97a', boxShadow: '0 0 0 1px #f59e0b1a,0 4px 20px #f59e0b14' }}>
               <div className="flex justify-between items-start">
-                <div><p className="text-on-surface-variant font-label-md text-label-md mb-1">Total SKUs</p><h3 className="font-bold" style={{ fontSize: '24px' }}>248</h3></div>
+                <div><p className="text-on-surface-variant font-label-md text-label-md mb-1">Total SKUs</p><h3 className="font-bold" style={{ fontSize: '24px' }}>{products.length}</h3></div>
                 <span className="material-symbols-outlined p-2 rounded-lg" style={{ color: '#b47b10', background: '#fff3d6' }}>inventory_2</span>
               </div>
               <div className="mt-4 flex items-center gap-1"><span className="font-label-sm text-label-sm" style={{ color: '#b47b10' }}>Active products</span></div>
             </div>
             <div className="stat-card bg-surface-container-lowest border rounded-xl p-6 flex flex-col justify-between" style={{ borderColor: '#fac057', boxShadow: '0 0 0 1px #D9770622,0 4px 20px #D9770614' }}>
               <div className="flex justify-between items-start">
-                <div><p className="text-on-surface-variant font-label-md text-label-md mb-1">Low Stock</p><h3 className="font-bold" style={{ fontSize: '24px', color: '#854f0b' }}>14</h3></div>
+                <div><p className="text-on-surface-variant font-label-md text-label-md mb-1">Low Stock</p><h3 className="font-bold" style={{ fontSize: '24px', color: '#854f0b' }}>{lowCnt}</h3></div>
                 <span className="material-symbols-outlined p-2 rounded-lg" style={{ color: '#854f0b', background: '#fff3d6' }}>warning</span>
               </div>
               <div className="mt-4 flex items-center gap-1"><span className="font-label-sm text-label-sm" style={{ color: '#854f0b' }}>Stock ≤ 10 units</span></div>
             </div>
             <div className="stat-card bg-surface-container-lowest border rounded-xl p-6 flex flex-col justify-between" style={{ borderColor: '#fca5a5', boxShadow: '0 0 0 1px #dc262622,0 4px 20px #dc262614' }}>
               <div className="flex justify-between items-start">
-                <div><p className="text-on-surface-variant font-label-md text-label-md mb-1">Out of Stock</p><h3 className="font-bold" style={{ fontSize: '24px', color: '#dc2626' }}>5</h3></div>
+                <div><p className="text-on-surface-variant font-label-md text-label-md mb-1">Out of Stock</p><h3 className="font-bold" style={{ fontSize: '24px', color: '#dc2626' }}>{outCnt}</h3></div>
                 <span className="material-symbols-outlined p-2 rounded-lg" style={{ color: '#dc2626', background: '#fee2e2' }}>remove_shopping_cart</span>
               </div>
               <div className="mt-4 flex items-center gap-1"><span className="font-label-sm text-label-sm" style={{ color: '#dc2626' }}>Needs immediate restock</span></div>
             </div>
           </div>
+            );
+          })()}
 
           {/* Tabs + Table */}
           <div className="bg-surface-container-lowest border rounded-xl overflow-hidden" style={{ borderColor: '#c8e4d8' }}>
@@ -316,10 +330,11 @@ export default function InventoryPage({ activePage, onNav }: Props) {
                   <div className="flex items-center gap-3">
                     <select value={catFilter} onChange={e => setCatFilter(e.target.value)} className="filter-select">
                       <option value="">All Categories</option>
-                      <option>Electronics</option>
-                      <option>Food &amp; Beverage</option>
-                      <option>Household</option>
-                      <option>Personal Care</option>
+                      <option value="beverages">Beverages</option>
+                      <option value="snacks">Snacks</option>
+                      <option value="food">Food</option>
+                      <option value="personal-care">Personal Care</option>
+                      <option value="household">Household</option>
                     </select>
                     <select value={stockFilter} onChange={e => setStockFilter(e.target.value)} className="filter-select">
                       <option value="">All Stock Status</option>
@@ -362,8 +377,8 @@ export default function InventoryPage({ activePage, onNav }: Props) {
                           <tr key={p.id} className="transition-colors" style={{ borderColor: '#c8e4d8' }}>
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: '#e0f5ed' }}>
-                                  <span className="material-symbols-outlined" style={{ color: '#00694c', fontSize: '18px' }}>inventory_2</span>
+                                <div className="w-9 h-9 rounded-lg flex-shrink-0 overflow-hidden" style={{ background: '#e0f5ed' }}>
+                                  <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 3 }} />
                                 </div>
                                 <div>
                                   <p className="font-bold text-on-surface" style={{ fontSize: '13px' }}>{p.name}</p>
@@ -371,7 +386,7 @@ export default function InventoryPage({ activePage, onNav }: Props) {
                                 </div>
                               </div>
                             </td>
-                            <td className="px-4 py-3"><span style={{ background: cc.bg, color: cc.color, padding: '2px 8px', borderRadius: '99px', fontSize: '11px', fontWeight: 600 }}>{p.cat}</span></td>
+                            <td className="px-4 py-3"><span style={{ background: cc.bg, color: cc.color, padding: '2px 8px', borderRadius: '99px', fontSize: '11px', fontWeight: 600 }}>{CAT_LABELS[p.cat] ?? p.cat}</span></td>
                             <td className="px-4 py-3 text-on-surface-variant" style={{ fontSize: '12px', fontFamily: 'monospace' }}>{p.barcode}</td>
                             <td className="px-4 py-3 text-center font-bold" style={{ fontSize: '13px', color: stockColor }}>{p.stock}</td>
                             <td className="px-4 py-3" style={{ minWidth: '140px' }}>

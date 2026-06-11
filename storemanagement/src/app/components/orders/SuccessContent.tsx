@@ -18,8 +18,8 @@ export default function SuccessContent({ orderId }: SuccessContentProps) {
 
   return (
     <div style={{ maxWidth: 520, margin: '0 auto', padding: '5rem 1.5rem', textAlign: 'center' }}>
-      <div style={{ width: 96, height: 96, borderRadius: '50%', background: 'var(--teal-xs)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', margin: '0 auto 1.5rem' }}>
-        ✅
+      <div style={{ width: 96, height: 96, borderRadius: '50%', background: 'var(--teal-xs)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
+        <span className="material-symbols-outlined" style={{ fontSize: '52px', color: 'var(--teal)', fontVariationSettings: "'FILL' 1" }}>check_circle</span>
       </div>
       <h1 className="serif" style={{ fontSize: '2.5rem', fontWeight: 700, marginBottom: '0.75rem' }}>Order Placed!</h1>
       <p style={{ color: '#64748b', marginBottom: '0.5rem' }}>Thank you for your purchase.</p>
@@ -33,8 +33,13 @@ export default function SuccessContent({ orderId }: SuccessContentProps) {
           {prevCart.map(item => {
             const p = PRODUCTS.find(x => x.id === item.id)!;
             return (
-              <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.875rem', marginBottom: '0.4rem' }}>
-                <span>{p.emoji} {p.name} ×{item.qty}</span>
+              <div key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '.875rem', marginBottom: '0.4rem', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: '0.4rem', background: 'var(--teal-xs)', overflow: 'hidden', flexShrink: 0 }}>
+                    <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 3 }} />
+                  </div>
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name} ×{item.qty}</span>
+                </div>
                 <span style={{ fontWeight: 600 }}>{fmt(p.price * item.qty)}</span>
               </div>
             );

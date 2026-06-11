@@ -1,8 +1,26 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { PRODUCTS } from '../../../lib/data';
 
 interface Props { activePage: string; onNav: (p: string) => void; }
+
+const STOCK = (id: number) => (id * 17 + 3) % 120;
+const CAT_LABELS: Record<string, string> = {
+  beverages: 'Beverages', snacks: 'Snacks', food: 'Food',
+  'personal-care': 'Personal Care', household: 'Household',
+};
+const CAT_COLORS: Record<string, { bg: string; color: string }> = {
+  beverages: { bg: '#e0f5ed', color: '#004d38' },
+  snacks:    { bg: '#fff3d6', color: '#7a5c00' },
+  food:      { bg: '#fef3c7', color: '#92400e' },
+  'personal-care': { bg: '#ede9fe', color: '#4c1d95' },
+  household: { bg: '#e0f2fe', color: '#075985' },
+};
+const lowStockProducts = [...PRODUCTS]
+  .map(p => ({ ...p, stock: STOCK(p.id) }))
+  .sort((a, b) => a.stock - b.stock)
+  .slice(0, 4);
 
 const pageCSS = `
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Hanken+Grotesk:wght@600;700&display=swap');
@@ -42,7 +60,6 @@ const navItems = [
 
 export default function DashboardPage({ activePage, onNav }: Props) {
   const router = useRouter();
-
   useEffect(() => {
     const script = document.createElement('script');
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js';
@@ -275,7 +292,7 @@ export default function DashboardPage({ activePage, onNav }: Props) {
               <div className="flex justify-between items-start">
                 <div>
                   <p className="font-label-md text-label-md text-on-surface-variant mb-1">Low Stock Products</p>
-                  <h3 className="font-headline-md text-headline-md font-bold" style={{ color: '#854f0b' }}>5</h3>
+                  <h3 className="font-headline-md text-headline-md font-bold" style={{ color: '#854f0b' }}>{PRODUCTS.filter(p => STOCK(p.id) <= 10).length}</h3>
                 </div>
                 <span className="material-symbols-outlined p-2 rounded-lg" style={{ color: '#854f0b', background: '#fff3d6' }}>inventory</span>
               </div>
@@ -406,26 +423,31 @@ export default function DashboardPage({ activePage, onNav }: Props) {
                     </tr>
                   </thead>
                   <tbody className="divide-y" style={{ borderColor: '#c8e4d8' }}>
-                    <tr className="transition-colors">
-                      <td className="px-6 py-4"><p className="font-body-sm text-body-sm font-medium">Arabica Coffee Beans 1kg</p><p className="text-[11px] text-on-surface-variant">Beverages</p></td>
-                      <td className="px-6 py-4 font-body-sm text-body-sm text-on-surface-variant">Beverages</td>
-                      <td className="px-6 py-4 font-label-md text-label-md text-error text-right font-bold">2 units</td>
-                    </tr>
-                    <tr className="transition-colors">
-                      <td className="px-6 py-4"><p className="font-body-sm text-body-sm font-medium">Eco-friendly Straws (Pack 50)</p><p className="text-[11px] text-on-surface-variant">Supplies</p></td>
-                      <td className="px-6 py-4 font-body-sm text-body-sm text-on-surface-variant">Supplies</td>
-                      <td className="px-6 py-4 font-label-md text-label-md text-error text-right font-bold">0 units</td>
-                    </tr>
-                    <tr className="transition-colors">
-                      <td className="px-6 py-4"><p className="font-body-sm text-body-sm font-medium">Banh Mi Flour Special</p><p className="text-[11px] text-on-surface-variant">Bakery</p></td>
-                      <td className="px-6 py-4 font-body-sm text-body-sm text-on-surface-variant">Bakery</td>
-                      <td className="px-6 py-4 font-label-md text-label-md text-right font-bold" style={{ color: '#854f0b' }}>12 units</td>
-                    </tr>
-                    <tr className="transition-colors">
-                      <td className="px-6 py-4"><p className="font-body-sm text-body-sm font-medium">Coconut Milk Organic</p><p className="text-[11px] text-on-surface-variant">Groceries</p></td>
-                      <td className="px-6 py-4 font-body-sm text-body-sm text-on-surface-variant">Groceries</td>
-                      <td className="px-6 py-4 font-label-md text-label-md text-right font-bold" style={{ color: '#854f0b' }}>8 units</td>
-                    </tr>
+                    {lowStockProducts.map(p => {
+                      const cc = CAT_COLORS[p.category] ?? { bg: '#e0f5ed', color: '#004d38' };
+                      const stockColor = p.stock === 0 ? '#dc2626' : p.stock <= 10 ? '#854f0b' : undefined;
+                      return (
+                        <tr key={p.id} className="transition-colors">
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div style={{ width: 32, height: 32, borderRadius: 6, background: '#e0f5ed', overflow: 'hidden', flexShrink: 0 }}>
+                                <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 3 }} />
+                              </div>
+                              <div>
+                                <p className="font-body-sm text-body-sm font-medium">{p.name}</p>
+                                <p className="text-[11px] text-on-surface-variant">{CAT_LABELS[p.category]}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span style={{ background: cc.bg, color: cc.color, padding: '2px 8px', borderRadius: 99, fontSize: 11, fontWeight: 600 }}>
+                              {CAT_LABELS[p.category]}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 font-label-md text-label-md text-right font-bold" style={{ color: stockColor }}>{p.stock} units</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

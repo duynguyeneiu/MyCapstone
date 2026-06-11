@@ -5,8 +5,8 @@ import Icon from '../ui/Icon';
 import { Modal, ModalHeader } from '../ui/AdminModal';
 import Btn from '../ui/AdminBtn';
 import { C } from '../../_lib/types';
-import { PRODUCTS_DATA } from '../../_lib/data';
 import { fmt } from '../../_lib/utils';
+import { PRODUCTS } from '../../../lib/data';
 import ReceiptModal, { TransactionRecord } from './ReceiptModal';
 import POSHistoryPage from './POSHistoryPage';
 
@@ -82,11 +82,26 @@ const posCSS = `
 .checkout-btn:disabled { background: #bccac1; cursor: not-allowed; }
 `;
 
+const STOCK = (id: number) => (id * 17 + 3) % 120;
+const POS_PRODUCTS = PRODUCTS.map(p => ({
+  ...p,
+  sku: `P${String(p.id).padStart(3, '0')}`,
+  stock: STOCK(p.id),
+}));
+const POS_CATS = [
+  { slug: 'all', label: 'All' },
+  { slug: 'beverages', label: 'Beverages' },
+  { slug: 'snacks', label: 'Snacks' },
+  { slug: 'food', label: 'Food' },
+  { slug: 'personal-care', label: 'Personal Care' },
+  { slug: 'household', label: 'Household' },
+];
+
 export default function POSPage() {
   interface CartItem { id: number; name: string; price: number; qty: number; }
 
   const [search, setSearch] = useState("");
-  const [activeCategory, setActiveCategory] = useState("All");
+  const [activeCategory, setActiveCategory] = useState("all");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [promoCode, setPromoCode] = useState("");
@@ -106,13 +121,12 @@ export default function POSPage() {
     tick(); const t = setInterval(tick, 1000); return () => clearInterval(t);
   }, []);
 
-  const cats = ["All", ...Array.from(new Set(PRODUCTS_DATA.map((p) => p.category)))];
-  const filtered = PRODUCTS_DATA.filter((p) =>
-    (activeCategory === "All" || p.category === activeCategory) &&
+  const filtered = POS_PRODUCTS.filter((p) =>
+    (activeCategory === "all" || p.category === activeCategory) &&
     (p.name.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase()))
   );
 
-  const addToCart = (product: typeof PRODUCTS_DATA[0]) => {
+  const addToCart = (product: typeof POS_PRODUCTS[0]) => {
     if (product.stock === 0) return;
     setCart((prev) => {
       const existing = prev.find((i) => i.id === product.id);
@@ -176,11 +190,19 @@ export default function POSPage() {
   // ── Show history page ──────────────────────────────────────
   if (showHistory) {
     return (
-      <POSHistoryPage
-        history={posHistory}
-        onBack={() => setShowHistory(false)}
-        onViewReceipt={(tx) => setCurrentReceipt(tx)}
-      />
+      <>
+        <POSHistoryPage
+          history={posHistory}
+          onBack={() => setShowHistory(false)}
+          onViewReceipt={(tx) => setCurrentReceipt(tx)}
+        />
+        {currentReceipt && (
+          <ReceiptModal
+            tx={currentReceipt}
+            onClose={() => setCurrentReceipt(null)}
+          />
+        )}
+      </>
     );
   }
 
@@ -228,13 +250,13 @@ export default function POSPage() {
             </div>
           </div>
           <div style={{ display: "flex", gap: 6, padding: "10px 16px", borderBottom: `1px solid #e0e3e5`, overflowX: "auto", flexShrink: 0 }}>
-            {cats.map((cat) => (
-              <button key={cat} onClick={() => setActiveCategory(cat)}
+            {POS_CATS.map((cat) => (
+              <button key={cat.slug} onClick={() => setActiveCategory(cat.slug)}
                 style={{ padding: "6px 14px", borderRadius: 99, fontSize: 12, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap",
-                  border: `1.5px solid ${activeCategory === cat ? C.primary : "#e0e3e5"}`,
-                  background: activeCategory === cat ? C.primary : "#fff",
-                  color: activeCategory === cat ? "#fff" : C.textMuted }}>
-                {cat}
+                  border: `1.5px solid ${activeCategory === cat.slug ? C.primary : "#e0e3e5"}`,
+                  background: activeCategory === cat.slug ? C.primary : "#fff",
+                  color: activeCategory === cat.slug ? "#fff" : C.textMuted }}>
+                {cat.label}
               </button>
             ))}
           </div>
@@ -245,8 +267,8 @@ export default function POSPage() {
                   opacity: p.stock === 0 ? 0.45 : 1, background: "#fff", transition: "all .15s" }}
                 onMouseEnter={(e) => { if (p.stock > 0) { const el = e.currentTarget as HTMLDivElement; el.style.borderColor = C.primary; el.style.transform = "translateY(-1px)"; el.style.boxShadow = `0 4px 12px ${C.primary}20`; }}}
                 onMouseLeave={(e) => { const el = e.currentTarget as HTMLDivElement; el.style.borderColor = "#e0e3e5"; el.style.transform = ""; el.style.boxShadow = ""; }}>
-                <div style={{ width: 44, height: 44, borderRadius: 10, background: C.primaryBg, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8 }}>
-                  <Icon name="shopping_bag" size={24} style={{ color: C.primary }} />
+                <div style={{ width: 44, height: 44, borderRadius: 10, background: C.primaryBg, overflow: "hidden", marginBottom: 8 }}>
+                  <img src={p.image} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "contain", padding: 4 }} />
                 </div>
                 <p style={{ fontSize: 12, fontWeight: 600, lineHeight: 1.3, marginBottom: 4 }}>{p.name}</p>
                 <p style={{ fontSize: 13, fontWeight: 700, color: C.primary }}>{fmt(p.price)}</p>

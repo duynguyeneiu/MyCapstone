@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Navbar from './Navbar';
+import CategoryBar from './CategoryBar';
 import Footer from './Footer';
 import ToastDisplay from './ui/ToastDisplay';
 import { useAuth } from '../context/AuthContext';
@@ -41,10 +42,15 @@ export default function ClientShell({ children }: { children: React.ReactNode })
   if (!isPublic && !user) return null;
 
 
+  const showCategoryBar = pathname === '/' || pathname.startsWith('/shop');
+
   // Homepage (public) + logged-in client pages → full shell
   return (
     <>
-      <Navbar />
+      <div style={{ position: 'sticky', top: 0, zIndex: 50 }}>
+        <Navbar />
+        {showCategoryBar && <CategoryBar />}
+      </div>
       {children}
       <ToastDisplay />
       <a href="#" className="btn btn-primary border-3 border-primary rounded-circle back-to-top">

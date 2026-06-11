@@ -10,11 +10,11 @@ interface Props { defaultTab?: Tab; }
 
 export default function LoginRegisterPage({ defaultTab = 'login' }: Props) {
   const router = useRouter();
-  const { login, register } = useAuth();
+  const { login, startRegister } = useAuth();
   const [tab, setTab] = useState<Tab>(defaultTab);
 
   // Login form
-  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPhone, setLoginPhone] = useState('');
   const [loginPass, setLoginPass]   = useState('');
   const [showLoginPass, setShowLoginPass] = useState(false);
   const [loginError, setLoginError] = useState('');
@@ -22,7 +22,7 @@ export default function LoginRegisterPage({ defaultTab = 'login' }: Props) {
 
   // Register form
   const [regName, setRegName]   = useState('');
-  const [regEmail, setRegEmail] = useState('');
+  const [regPhone, setRegPhone] = useState('');
   const [regPass, setRegPass]   = useState('');
   const [regPass2, setRegPass2] = useState('');
   const [showRegPass, setShowRegPass] = useState(false);
@@ -30,19 +30,18 @@ export default function LoginRegisterPage({ defaultTab = 'login' }: Props) {
   const [regLoading, setRegLoading] = useState(false);
 
   const handleLogin = () => {
-    if (!loginEmail || !loginPass) { setLoginError('Please fill in all fields'); return; }
+    if (!loginPhone || !loginPass) { setLoginError('Please fill in all fields'); return; }
     setLoginLoading(true);
     setTimeout(() => {
-      const result = login(loginEmail, loginPass);
+      const result = login(loginPhone, loginPass);
       setLoginLoading(false);
       if (!result.success) { setLoginError(result.error ?? 'Login failed'); return; }
-      // Route based on role (read from localStorage since state update is async)
       try {
         const savedUser = JSON.parse(localStorage.getItem('hm-user') || '{}');
         if (savedUser.role === 'admin' || savedUser.role === 'staff') {
           router.push('/admin');
         } else {
-          router.push('/'); // client → homepage
+          router.push('/');
         }
       } catch {
         router.push('/');
@@ -51,29 +50,29 @@ export default function LoginRegisterPage({ defaultTab = 'login' }: Props) {
   };
 
   const handleRegister = () => {
-    if (!regName || !regEmail || !regPass || !regPass2) { setRegError('Please fill in all fields'); return; }
+    if (!regName || !regPhone || !regPass || !regPass2) { setRegError('Please fill in all fields'); return; }
     if (regPass !== regPass2) { setRegError('Passwords do not match'); return; }
     if (regPass.length < 6) { setRegError('Password must be at least 6 characters'); return; }
     setRegLoading(true);
     setTimeout(() => {
-      const result = register(regName, regEmail, regPass);
+      const result = startRegister(regName, regPhone, regPass);
       setRegLoading(false);
       if (!result.success) { setRegError(result.error ?? 'Registration failed'); return; }
-      router.push('/'); // new user is always client → redirect to homepage
+      router.push('/register/verify');
     }, 600);
   };
+
+  const demoAccounts = [
+    { role: 'Client', phone: '0901234569', pass: 'client123', color: '#00694c', bg: '#e0f5ed' },
+    { role: 'Admin',  phone: '0901234567', pass: 'admin123',  color: '#b47b10', bg: '#fff3d6' },
+    { role: 'Staff',  phone: '0901234568', pass: 'staff123',  color: '#1d6fb8', bg: '#dbeafe' },
+  ];
 
   const inputStyle: React.CSSProperties = {
     width: '100%', border: '1.5px solid #c8e4d8', borderRadius: 10,
     padding: '11px 44px 11px 14px', fontSize: 14, outline: 'none',
     background: '#f4fbf7', fontFamily: "'DM Sans', sans-serif", transition: 'border-color .15s',
   };
-
-  const demoAccounts = [
-    { role: 'Client',  email: 'client@happy.com', pass: 'client123', color: '#00694c', bg: '#e0f5ed' },
-    { role: 'Admin',   email: 'admin@happy.com',  pass: 'admin123',  color: '#b47b10', bg: '#fff3d6' },
-    { role: 'Staff',   email: 'staff@happy.com',  pass: 'staff123',  color: '#1d6fb8', bg: '#dbeafe' },
-  ];
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', fontFamily: "'DM Sans', sans-serif" }}>
@@ -82,14 +81,10 @@ export default function LoginRegisterPage({ defaultTab = 'login' }: Props) {
       <div style={{
         flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
         background: 'linear-gradient(135deg,#00694c 0%,#004d38 60%,#003028 100%)',
-        padding: '3rem', position: 'relative', overflow: 'hidden',
-        minWidth: 0,
+        padding: '3rem', position: 'relative', overflow: 'hidden', minWidth: 0,
       }}>
-        {/* dot pattern */}
         <div style={{ position: 'absolute', inset: 0, opacity: .07, backgroundImage: `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><circle cx='10' cy='10' r='1.5' fill='white'/></svg>")` }} />
-
         <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', color: '#fff', maxWidth: 400 }}>
-          {/* Logo area */}
           <div style={{ width: 72, height: 72, borderRadius: 20, background: 'rgba(255,255,255,.15)', border: '1px solid rgba(255,255,255,.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem', fontSize: '2.5rem' }}>
             🛍️
           </div>
@@ -99,18 +94,17 @@ export default function LoginRegisterPage({ defaultTab = 'login' }: Props) {
           <p style={{ color: '#b8e0cc', fontSize: '1.05rem', lineHeight: 1.6, marginBottom: '2.5rem' }}>
             Fresh finds delivered daily. Home appliances, gourmet food & premium beauty products.
           </p>
-
-          {/* Demo accounts info */}
           <div style={{ background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.15)', borderRadius: 14, padding: '1.25rem', textAlign: 'left' }}>
             <p style={{ fontSize: '.75rem', fontWeight: 700, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: '0.75rem' }}>
               Demo Accounts
             </p>
             {demoAccounts.map(a => (
-              <div key={a.role} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem', cursor: 'pointer' }}
-                onClick={() => { setTab('login'); setLoginEmail(a.email); setLoginPass(a.pass); setLoginError(''); }}>
+              <div key={a.role}
+                onClick={() => { setTab('login'); setLoginPhone(a.phone); setLoginPass(a.pass); setLoginError(''); }}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem', cursor: 'pointer' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{ background: a.bg, color: a.color, borderRadius: 99, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>{a.role}</span>
-                  <span style={{ fontSize: 12, color: '#b8e0cc' }}>{a.email}</span>
+                  <span style={{ fontSize: 12, color: '#b8e0cc' }}>{a.phone}</span>
                 </div>
                 <span style={{ fontSize: 11, color: '#86c5a8', background: 'rgba(255,255,255,.1)', borderRadius: 6, padding: '2px 6px' }}>click to fill</span>
               </div>
@@ -157,18 +151,26 @@ export default function LoginRegisterPage({ defaultTab = 'login' }: Props) {
               )}
 
               <div style={{ marginBottom: '1rem' }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#3d4943', display: 'block', marginBottom: 5 }}>Email</label>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#3d4943', display: 'block', marginBottom: 5 }}>Phone Number</label>
                 <input
-                  type="email" value={loginEmail} onChange={e => { setLoginEmail(e.target.value); setLoginError(''); }}
-                  placeholder="your@email.com" style={inputStyle}
+                  type="tel" value={loginPhone} onChange={e => { setLoginPhone(e.target.value); setLoginError(''); }}
+                  placeholder="e.g. 0901234567" style={inputStyle}
                   onFocus={e => { e.currentTarget.style.borderColor = '#00694c'; e.currentTarget.style.background = '#fff'; }}
                   onBlur={e => { e.currentTarget.style.borderColor = '#c8e4d8'; e.currentTarget.style.background = '#f4fbf7'; }}
                   onKeyDown={e => e.key === 'Enter' && handleLogin()}
                 />
               </div>
 
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#3d4943', display: 'block', marginBottom: 5 }}>Password</label>
+              <div style={{ marginBottom: '0.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: '#3d4943' }}>Password</label>
+                  <button
+                    type="button"
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#00694c', fontWeight: 600, fontFamily: "'DM Sans', sans-serif", padding: 0 }}
+                  >
+                    Forgot password?
+                  </button>
+                </div>
                 <div style={{ position: 'relative' }}>
                   <input
                     type={showLoginPass ? 'text' : 'password'} value={loginPass}
@@ -179,11 +181,15 @@ export default function LoginRegisterPage({ defaultTab = 'login' }: Props) {
                     onKeyDown={e => e.key === 'Enter' && handleLogin()}
                   />
                   <button onClick={() => setShowLoginPass(!showLoginPass)}
-                    style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: '#6d7a73' }}>
-                    {showLoginPass ? '🙈' : '👁'}
+                    style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#6d7a73' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
+                      {showLoginPass ? 'visibility_off' : 'visibility'}
+                    </span>
                   </button>
                 </div>
               </div>
+
+              <div style={{ marginBottom: '1.5rem' }} />
 
               <button onClick={handleLogin} disabled={loginLoading}
                 style={{
@@ -218,19 +224,23 @@ export default function LoginRegisterPage({ defaultTab = 'login' }: Props) {
                 </div>
               )}
 
-              {[
-                { label: 'Full Name', val: regName, set: setRegName, type: 'text',     ph: 'Your full name' },
-                { label: 'Email',     val: regEmail, set: setRegEmail, type: 'email',   ph: 'your@email.com' },
-              ].map(f => (
-                <div key={f.label} style={{ marginBottom: '1rem' }}>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: '#3d4943', display: 'block', marginBottom: 5 }}>{f.label}</label>
-                  <input type={f.type} value={f.val} onChange={e => { f.set(e.target.value); setRegError(''); }}
-                    placeholder={f.ph} style={inputStyle}
-                    onFocus={e => { e.currentTarget.style.borderColor = '#00694c'; e.currentTarget.style.background = '#fff'; }}
-                    onBlur={e => { e.currentTarget.style.borderColor = '#c8e4d8'; e.currentTarget.style.background = '#f4fbf7'; }}
-                  />
-                </div>
-              ))}
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#3d4943', display: 'block', marginBottom: 5 }}>Full Name</label>
+                <input type="text" value={regName} onChange={e => { setRegName(e.target.value); setRegError(''); }}
+                  placeholder="Your full name" style={inputStyle}
+                  onFocus={e => { e.currentTarget.style.borderColor = '#00694c'; e.currentTarget.style.background = '#fff'; }}
+                  onBlur={e => { e.currentTarget.style.borderColor = '#c8e4d8'; e.currentTarget.style.background = '#f4fbf7'; }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#3d4943', display: 'block', marginBottom: 5 }}>Phone Number</label>
+                <input type="tel" value={regPhone} onChange={e => { setRegPhone(e.target.value); setRegError(''); }}
+                  placeholder="e.g. 0912345678" style={inputStyle}
+                  onFocus={e => { e.currentTarget.style.borderColor = '#00694c'; e.currentTarget.style.background = '#fff'; }}
+                  onBlur={e => { e.currentTarget.style.borderColor = '#c8e4d8'; e.currentTarget.style.background = '#f4fbf7'; }}
+                />
+              </div>
 
               <div style={{ marginBottom: '1rem' }}>
                 <label style={{ fontSize: 12, fontWeight: 600, color: '#3d4943', display: 'block', marginBottom: 5 }}>Password</label>
@@ -242,8 +252,10 @@ export default function LoginRegisterPage({ defaultTab = 'login' }: Props) {
                     onBlur={e => { e.currentTarget.style.borderColor = '#c8e4d8'; e.currentTarget.style.background = '#f4fbf7'; }}
                   />
                   <button onClick={() => setShowRegPass(!showRegPass)}
-                    style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: '#6d7a73' }}>
-                    {showRegPass ? '🙈' : '👁'}
+                    style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#6d7a73' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
+                      {showRegPass ? 'visibility_off' : 'visibility'}
+                    </span>
                   </button>
                 </div>
               </div>

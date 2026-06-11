@@ -20,7 +20,7 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
 
   const placeOrder = useCallback((cart: CartItem[], method: PaymentMethod): string => {
     const oid = '#AM' + Math.floor(10000 + Math.random() * 90000);
-    const methodLabel = { card: 'Credit Card', momo: 'MoMo', bank: 'Bank Transfer', cod: 'COD' }[method];
+    const methodLabel = { vnpay: 'VNPay', cod: 'COD' }[method];
     const newOrder: Order = {
       id: oid,
       date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),

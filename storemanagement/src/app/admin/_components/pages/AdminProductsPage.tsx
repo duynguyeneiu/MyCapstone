@@ -71,7 +71,7 @@ const fmt = (n: number) => `$${n.toFixed(2)}`;
 
 interface AdminProduct {
   id: number; name: string; code: string; cat: string; subcat: string;
-  emoji: string; importPrice: number; salePrice: number; stock: number;
+  image: string; importPrice: number; salePrice: number; stock: number;
   status: string; desc: string; rating: number;
 }
 
@@ -84,7 +84,7 @@ const toAdmin = (): AdminProduct[] =>
       code:        `P${String(p.id).padStart(3, '0')}`,
       cat:         p.category,
       subcat:      p.subcategory,
-      emoji:       p.emoji,
+      image:       p.image,
       importPrice: p.original ? Math.round(p.original * 0.72 * 100) / 100 : Math.round(p.price * 0.72 * 100) / 100,
       salePrice:   p.price,
       stock,
@@ -102,6 +102,7 @@ export default function AdminProductsPage({ activePage, onNav }: Props) {
   const [search, setSearch] = useState('');
   const [catFilter, setCatFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [curPage, setCurPage] = useState(1);
   const [formOpen, setFormOpen] = useState(false);
   const [delOpen, setDelOpen] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
@@ -113,6 +114,21 @@ export default function AdminProductsPage({ activePage, onNav }: Props) {
     (!catFilter || p.cat === catFilter) &&
     (!statusFilter || p.status === statusFilter)
   );
+
+  const PAGE_SIZE  = 10;
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage   = Math.min(curPage, totalPages);
+  const pageStart  = (safePage - 1) * PAGE_SIZE;
+  const paged      = filtered.slice(pageStart, pageStart + PAGE_SIZE);
+
+  const goTo = (p: number) => setCurPage(Math.max(1, Math.min(totalPages, p)));
+
+  const pageNums: number[] = [];
+  const half = 2;
+  let lo = Math.max(1, safePage - half);
+  let hi = Math.min(totalPages, safePage + half);
+  if (hi - lo < 4) { if (lo === 1) hi = Math.min(totalPages, lo + 4); else lo = Math.max(1, hi - 4); }
+  for (let i = lo; i <= hi; i++) pageNums.push(i);
 
   const statusBadge = (s: string) => {
     const map: Record<string, { bg: string; text: string }> = {
@@ -138,7 +154,7 @@ export default function AdminProductsPage({ activePage, onNav }: Props) {
         : p));
     } else {
       const stock = parseInt(form.stock) || 0;
-      setProducts(prev => [...prev, { id: Date.now(), name: form.name, code: form.code, cat: form.cat || 'beverages', subcat: form.subcat || '', emoji: '📦', importPrice: parseFloat(form.importPrice) || 0, salePrice: parseFloat(form.salePrice) || 0, stock, status: stock <= 10 ? 'Low Stock' : form.status, desc: form.desc, rating: 0 }]);
+      setProducts(prev => [...prev, { id: Date.now(), name: form.name, code: form.code, cat: form.cat || 'beverages', subcat: form.subcat || '', image: '', importPrice: parseFloat(form.importPrice) || 0, salePrice: parseFloat(form.salePrice) || 0, stock, status: stock <= 10 ? 'Low Stock' : form.status, desc: form.desc, rating: 0 }]);
     }
     setFormOpen(false);
   };
@@ -189,7 +205,7 @@ export default function AdminProductsPage({ activePage, onNav }: Props) {
             <h2 className="font-bold" style={{ fontSize: '24px', color: '#00694c' }}>Products</h2>
             <div className="search-bar hidden lg:flex w-80">
               <span className="material-symbols-outlined" style={{ color: '#b47b10', fontSize: '20px' }}>search</span>
-              <input placeholder="Search name or code..." value={search} onChange={e => setSearch(e.target.value)} />
+              <input placeholder="Search name or code..." value={search} onChange={e => { setSearch(e.target.value); setCurPage(1); }} />
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -244,11 +260,11 @@ export default function AdminProductsPage({ activePage, onNav }: Props) {
           <div className="bg-surface-container-lowest border rounded-xl overflow-hidden" style={{ borderColor: '#c8e4d8' }}>
             <div className="p-6 border-b flex items-center justify-between gap-3 flex-wrap" style={{ borderColor: '#c8e4d8' }}>
               <div className="flex items-center gap-3">
-                <select value={catFilter} onChange={e => setCatFilter(e.target.value)} className="rounded-lg px-3 py-2 focus:outline-none" style={{ background: '#fff8e6', border: '1.5px solid #fcd97a', fontSize: '13px' }}>
+                <select value={catFilter} onChange={e => { setCatFilter(e.target.value); setCurPage(1); }} className="rounded-lg px-3 py-2 focus:outline-none" style={{ background: '#fff8e6', border: '1.5px solid #fcd97a', fontSize: '13px' }}>
                   <option value="">All Categories</option>
                   {Object.entries(CAT_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                 </select>
-                <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="rounded-lg px-3 py-2 focus:outline-none" style={{ background: '#fff8e6', border: '1.5px solid #fcd97a', fontSize: '13px' }}>
+                <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setCurPage(1); }} className="rounded-lg px-3 py-2 focus:outline-none" style={{ background: '#fff8e6', border: '1.5px solid #fcd97a', fontSize: '13px' }}>
                   <option value="">All Status</option>
                   <option>Active</option>
                   <option>Inactive</option>
@@ -276,15 +292,17 @@ export default function AdminProductsPage({ activePage, onNav }: Props) {
                   </tr>
                 </thead>
                 <tbody className="divide-y" style={{ borderColor: '#c8e4d8' }}>
-                  {filtered.map(p => {
+                  {paged.map(p => {
                     const cc  = CAT_COLORS[p.cat] ?? { bg: '#e0f5ed', text: '#004d38' };
                     const stockColor = p.stock <= 10 ? '#854f0b' : '#191c1e';
                     return (
                       <tr key={p.id} className="transition-colors" style={{ borderColor: '#c8e4d8' }}>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 text-xl" style={{ background: '#f4fbf7' }}>
-                              {p.emoji}
+                            <div className="w-9 h-9 rounded-lg flex-shrink-0 overflow-hidden" style={{ background: '#f4fbf7' }}>
+                              {p.image
+                                ? <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 4 }} />
+                                : <span className="flex items-center justify-center w-full h-full text-xl">📦</span>}
                             </div>
                             <div>
                               <p className="font-bold text-on-surface" style={{ fontSize: '13px' }}>{p.name}</p>
@@ -329,8 +347,59 @@ export default function AdminProductsPage({ activePage, onNav }: Props) {
                 </tbody>
               </table>
             </div>
-            <div className="px-6 py-4 border-t flex items-center justify-between" style={{ borderColor: '#c8e4d8' }}>
-              <p className="text-on-surface-variant" style={{ fontSize: '13px' }}>Showing {filtered.length} of {products.length} products</p>
+            <div className="px-6 py-4 border-t flex items-center justify-center" style={{ borderColor: '#c8e4d8' }}>
+              {totalPages > 1 && (
+                <div className="flex items-center gap-1">
+                  {/* Prev */}
+                  <button onClick={() => goTo(safePage - 1)} disabled={safePage === 1}
+                    className="w-8 h-8 rounded-lg border flex items-center justify-center transition-colors"
+                    style={{ borderColor: '#c8e4d8', opacity: safePage === 1 ? 0.35 : 1, cursor: safePage === 1 ? 'not-allowed' : 'pointer', fontSize: '16px' }}
+                    onMouseOver={e => { if (safePage > 1) (e.currentTarget as HTMLButtonElement).style.background = '#e0f5ed'; }}
+                    onMouseOut={e => { (e.currentTarget as HTMLButtonElement).style.background = ''; }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>chevron_left</span>
+                  </button>
+
+                  {/* First page shortcut */}
+                  {lo > 1 && (
+                    <>
+                      <button onClick={() => goTo(1)} className="w-8 h-8 rounded-lg border flex items-center justify-center transition-colors" style={{ borderColor: '#c8e4d8', fontSize: '13px', cursor: 'pointer' }}
+                        onMouseOver={e => { (e.currentTarget as HTMLButtonElement).style.background = '#e0f5ed'; }}
+                        onMouseOut={e => { (e.currentTarget as HTMLButtonElement).style.background = ''; }}>1</button>
+                      {lo > 2 && <span style={{ fontSize: '13px', color: '#94a3b8', padding: '0 2px' }}>…</span>}
+                    </>
+                  )}
+
+                  {/* Page numbers */}
+                  {pageNums.map(n => (
+                    <button key={n} onClick={() => goTo(n)}
+                      className="w-8 h-8 rounded-lg border flex items-center justify-center transition-colors"
+                      style={{ borderColor: n === safePage ? '#00694c' : '#c8e4d8', background: n === safePage ? '#00694c' : '', color: n === safePage ? '#fff' : '', fontWeight: n === safePage ? 700 : 400, fontSize: '13px', cursor: 'pointer' }}
+                      onMouseOver={e => { if (n !== safePage) (e.currentTarget as HTMLButtonElement).style.background = '#e0f5ed'; }}
+                      onMouseOut={e => { if (n !== safePage) (e.currentTarget as HTMLButtonElement).style.background = ''; }}>
+                      {n}
+                    </button>
+                  ))}
+
+                  {/* Last page shortcut */}
+                  {hi < totalPages && (
+                    <>
+                      {hi < totalPages - 1 && <span style={{ fontSize: '13px', color: '#94a3b8', padding: '0 2px' }}>…</span>}
+                      <button onClick={() => goTo(totalPages)} className="w-8 h-8 rounded-lg border flex items-center justify-center transition-colors" style={{ borderColor: '#c8e4d8', fontSize: '13px', cursor: 'pointer' }}
+                        onMouseOver={e => { (e.currentTarget as HTMLButtonElement).style.background = '#e0f5ed'; }}
+                        onMouseOut={e => { (e.currentTarget as HTMLButtonElement).style.background = ''; }}>{totalPages}</button>
+                    </>
+                  )}
+
+                  {/* Next */}
+                  <button onClick={() => goTo(safePage + 1)} disabled={safePage === totalPages}
+                    className="w-8 h-8 rounded-lg border flex items-center justify-center transition-colors"
+                    style={{ borderColor: '#c8e4d8', opacity: safePage === totalPages ? 0.35 : 1, cursor: safePage === totalPages ? 'not-allowed' : 'pointer' }}
+                    onMouseOver={e => { if (safePage < totalPages) (e.currentTarget as HTMLButtonElement).style.background = '#e0f5ed'; }}
+                    onMouseOut={e => { (e.currentTarget as HTMLButtonElement).style.background = ''; }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>chevron_right</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

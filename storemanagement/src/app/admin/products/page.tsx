@@ -1,5 +1,9 @@
+'use client'
+import { useState } from 'react'
 import Link from 'next/link'
 import { PRODUCTS } from '../../lib/data'
+
+const PAGE_SIZE = 10
 
 const CAT_LABELS: Record<string, string> = {
   beverages:       'Beverages',
@@ -31,6 +35,25 @@ const CAT_COLORS: Record<string, { bg: string; color: string }> = {
 }
 
 export default function ProductTablePage() {
+  const [page, setPage] = useState(1)
+
+  const totalPages = Math.ceil(PRODUCTS.length / PAGE_SIZE)
+  const start      = (page - 1) * PAGE_SIZE
+  const paged      = PRODUCTS.slice(start, start + PAGE_SIZE)
+
+  const goTo = (p: number) => setPage(Math.max(1, Math.min(totalPages, p)))
+
+  // Show at most 5 page buttons, centered around current page
+  const pageNums: number[] = []
+  const half = 2
+  let lo = Math.max(1, page - half)
+  let hi = Math.min(totalPages, page + half)
+  if (hi - lo < 4) {
+    if (lo === 1) hi = Math.min(totalPages, lo + 4)
+    else          lo = Math.max(1, hi - 4)
+  }
+  for (let i = lo; i <= hi; i++) pageNums.push(i)
+
   return (
     <div style={{ padding: '2rem', fontFamily: "'Inter', sans-serif" }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
@@ -57,14 +80,16 @@ export default function ProductTablePage() {
               </tr>
             </thead>
             <tbody>
-              {PRODUCTS.map((item, idx) => {
+              {paged.map((item, idx) => {
                 const cc = CAT_COLORS[item.category] ?? { bg: '#e0f5ed', color: '#004d38' }
                 return (
                   <tr key={item.id} style={{ borderBottom: '1px solid #e8f4ee', background: idx % 2 === 0 ? '#fff' : '#fafcfb' }}>
                     <td style={td}>{item.id}</td>
                     <td style={td}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <span style={{ fontSize: '1.75rem', lineHeight: 1 }}>{item.emoji}</span>
+                        <div style={{ width: 36, height: 36, borderRadius: '0.5rem', background: 'var(--teal-xs)', overflow: 'hidden', flexShrink: 0 }}>
+                          <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 4 }} />
+                        </div>
                         <div>
                           <div style={{ fontWeight: 600, color: '#1e293b' }}>{item.name}</div>
                           <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>P{String(item.id).padStart(3,'0')}</div>
@@ -99,8 +124,64 @@ export default function ProductTablePage() {
             </tbody>
           </table>
         </div>
-        <div style={{ padding: '0.75rem 1.5rem', borderTop: '1px solid #c8e4d8', fontSize: '0.8125rem', color: '#64748b' }}>
-          {PRODUCTS.length} products total
+
+        {/* Pagination footer */}
+        <div style={{ padding: '0.75rem 1.5rem', borderTop: '1px solid #c8e4d8', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+          <span style={{ fontSize: '0.8125rem', color: '#64748b' }}>
+            Showing {start + 1}–{Math.min(start + PAGE_SIZE, PRODUCTS.length)} of {PRODUCTS.length} products
+          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            {/* Prev */}
+            <button
+              onClick={() => goTo(page - 1)}
+              disabled={page === 1}
+              style={{ ...pgBtn, opacity: page === 1 ? 0.35 : 1 }}
+            >
+              ‹
+            </button>
+
+            {/* First page shortcut */}
+            {lo > 1 && (
+              <>
+                <button onClick={() => goTo(1)} style={pgBtn}>1</button>
+                {lo > 2 && <span style={{ fontSize: '0.8125rem', color: '#94a3b8', padding: '0 2px' }}>…</span>}
+              </>
+            )}
+
+            {/* Page number buttons */}
+            {pageNums.map(n => (
+              <button
+                key={n}
+                onClick={() => goTo(n)}
+                style={{
+                  ...pgBtn,
+                  background:   n === page ? '#00694c' : pgBtn.background,
+                  color:        n === page ? '#fff'    : pgBtn.color,
+                  borderColor:  n === page ? '#00694c' : pgBtn.borderColor,
+                  fontWeight:   n === page ? 700       : 500,
+                }}
+              >
+                {n}
+              </button>
+            ))}
+
+            {/* Last page shortcut */}
+            {hi < totalPages && (
+              <>
+                {hi < totalPages - 1 && <span style={{ fontSize: '0.8125rem', color: '#94a3b8', padding: '0 2px' }}>…</span>}
+                <button onClick={() => goTo(totalPages)} style={pgBtn}>{totalPages}</button>
+              </>
+            )}
+
+            {/* Next */}
+            <button
+              onClick={() => goTo(page + 1)}
+              disabled={page === totalPages}
+              style={{ ...pgBtn, opacity: page === totalPages ? 0.35 : 1 }}
+            >
+              ›
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -120,4 +201,21 @@ const th: React.CSSProperties = {
 const td: React.CSSProperties = {
   padding: '0.75rem 1rem',
   verticalAlign: 'middle',
+}
+
+const pgBtn: React.CSSProperties = {
+  minWidth: 32,
+  height: 32,
+  padding: '0 6px',
+  borderRadius: '0.4rem',
+  border: '1.5px solid #c8e4d8',
+  background: '#fff',
+  color: '#374151',
+  fontSize: '0.8125rem',
+  fontWeight: 500,
+  cursor: 'pointer',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  transition: 'all .15s',
 }

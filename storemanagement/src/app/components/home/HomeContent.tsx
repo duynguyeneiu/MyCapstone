@@ -1,65 +1,52 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { PRODUCTS } from '../../lib/data';
-import { Category } from '../../lib/types';
-import Badge from '../ui/Badge';
 import BtnTeal from '../ui/BtnTeal';
 import BtnOutline from '../ui/BtnOutline';
 import ProductCard from '../ui/ProductCard';
 
 export default function HomeContent() {
   const router = useRouter();
-  const featured = PRODUCTS.filter(p => p.rating >= 4.7).slice(0, 4);
+  const featured = [...PRODUCTS].sort((a, b) => b.rating - a.rating).slice(0, 8);
+  const SHOW = 5; // cards visible at once
+  const maxStep = featured.length - SHOW;
+  const [featStep, setFeatStep] = useState(0);
+  const [featPaused, setFeatPaused] = useState(false);
 
-  const catCards = [
-    { cat: 'appliances' as Category, label: 'Home Appliances',    sub: 'Air purifiers, blenders & more', emoji: '🏠', grad: 'linear-gradient(135deg,#00694c,#004d38)' },
-    { cat: 'food'       as Category, label: 'Food & Drinks',      sub: 'Organic, gourmet & everyday',    emoji: '🍱', grad: 'linear-gradient(135deg,#f59e0b,#b47b10)' },
-    { cat: 'beauty'     as Category, label: 'Beauty & Cosmetics', sub: 'Skincare, makeup & wellness',    emoji: '💄', grad: 'linear-gradient(135deg,#00694c,#f59e0b)'   },
+  useEffect(() => {
+    if (featPaused) return;
+    const id = setInterval(() => {
+      setFeatStep(s => (s >= maxStep ? 0 : s + 1));
+    }, 3000);
+    return () => clearInterval(id);
+  }, [featPaused, maxStep]);
+
+  const ALL_CATS = [
+    { key: 'beverages',     label: 'Beverages',              sub: 'Water, tea, coffee & soft drinks', icon: 'local_drink',       iconBg: '#e0f5ed', iconColor: '#00694c' },
+    { key: 'snacks',        label: 'Snacks & Confectionery', sub: 'Chips, sweets & sweet treats',     icon: 'cookie',            iconBg: '#fff3d6', iconColor: '#b47b10' },
+    { key: 'food',          label: 'Food',                   sub: 'Instant foods & canned goods',     icon: 'lunch_dining',      iconBg: '#fef3c7', iconColor: '#92400e' },
+    { key: 'personal-care', label: 'Personal Care',          sub: 'Oral, hair & skin care',           icon: 'self_care',         iconBg: '#ede9fe', iconColor: '#4c1d95' },
+    { key: 'household',     label: 'Household Essentials',   sub: 'Cleaning & storage supplies',      icon: 'cleaning_services', iconBg: '#e0f2fe', iconColor: '#075985' },
   ];
+  const [catOffset, setCatOffset] = useState(0);
 
   const stats = [['500+', 'Products'], ['50K+', 'Customers'], ['4.9★', 'Avg Rating'], ['24h', 'Delivery']];
 
   return (
     <div>
       {/* Hero */}
-      <section style={{ background: 'linear-gradient(135deg,#00694c 0%,#004d38 50%,#003028 100%)', minHeight: 520, position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', inset: 0, opacity: .08, backgroundImage: `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><circle cx='10' cy='10' r='1.5' fill='white'/></svg>")` }} />
-        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '5rem 1.5rem', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '2.5rem', position: 'relative', zIndex: 1 }}>
-          <div className="fade-up" style={{ flex: 1, minWidth: 280, color: '#fff' }}>
-            <Badge style={{ background: 'rgba(255,255,255,.2)', color: '#fff', marginBottom: '1rem', display: 'inline-block' }}>✨ New Arrivals Every Week</Badge>
-            <h1 className="serif" style={{ fontSize: 'clamp(2.5rem,5vw,4rem)', fontWeight: 700, lineHeight: 1.15, marginBottom: '1rem' }}>
-              Fresh Finds<br /><span style={{ color: 'var(--teal-lt)' }}>Delivered</span> Daily
-            </h1>
-            <p style={{ color: '#b8e0cc', fontSize: '1.1rem', marginBottom: '2rem', maxWidth: 420 }}>
-              Home appliances, gourmet food & drinks, and premium beauty products — all in one place.
-            </p>
-            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <BtnTeal onClick={() => router.push('/shop')} style={{ background: '#fff', color: 'var(--teal-dk)' }}>Shop Now</BtnTeal>
-              <BtnOutline onClick={() => router.push('/shop')}><span style={{ color: '#fff' }}>View Deals</span></BtnOutline>
-            </div>
-          </div>
-          <div className="fade-up d2" style={{ flex: 1, display: 'flex', justifyContent: 'center', minWidth: 220 }}>
-            <div style={{ position: 'relative' }}>
-              <div style={{ width: 224, height: 224, borderRadius: '1.5rem', background: 'rgba(255,255,255,.1)', border: '1px solid rgba(255,255,255,.2)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: '0 20px 60px rgba(0,0,0,.3)' }}>
-                <span style={{ fontSize: '4.5rem' }}>🛍️</span>
-                <span className="serif" style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 600 }}>500+ Products</span>
-              </div>
-              {[{ emoji: '🏠', label: 'Appliances', top: -24, right: -32 }, { emoji: '💄', label: 'Beauty', bottom: -24, left: -32 }].map((f, i) => (
-                <div key={i} style={{ position: 'absolute', width: 96, height: 96, borderRadius: '1rem', background: 'rgba(255,255,255,.15)', border: '1px solid rgba(255,255,255,.25)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', top: (f as any).top, right: (f as any).right, bottom: (f as any).bottom, left: (f as any).left }}>
-                  <span style={{ fontSize: '2rem' }}>{f.emoji}</span>
-                  <span style={{ color: '#fff', fontSize: '.75rem', fontWeight: 500, marginTop: 4 }}>{f.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', overflow: 'hidden', lineHeight: 0 }}>
-          <svg viewBox="0 0 1440 60" preserveAspectRatio="none" style={{ height: 60, width: '100%', display: 'block' }}>
-            <path d="M0,30 C360,60 1080,0 1440,30 L1440,60 L0,60 Z" fill="var(--teal-xs)" />
-          </svg>
-        </div>
+      <section style={{ display: 'block', lineHeight: 0 }}>
+        <Image
+          src="/image/banner.jpg"
+          alt="Happy Market – Fresh Finds Delivered Daily"
+          width={1920}
+          height={600}
+          style={{ width: '100%', height: 'auto', display: 'block' }}
+          priority
+        />
       </section>
 
       {/* Stats */}
@@ -77,39 +64,131 @@ export default function HomeContent() {
       {/* Categories */}
       <section style={{ padding: '3.5rem 1.5rem', background: '#f8fafc' }}>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-          <h2 className="serif" style={{ fontSize: '2rem', fontWeight: 700, textAlign: 'center', marginBottom: '0.5rem' }}>Shop by Category</h2>
-          <p style={{ color: '#64748b', textAlign: 'center', marginBottom: '2.5rem' }}>Find exactly what you need</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: '1.25rem' }}>
-            {catCards.map(c => (
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '2.5rem' }}>
+            <div>
+              <h2 className="serif" style={{ fontSize: '2rem', fontWeight: 700 }}>Shop by Category</h2>
+              <p style={{ color: '#64748b', marginTop: '0.25rem' }}>Find exactly what you need</p>
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
               <button
-                key={c.cat}
-                onClick={() => router.push(`/shop?category=${c.cat}`)}
-                style={{ background: c.grad, borderRadius: '1.5rem', padding: '2rem', textAlign: 'left', border: 'none', cursor: 'pointer', minHeight: 180, position: 'relative', overflow: 'hidden', transition: 'transform .2s' }}
-                onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-4px)')}
-                onMouseLeave={e => (e.currentTarget.style.transform = '')}
+                onClick={() => setCatOffset(o => Math.max(0, o - 1))}
+                disabled={catOffset === 0}
+                style={{ width: 40, height: 40, borderRadius: '50%', border: '1.5px solid', borderColor: catOffset === 0 ? '#e2e8f0' : 'var(--teal)', background: catOffset === 0 ? '#f8fafc' : '#fff', color: catOffset === 0 ? '#cbd5e1' : 'var(--teal)', cursor: catOffset === 0 ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}
               >
-                <span style={{ fontSize: '3.5rem', display: 'block', marginBottom: '0.75rem' }}>{c.emoji}</span>
-                <h3 className="serif" style={{ fontSize: '1.35rem', fontWeight: 700, color: '#fff' }}>{c.label}</h3>
-                <p style={{ color: 'rgba(255,255,255,.75)', fontSize: '.875rem', marginTop: '0.25rem' }}>{c.sub}</p>
-                <div style={{ position: 'absolute', bottom: -16, right: -16, width: 80, height: 80, borderRadius: '50%', background: 'rgba(255,255,255,.1)' }} />
+                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>chevron_left</span>
               </button>
+              <button
+                onClick={() => setCatOffset(o => Math.min(ALL_CATS.length - 3, o + 1))}
+                disabled={catOffset >= ALL_CATS.length - 3}
+                style={{ width: 40, height: 40, borderRadius: '50%', border: '1.5px solid', borderColor: catOffset >= ALL_CATS.length - 3 ? '#e2e8f0' : 'var(--teal)', background: catOffset >= ALL_CATS.length - 3 ? '#f8fafc' : '#fff', color: catOffset >= ALL_CATS.length - 3 ? '#cbd5e1' : 'var(--teal)', cursor: catOffset >= ALL_CATS.length - 3 ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>chevron_right</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Sliding track — overflow hidden clips cards outside the viewport */}
+          <div style={{ overflow: 'hidden', margin: '0 -0.625rem', background: '#f8fafc' }}>
+            <div style={{
+              display: 'flex',
+              width: `calc(500% / 3)`,
+              transform: `translateX(calc(-${catOffset} * 20%))`,
+              transition: 'transform 0.45s cubic-bezier(0.25,0.46,0.45,0.94)',
+              background: '#f8fafc',
+            }}>
+              {ALL_CATS.map(c => (
+                <div key={c.key} style={{ width: '20%', padding: '0 0.625rem', boxSizing: 'border-box', background: '#f8fafc' }}>
+                  <button
+                    onClick={() => router.push(`/shop?category=${c.key}`)}
+                    style={{ width: '100%', background: '#fff', borderRadius: '1.5rem', padding: '2rem', textAlign: 'left', border: '2px solid var(--teal)', cursor: 'pointer', transition: 'box-shadow .2s, transform .2s, border-color .2s', boxShadow: '0 4px 24px rgba(0,0,0,.08)' }}
+                    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 36px rgba(0,105,76,.25)'; e.currentTarget.style.borderColor = 'var(--teal-dk)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 4px 24px rgba(0,0,0,.08)'; e.currentTarget.style.borderColor = 'var(--teal)'; }}
+                  >
+                    <div style={{ width: 64, height: 64, borderRadius: '50%', background: c.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.25rem' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '1.75rem', color: c.iconColor }}>{c.icon}</span>
+                    </div>
+                    <h3 className="serif" style={{ fontSize: '1.2rem', fontWeight: 700, color: '#1e293b', marginBottom: '0.35rem' }}>{c.label}</h3>
+                    <p style={{ color: '#64748b', fontSize: '.875rem' }}>{c.sub}</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: '1rem', color: 'var(--teal)', fontSize: '.875rem', fontWeight: 500 }}>
+                      <span>Shop now</span>
+                      <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>arrow_forward</span>
+                    </div>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: '1.5rem' }}>
+            {[0, 1, 2].map(i => (
+              <button
+                key={i}
+                onClick={() => setCatOffset(i)}
+                style={{ width: catOffset === i ? 24 : 8, height: 8, borderRadius: 9999, background: catOffset === i ? 'var(--teal)' : '#cbd5e1', border: 'none', cursor: 'pointer', transition: 'all .2s', padding: 0 }}
+              />
             ))}
           </div>
         </div>
       </section>
 
-      {/* Featured */}
-      <section style={{ padding: '3.5rem 1.5rem', background: '#fff' }}>
+      {/* Featured — auto-play carousel */}
+      <section
+        style={{ padding: '3.5rem 1.5rem', background: '#fff' }}
+        onMouseEnter={() => setFeatPaused(true)}
+        onMouseLeave={() => setFeatPaused(false)}
+      >
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+          {/* Header row */}
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '2rem' }}>
             <div>
               <h2 className="serif" style={{ fontSize: '2rem', fontWeight: 700 }}>Featured Products</h2>
               <p style={{ color: '#64748b', marginTop: '0.25rem' }}>Handpicked just for you</p>
             </div>
-            <BtnOutline onClick={() => router.push('/shop')}>View All</BtnOutline>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <button
+                onClick={() => setFeatStep(s => Math.max(0, s - 1))}
+                disabled={featStep === 0}
+                style={{ width: 40, height: 40, borderRadius: '50%', border: '1.5px solid', borderColor: featStep === 0 ? '#e2e8f0' : 'var(--teal)', background: featStep === 0 ? '#f8fafc' : '#fff', color: featStep === 0 ? '#cbd5e1' : 'var(--teal)', cursor: featStep === 0 ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>chevron_left</span>
+              </button>
+              <button
+                onClick={() => setFeatStep(s => Math.min(maxStep, s + 1))}
+                disabled={featStep >= maxStep}
+                style={{ width: 40, height: 40, borderRadius: '50%', border: '1.5px solid', borderColor: featStep >= maxStep ? '#e2e8f0' : 'var(--teal)', background: featStep >= maxStep ? '#f8fafc' : '#fff', color: featStep >= maxStep ? '#cbd5e1' : 'var(--teal)', cursor: featStep >= maxStep ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>chevron_right</span>
+              </button>
+              <BtnOutline onClick={() => router.push('/shop')}>View All</BtnOutline>
+            </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: '1.25rem' }}>
-            {featured.map(p => <ProductCard key={p.id} p={p} />)}
+
+          {/* Sliding track */}
+          <div style={{ overflow: 'hidden', margin: '0 -0.5rem', background: '#fff' }}>
+            <div style={{
+              display: 'flex',
+              width: `calc(${featured.length} * 100% / ${SHOW})`,
+              transform: `translateX(calc(-${featStep} * 100% / ${featured.length}))`,
+              transition: 'transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94)',
+              background: '#fff',
+            }}>
+              {featured.map(p => (
+                <div key={p.id} style={{ width: `calc(100% / ${featured.length})`, padding: '0 0.5rem', boxSizing: 'border-box', background: '#fff' }}>
+                  <ProductCard p={p} />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Progress dots */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: '1.5rem' }}>
+            {Array.from({ length: maxStep + 1 }, (_, i) => (
+              <button
+                key={i}
+                onClick={() => setFeatStep(i)}
+                style={{ width: featStep === i ? 24 : 8, height: 8, borderRadius: 9999, background: featStep === i ? 'var(--teal)' : '#cbd5e1', border: 'none', cursor: 'pointer', transition: 'all .2s', padding: 0 }}
+              />
+            ))}
           </div>
         </div>
       </section>

@@ -24,12 +24,25 @@ export default function OrdersContent() {
   const [filter, setFilter] = useState<OrderStatus | 'all'>('all');
   const [search, setSearch] = useState('');
   const [detailOrder, setDetailOrder] = useState<Order | null>(null);
+  const [curPage, setCurPage] = useState(1);
 
   const filtered = orders.filter(o =>
     (filter === 'all' || o.status === filter) &&
     (!search || o.id.toLowerCase().includes(search.toLowerCase()) ||
       o.items.some(i => PRODUCTS.find(p => p.id === i.pid)?.name.toLowerCase().includes(search.toLowerCase())))
   );
+
+  const PAGE_SIZE = 5;
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(curPage, totalPages);
+  const pageStart = (safePage - 1) * PAGE_SIZE;
+  const paged = filtered.slice(pageStart, pageStart + PAGE_SIZE);
+  const goTo = (p: number) => setCurPage(Math.max(1, Math.min(totalPages, p)));
+  let lo = Math.max(1, safePage - 2);
+  let hi = Math.min(totalPages, safePage + 2);
+  if (hi - lo < 4) { if (lo === 1) hi = Math.min(totalPages, lo + 4); else lo = Math.max(1, hi - 4); }
+  const pageNums: number[] = [];
+  for (let i = lo; i <= hi; i++) pageNums.push(i);
 
   return (
     <div style={{ maxWidth: 900, margin: '0 auto', padding: '2rem 1.5rem' }}>
@@ -64,7 +77,9 @@ export default function OrdersContent() {
                 const p = PRODUCTS.find(x => x.id === item.pid)!;
                 return (
                   <div key={item.pid} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'var(--teal-xs)', borderRadius: '0.75rem', padding: '0.75rem', marginBottom: '0.5rem' }}>
-                    <span style={{ fontSize: '1.5rem' }}>{p.emoji}</span>
+                    <div style={{ width: 40, height: 40, borderRadius: '0.5rem', background: '#fff', overflow: 'hidden', flexShrink: 0 }}>
+                      <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 4 }} />
+                    </div>
                     <span style={{ flex: 1, fontSize: '.875rem', fontWeight: 500 }}>{p.name} ×{item.qty}</span>
                     <span style={{ fontWeight: 700, fontSize: '.875rem', color: 'var(--teal)' }}>{fmt(p.price * item.qty)}</span>
                   </div>
@@ -114,7 +129,7 @@ export default function OrdersContent() {
       {/* Filter tabs */}
       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', background: '#fff', borderRadius: '1rem', padding: '0.5rem', boxShadow: '0 2px 8px rgba(0,0,0,.04)', width: 'fit-content', marginBottom: '1.25rem' }}>
         {(['all', 'processing', 'shipping', 'delivered', 'cancelled'] as const).map(s => (
-          <button key={s} onClick={() => setFilter(s)}
+          <button key={s} onClick={() => { setFilter(s); setCurPage(1); }}
             style={{ padding: '.4rem 1rem', borderRadius: 9999, border: 'none', background: filter === s ? 'var(--teal)' : 'transparent', color: filter === s ? '#fff' : '#64748b', fontWeight: 500, fontSize: '.85rem', cursor: 'pointer', transition: '.2s' }}>
             {s === 'all' ? 'All Orders' : s.charAt(0).toUpperCase() + s.slice(1)}
           </button>
@@ -122,7 +137,7 @@ export default function OrdersContent() {
       </div>
 
       <div style={{ maxWidth: 480, marginBottom: '1.5rem' }}>
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by order ID or product…" />
+        <input value={search} onChange={e => { setSearch(e.target.value); setCurPage(1); }} placeholder="Search by order ID or product…" />
       </div>
 
       {filtered.length === 0 ? (
@@ -132,7 +147,7 @@ export default function OrdersContent() {
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          {filtered.map(o => {
+          {paged.map(o => {
             const sc = statusCfg[o.status];
             const total = o.items.reduce((s, i) => s + PRODUCTS.find(p => p.id === i.pid)!.price * i.qty, 0) * 1.1;
             const fp = PRODUCTS.find(p => p.id === o.items[0].pid)!;
@@ -153,7 +168,7 @@ export default function OrdersContent() {
                       <p style={{ fontSize: '.75rem', color: '#94a3b8', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
                         <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>calendar_today</span>{o.date}
                         <span style={{ margin: '0 1px' }}>·</span>
-                        <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>credit_card</span>{o.payment}
+                        <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>{o.payment === 'VNPay' ? 'qr_code_2' : 'local_shipping'}</span>{o.payment}
                       </p>
                     </div>
                     <span style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--teal)' }}>{fmt(total)}</span>
@@ -164,8 +179,8 @@ export default function OrdersContent() {
                       {o.items.slice(0, 3).map(i => {
                         const p = PRODUCTS.find(x => x.id === i.pid)!;
                         return (
-                          <div key={i.pid} style={{ width: 40, height: 40, borderRadius: '0.6rem', background: 'var(--teal-xs)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem', border: '2px solid #fff', marginLeft: -4 }}>
-                            {p.emoji}
+                          <div key={i.pid} style={{ width: 40, height: 40, borderRadius: '0.6rem', background: 'var(--teal-xs)', overflow: 'hidden', border: '2px solid #fff', marginLeft: -4, flexShrink: 0 }}>
+                            <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 4 }} />
                           </div>
                         );
                       })}
@@ -209,6 +224,24 @@ export default function OrdersContent() {
               </div>
             );
           })}
+          {totalPages > 1 && (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: '1rem' }}>
+              <button onClick={() => goTo(safePage - 1)} disabled={safePage === 1}
+                style={{ width: 34, height: 34, borderRadius: '50%', border: '1.5px solid', borderColor: safePage === 1 ? '#e2e8f0' : 'var(--teal)', background: '#fff', color: safePage === 1 ? '#cbd5e1' : 'var(--teal)', cursor: safePage === 1 ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>chevron_left</span>
+              </button>
+              {pageNums.map(n => (
+                <button key={n} onClick={() => goTo(n)}
+                  style={{ width: 34, height: 34, borderRadius: '50%', border: '1.5px solid', borderColor: n === safePage ? 'var(--teal)' : '#e2e8f0', background: n === safePage ? 'var(--teal)' : '#fff', color: n === safePage ? '#fff' : '#374151', fontWeight: n === safePage ? 700 : 400, cursor: 'pointer', fontSize: '.875rem' }}>
+                  {n}
+                </button>
+              ))}
+              <button onClick={() => goTo(safePage + 1)} disabled={safePage === totalPages}
+                style={{ width: 34, height: 34, borderRadius: '50%', border: '1.5px solid', borderColor: safePage === totalPages ? '#e2e8f0' : 'var(--teal)', background: '#fff', color: safePage === totalPages ? '#cbd5e1' : 'var(--teal)', cursor: safePage === totalPages ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>chevron_right</span>
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

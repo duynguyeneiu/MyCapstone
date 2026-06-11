@@ -36,12 +36,12 @@ export default function Footer() {
             Fresh finds delivered daily. Home appliances, gourmet food & beauty products.
           </p>
           <div style={{ display: 'flex', gap: 10, marginTop: '1rem' }}>
-            {['fab fa-twitter', 'fab fa-facebook-f', 'fab fa-youtube', 'fab fa-linkedin-in'].map(icon => (
+            {['bi-twitter', 'bi-facebook', 'bi-youtube', 'bi-linkedin'].map(icon => (
               <a key={icon} href="#"
                 style={{ width: 36, height: 36, borderRadius: '50%', border: '1px solid #334155', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', textDecoration: 'none', transition: '.2s' }}
                 onMouseEnter={e => { (e.currentTarget).style.borderColor = 'var(--teal)'; (e.currentTarget).style.color = 'var(--teal-lt)'; }}
                 onMouseLeave={e => { (e.currentTarget).style.borderColor = '#334155'; (e.currentTarget).style.color = '#94a3b8'; }}>
-                <i className={icon} style={{ fontSize: '0.85rem' }} />
+                <i className={`bi ${icon}`} style={{ fontSize: '0.9rem' }} />
               </a>
             ))}
           </div>
@@ -98,12 +98,13 @@ export default function Footer() {
         <div id="footer-contact">
           <p style={{ color: '#fff', fontWeight: 600, marginBottom: 12, fontSize: '1rem' }}>Contact</p>
           {[
-            ['📍', 'Ho Chi Minh City, Vietnam'],
-            ['✉️', 'hello@aquamarket.vn'],
-            ['📞', '+84 912 345 678'],
+            ['location_on', 'Ho Chi Minh City, Vietnam'],
+            ['email',       'hello@aquamarket.vn'],
+            ['phone',       '+84 912 345 678'],
           ].map(([icon, text]) => (
             <p key={text} style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span>{icon}</span>{text}
+              <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--teal-lt)', flexShrink: 0 }}>{icon}</span>
+              {text}
             </p>
           ))}
 

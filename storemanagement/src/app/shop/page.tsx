@@ -1,5 +1,4 @@
 import ShopContent from '../components/shop/ShopContent';
-import CategoryBar from '../components/CategoryBar';
 import { Category, Subcategory } from '../lib/types';
 
 interface ShopPageProps {
@@ -24,7 +23,6 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
 
   return (
     <div className="aqua-page">
-      <CategoryBar />
       <ShopContent initCategory={initCategory} initSubcategory={initSubcategory} />
     </div>
   );

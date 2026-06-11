@@ -18,7 +18,7 @@ export type Subcategory =
   | 'paper-storage';
 
 export type OrderStatus = "processing" | "shipping" | "delivered" | "cancelled";
-export type PaymentMethod = "card" | "momo" | "bank" | "cod";
+export type PaymentMethod = "vnpay" | "cod";
 export type ProfileTab = "info" | "address" | "security" | "notif";
 export type ReviewTab = "write" | "mine" | "pending";
 export type SortMode = "default" | "price-asc" | "price-desc" | "rating";

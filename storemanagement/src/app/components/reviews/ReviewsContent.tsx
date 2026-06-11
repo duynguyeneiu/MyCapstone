@@ -64,6 +64,7 @@ export default function ReviewsContent() {
   const [myReviews, setMyReviews] = useState<Review[]>(MY_REVIEWS);
   const [deleteState, setDeleteState] = useState<DeleteState | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [minePage, setMinePage] = useState(1);
 
   useEffect(() => {
     if (!successMsg) return;
@@ -106,6 +107,7 @@ export default function ReviewsContent() {
     };
     setMyReviews(v => [r, ...v]);
     setPicked(null); setStar(0); setTitle(''); setBody(''); setPros(''); setCons('');
+    setMinePage(1);
     setTab('mine');
   };
 
@@ -113,6 +115,19 @@ export default function ReviewsContent() {
     setPicked(p);
     setTab('write');
   };
+
+  // ── My Reviews pagination ─────────────────────────────────────
+  const MINE_PAGE_SIZE = 5;
+  const mineTotalPages = Math.max(1, Math.ceil(myReviews.length / MINE_PAGE_SIZE));
+  const mineSafePage = Math.min(minePage, mineTotalPages);
+  const mineStart = (mineSafePage - 1) * MINE_PAGE_SIZE;
+  const pagedReviews = myReviews.slice(mineStart, mineStart + MINE_PAGE_SIZE);
+  const mineGoTo = (p: number) => setMinePage(Math.max(1, Math.min(mineTotalPages, p)));
+  let mLo = Math.max(1, mineSafePage - 2);
+  let mHi = Math.min(mineTotalPages, mineSafePage + 2);
+  if (mHi - mLo < 4) { if (mLo === 1) mHi = Math.min(mineTotalPages, mLo + 4); else mLo = Math.max(1, mHi - 4); }
+  const minePageNums: number[] = [];
+  for (let i = mLo; i <= mHi; i++) minePageNums.push(i);
 
   // ── Tab labels ─────────────────────────────────────────────────
   const tabs: { id: ReviewTab; icon: string; label: string }[] = [
@@ -185,8 +200,8 @@ export default function ReviewsContent() {
                   const p = PRODUCTS.find(x => x.id === pid)!;
                   return (
                     <div key={pid} style={{ background: '#fff', borderRadius: '1.25rem', padding: '1rem', boxShadow: '0 2px 10px rgba(0,0,0,.05)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <div style={{ width: 56, height: 56, borderRadius: '0.75rem', background: 'var(--teal-xs)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.75rem', flexShrink: 0 }}>
-                        {p.emoji}
+                      <div style={{ width: 56, height: 56, borderRadius: '0.75rem', background: 'var(--teal-xs)', overflow: 'hidden', flexShrink: 0 }}>
+                        <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 6 }} />
                       </div>
                       <div style={{ flex: 1 }}>
                         <p style={{ fontWeight: 600, fontSize: '.9rem' }}>{p.name}</p>
@@ -256,7 +271,9 @@ export default function ReviewsContent() {
                       style={{ padding: '0.75rem', borderRadius: '0.75rem', border: '1.5px solid #e2e8f0', background: '#fff', cursor: 'pointer', textAlign: 'center', transition: '.2s' }}
                       onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--teal)'; e.currentTarget.style.background = 'var(--teal-xs)'; }}
                       onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = '#fff'; }}>
-                      <span style={{ fontSize: '2rem', display: 'block', marginBottom: 4 }}>{p.emoji}</span>
+                      <div style={{ width: 56, height: 56, borderRadius: '0.5rem', background: 'var(--teal-xs)', overflow: 'hidden', margin: '0 auto 6px' }}>
+                        <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 6 }} />
+                      </div>
                       <p style={{ fontSize: '.78rem', fontWeight: 500, lineHeight: 1.3 }}>{p.name}</p>
                     </button>
                   );
@@ -270,7 +287,9 @@ export default function ReviewsContent() {
             <div style={{ background: '#fff', borderRadius: '1.25rem', padding: '1.5rem', boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
               {/* Product header */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem', borderRadius: '0.75rem', background: 'var(--teal-xs)', marginBottom: '1.5rem' }}>
-                <span style={{ fontSize: '2rem' }}>{picked.emoji}</span>
+                <div style={{ width: 44, height: 44, borderRadius: '0.5rem', background: '#fff', overflow: 'hidden', flexShrink: 0 }}>
+                  <img src={picked.image} alt={picked.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 4 }} />
+                </div>
                 <div style={{ flex: 1 }}>
                   <p style={{ fontWeight: 600, fontSize: '.9rem' }}>{picked.name}</p>
                   <p style={{ fontSize: '.75rem', color: '#64748b' }}>{picked.category}</p>
@@ -383,18 +402,19 @@ export default function ReviewsContent() {
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {myReviews.map((r, idx) => {
+              {pagedReviews.map((r, idx) => {
+                const realIdx = mineStart + idx;
                 const p = PRODUCTS.find(x => x.id === r.pid)!;
                 return (
-                  <div key={idx}
+                  <div key={realIdx}
                     style={{ background: '#fff', borderRadius: '1.25rem', padding: '1.25rem', boxShadow: '0 2px 10px rgba(0,0,0,.05)', transition: '.2s' }}
                     onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.boxShadow = '0 6px 20px rgba(0,105,76,.12)'}
                     onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 10px rgba(0,0,0,.05)'}>
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div style={{ width: 44, height: 44, borderRadius: '0.75rem', background: 'var(--teal-xs)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', flexShrink: 0 }}>
-                          {p.emoji}
+                        <div style={{ width: 44, height: 44, borderRadius: '0.75rem', background: 'var(--teal-xs)', overflow: 'hidden', flexShrink: 0 }}>
+                          <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 4 }} />
                         </div>
                         <div>
                           <p style={{ fontWeight: 600, fontSize: '.9rem' }}>{p.name}</p>
@@ -405,7 +425,7 @@ export default function ReviewsContent() {
                         <span style={{ fontSize: '.8rem', color: 'var(--teal)', cursor: 'pointer' }}>Edit</span>
                         <button
                           onClick={() => confirmDelete(p.name, () => {
-                            setMyReviews(v => v.filter((_, i) => i !== idx));
+                            setMyReviews(v => v.filter((_, i) => i !== realIdx));
                             setSuccessMsg('Review deleted successfully');
                           })}
                           style={{ fontSize: '.8rem', color: '#f87171', cursor: 'pointer', background: 'none', border: 'none', padding: 0, fontFamily: 'inherit' }}
@@ -458,6 +478,24 @@ export default function ReviewsContent() {
                   </div>
                 );
               })}
+              {mineTotalPages > 1 && (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: '1rem' }}>
+                  <button onClick={() => mineGoTo(mineSafePage - 1)} disabled={mineSafePage === 1}
+                    style={{ width: 34, height: 34, borderRadius: '50%', border: '1.5px solid', borderColor: mineSafePage === 1 ? '#e2e8f0' : 'var(--teal)', background: '#fff', color: mineSafePage === 1 ? '#cbd5e1' : 'var(--teal)', cursor: mineSafePage === 1 ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>chevron_left</span>
+                  </button>
+                  {minePageNums.map(n => (
+                    <button key={n} onClick={() => mineGoTo(n)}
+                      style={{ width: 34, height: 34, borderRadius: '50%', border: '1.5px solid', borderColor: n === mineSafePage ? 'var(--teal)' : '#e2e8f0', background: n === mineSafePage ? 'var(--teal)' : '#fff', color: n === mineSafePage ? '#fff' : '#374151', fontWeight: n === mineSafePage ? 700 : 400, cursor: 'pointer', fontSize: '.875rem' }}>
+                      {n}
+                    </button>
+                  ))}
+                  <button onClick={() => mineGoTo(mineSafePage + 1)} disabled={mineSafePage === mineTotalPages}
+                    style={{ width: 34, height: 34, borderRadius: '50%', border: '1.5px solid', borderColor: mineSafePage === mineTotalPages ? '#e2e8f0' : 'var(--teal)', background: '#fff', color: mineSafePage === mineTotalPages ? '#cbd5e1' : 'var(--teal)', cursor: mineSafePage === mineTotalPages ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>chevron_right</span>
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
