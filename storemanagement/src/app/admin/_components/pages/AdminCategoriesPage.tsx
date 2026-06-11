@@ -999,7 +999,7 @@ export default function AdminCategoriesPage({ activePage, onNav }: Props) {
           style={{ borderColor: "#c8e4d8" }}
         >
           <p className="text-on-surface-variant" style={{ fontSize: "14px" }}>
-            © 2024 RetailPro Management System. All rights reserved.
+            © 2024 Happy Market Management System. All rights reserved.
           </p>
         </footer>
       </main>

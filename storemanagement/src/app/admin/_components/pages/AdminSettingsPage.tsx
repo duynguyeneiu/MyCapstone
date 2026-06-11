@@ -9,29 +9,32 @@ const pageCSS = `
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 body { font-family: 'Inter', sans-serif; }
 .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+aside { border-right: 2px solid #ffe08a !important; background: linear-gradient(180deg, #f4fbf7 0%, #fffdf5 100%) !important; }
+header { background: linear-gradient(90deg, #f7fbf9 0%, #fffdf5 100%) !important; border-bottom: 1.5px solid #ffe08a !important; }
+.nav-active { background: linear-gradient(90deg, #fff3d6 0%, #fde68a44 100%) !important; border-left: 3px solid #f59e0b !important; color: #00694c !important; font-weight: 700; }
 .setting-nav-btn { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; color: #3d4943; cursor: pointer; transition: all .15s; width: 100%; background: none; border: none; text-align: left; }
-.setting-nav-btn:hover { background: #e6e8ea; }
-.setting-nav-btn.snav-active { background: #dae2fd; color: #00694c; font-weight: 700; }
-.save-btn { padding: 9px 20px; background: #00694c; color: white; border-radius: 8px; font-size: 14px; font-weight: 700; border: none; cursor: pointer; }
-.save-btn:hover { background: #00513a; }
-.cancel-btn { padding: 9px 20px; border: 1px solid #bccac1; color: #3d4943; border-radius: 8px; font-size: 14px; cursor: pointer; background: transparent; }
-.cancel-btn:hover { background: #eceef0; }
-.form-input { width: 100%; border: 1px solid #bccac1; border-radius: 8px; padding: 9px 12px; font-size: 14px; background: #eceef0; color: #191c1e; outline: none; }
-.form-input:focus { border-color: #00694c; background: #fff; }
-.section-card { background: #fff; border: 1px solid #bccac1; border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+.setting-nav-btn:hover { background: #e8f5ee; }
+.setting-nav-btn.snav-active { background: #fff3d6; color: #00694c; font-weight: 700; border-left: 3px solid #f59e0b; }
+.save-btn { padding: 9px 20px; background: linear-gradient(135deg, #00694c 0%, #00a86b 100%); color: white; border-radius: 8px; font-size: 14px; font-weight: 700; border: none; cursor: pointer; box-shadow: 0 2px 8px #00694c33; }
+.save-btn:hover { box-shadow: 0 4px 14px #00694c55; }
+.cancel-btn { padding: 9px 20px; border: 1.5px solid #bbe8d4; color: #3d4943; border-radius: 8px; font-size: 14px; cursor: pointer; background: transparent; }
+.cancel-btn:hover { background: #e8f5ee; }
+.form-input { width: 100%; border: 1.5px solid #bbe8d4; border-radius: 8px; padding: 9px 12px; font-size: 14px; background: #f4fbf7; color: #191c1e; outline: none; }
+.form-input:focus { border-color: #00694c; background: #fff; box-shadow: 0 0 0 3px #00694c1a; }
+.section-card { background: #fff; border: 1px solid #d4f0e4; border-radius: 12px; padding: 24px; margin-bottom: 16px; }
 .section-card h3 { font-size: 16px; font-weight: 700; color: #191c1e; margin-bottom: 4px; }
 .section-card p.desc { font-size: 13px; color: #3d4943; margin-bottom: 20px; }
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
 .field-row.full { grid-template-columns: 1fr; }
 .field-label { font-size: 12px; font-weight: 600; color: #3d4943; margin-bottom: 5px; display: block; }
-.divider { border: none; border-top: 1px solid #bccac1; margin: 20px 0; }
-.toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #eceef0; }
+.divider { border: none; border-top: 1px solid #d4f0e4; margin: 20px 0; }
+.toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #edf7f2; }
 .toggle-row:last-child { border-bottom: none; }
 .danger-btn { padding: 9px 20px; background: #fee2e2; color: #991b1b; border-radius: 8px; font-size: 14px; font-weight: 700; border: 1px solid #fca5a5; cursor: pointer; }
 .danger-btn:hover { background: #fca5a5; }
 .toggle { position: relative; width: 44px; height: 24px; cursor: pointer; display: inline-block; }
 .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
-.toggle-track { position: absolute; inset: 0; background: #bccac1; border-radius: 99px; transition: .2s; }
+.toggle-track { position: absolute; inset: 0; background: #bbe8d4; border-radius: 99px; transition: .2s; }
 .toggle input:checked + .toggle-track { background: #00694c; }
 .toggle-thumb { position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; background: white; border-radius: 50%; transition: .2s; pointer-events: none; }
 .toggle input:checked ~ .toggle-thumb { transform: translateX(20px); }
@@ -132,7 +135,7 @@ export default function AdminSettingsPage({ activePage, onNav }: Props) {
       <style>{pageCSS}</style>
 
       {/* Sidebar — different style for settings */}
-      <aside className="h-screen w-64 fixed left-0 top-0 z-40 flex flex-col py-5 px-3 overflow-y-auto bg-surface-container-low border-r border-outline-variant">
+      <aside className="h-screen w-64 fixed left-0 top-0 z-40 flex flex-col py-5 px-3 overflow-y-auto">
         <div className="mb-8 px-4">
           <h1 className="font-headline-sm text-headline-sm font-bold" style={{ color: '#00694c' }}>RetailPro</h1>
           <p className="font-label-md text-label-md text-on-surface-variant">Management System</p>
@@ -141,7 +144,7 @@ export default function AdminSettingsPage({ activePage, onNav }: Props) {
           {navItems.map(item => (
             <button key={item.id} onClick={() => onNav(item.id)}
               style={{ color: activePage === item.id ? '#00694c' : undefined }}
-              className={`flex items-center gap-3 px-4 py-3 transition-colors rounded-lg w-full text-left ${activePage === item.id ? 'bg-secondary-container font-bold' : 'text-on-surface-variant hover:bg-surface-container-high'}`}>
+              className={`flex items-center gap-3 px-4 py-3 transition-colors rounded-lg w-full text-left ${activePage === item.id ? 'nav-active' : 'text-on-surface-variant hover:bg-surface-container-high'}`}>
               <span className="material-symbols-outlined">{item.icon}</span>
               <span className="font-label-md text-label-md">{item.label}</span>
             </button>
@@ -151,7 +154,7 @@ export default function AdminSettingsPage({ activePage, onNav }: Props) {
             <span className="font-label-md text-label-md">Home</span>
           </button>
         </nav>
-        <div className="mt-auto p-4 border-t border-outline-variant">
+        <div className="mt-auto p-4" style={{ borderTop: '1px solid #ffe08a' }}>
           <div className="flex items-center gap-3">
             <span className="material-symbols-outlined text-on-surface-variant">help_outline</span>
             <div>
@@ -163,7 +166,7 @@ export default function AdminSettingsPage({ activePage, onNav }: Props) {
       </aside>
 
       <main className="ml-64 min-h-screen flex flex-col">
-        <header className="sticky top-0 z-30 bg-surface border-b border-outline-variant flex justify-between items-center px-8 py-4">
+        <header className="sticky top-0 z-30 flex justify-between items-center px-8 py-4">
           <h2 className="font-bold" style={{ fontSize: '24px', color: '#00694c' }}>Settings</h2>
           <div className="flex items-center gap-3">
             <button className="material-symbols-outlined text-on-surface-variant hover:bg-surface-container rounded-full p-2">notifications</button>
@@ -185,7 +188,7 @@ export default function AdminSettingsPage({ activePage, onNav }: Props) {
           <div className="flex gap-5">
             {/* Settings Nav */}
             <div className="w-56 flex-shrink-0">
-              <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-3 sticky top-24">
+              <div className="rounded-xl p-3 sticky top-24" style={{ background: '#f4fbf7', border: '1px solid #d4f0e4' }}>
                 <p className="text-on-surface-variant px-3 mb-2" style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.05em' }}>General</p>
                 {sectionNav.filter(n => n.group === 'General').map(n => (
                   <button key={n.id} className={`setting-nav-btn${activeSection === n.id ? ' snav-active' : ''}`} onClick={() => setActiveSection(n.id as Section)}>
@@ -457,7 +460,7 @@ export default function AdminSettingsPage({ activePage, onNav }: Props) {
           </div>
         </div>
 
-        <footer className="mt-auto p-8 text-center border-t border-outline-variant">
+        <footer className="mt-auto p-8 text-center" style={{ borderTop: '1px solid #ffe08a' }}>
           <p className="text-on-surface-variant" style={{ fontSize: '14px' }}>© 2024 RetailPro Management System. All rights reserved.</p>
         </footer>
       </main>
