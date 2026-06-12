@@ -7,8 +7,9 @@ const pageCSS = `
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Hanken+Grotesk:wght@600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-.tab-btn { padding: 8px 20px; font-size: 14px; font-weight: 500; border-bottom: 2px solid transparent; color: #3d4943; cursor: pointer; transition: color .15s; background: none; }
-.tab-btn.tab-active { color: #00694c; border-bottom-color: #f59e0b; }
+.usr-tab { padding: 8px 22px; font-size: 14px; font-weight: 500; border-radius: 999px; border: 2px solid #00a86b; color: #00694c; cursor: pointer; transition: all .18s; background: #fff; }
+.usr-tab:hover { background: #e0f5ed; }
+.usr-tab.tab-active { background: linear-gradient(135deg,#00694c,#00a86b); color: #fff; border-color: transparent; box-shadow: 0 2px 8px #00694c44; }
 .filter-select { background: #fff8e6; border: 1.5px solid #fcd97a; border-radius: 8px; padding: 8px 12px; font-size: 13px; color: #3d4943; outline: none; }
 .filter-select:focus { border-color: #f59e0b; }
 .modal-input { border: 1.5px solid #c8e4d8; background: #f4fbf7; border-radius: 8px; padding: 8px 12px; font-size: 14px; width: 100%; outline: none; }
@@ -131,8 +132,13 @@ export default function AdminUsersPage({ search }: Props) {
     : staff.find(s => s.id === lockTarget);
   const isLocking = lockUser?.status === 'Active';
 
+  const PAGE_SIZE = 6;
+  const [curPage, setCurPage] = useState(1);
   const custData = filteredCustomers();
   const staffData = filteredStaff();
+  const totalPages = Math.max(1, Math.ceil(custData.length / PAGE_SIZE));
+  const pagedCustData = custData.slice((curPage - 1) * PAGE_SIZE, curPage * PAGE_SIZE);
+  const goTo = (p: number) => setCurPage(Math.max(1, Math.min(p, totalPages)));
 
   return (
     <>
@@ -172,9 +178,9 @@ export default function AdminUsersPage({ search }: Props) {
 
           {/* Tabs + Table */}
           <div className="bg-surface-container-lowest border rounded-xl overflow-hidden" style={{ borderColor: '#c8e4d8' }}>
-            <div className="flex border-b px-6" style={{ borderColor: '#c8e4d8' }}>
-              <button className={`tab-btn${activeTab === 'customers' ? ' tab-active' : ''}`} onClick={() => setActiveTab('customers')}>Customers</button>
-              <button className={`tab-btn${activeTab === 'staff' ? ' tab-active' : ''}`} onClick={() => setActiveTab('staff')}>Staff</button>
+            <div className="flex gap-2 px-6 py-3 border-b" style={{ borderColor: '#c8e4d8' }}>
+              <button className={`usr-tab${activeTab === 'customers' ? ' tab-active' : ''}`} onClick={() => setActiveTab('customers')}>Customers</button>
+              <button className={`usr-tab${activeTab === 'staff' ? ' tab-active' : ''}`} onClick={() => setActiveTab('staff')}>Staff</button>
             </div>
 
             {/* Customers Tab */}
@@ -213,7 +219,7 @@ export default function AdminUsersPage({ search }: Props) {
                       </tr>
                     </thead>
                     <tbody className="divide-y" style={{ borderColor: '#c8e4d8' }}>
-                      {custData.map((c, i) => (
+                      {pagedCustData.map((c, i) => (
                         <tr key={c.id} className="transition-colors" style={{ borderColor: '#c8e4d8' }}>
                           <td className="px-4 py-3"><input type="checkbox" className="rounded" /></td>
                           <td className="px-4 py-3">
@@ -261,13 +267,25 @@ export default function AdminUsersPage({ search }: Props) {
                     </tbody>
                   </table>
                 </div>
-                <div className="px-6 py-4 border-t flex items-center justify-between" style={{ borderColor: '#c8e4d8' }}>
-                  <p className="text-on-surface-variant" style={{ fontSize: '13px' }}>Showing {custData.length} of {customers.length} customers</p>
+                <div className="px-6 py-4 border-t flex items-center justify-center" style={{ borderColor: '#c8e4d8' }}>
                   <div className="flex items-center gap-1">
-                    <button className="w-8 h-8 rounded-lg border flex items-center justify-center hover:bg-surface-container" style={{ borderColor: '#c8e4d8' }}><span className="material-symbols-outlined" style={{ fontSize: '16px' }}>chevron_left</span></button>
-                    <button className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold btn-primary" style={{ fontSize: '13px' }}>1</button>
-                    <button className="w-8 h-8 rounded-lg border flex items-center justify-center hover:bg-surface-container" style={{ borderColor: '#c8e4d8', fontSize: '13px' }}>2</button>
-                    <button className="w-8 h-8 rounded-lg border flex items-center justify-center hover:bg-surface-container" style={{ borderColor: '#c8e4d8' }}><span className="material-symbols-outlined" style={{ fontSize: '16px' }}>chevron_right</span></button>
+                    <button onClick={() => goTo(curPage - 1)} disabled={curPage === 1}
+                      className="w-8 h-8 rounded-lg border flex items-center justify-center hover:bg-surface-container"
+                      style={{ borderColor: '#c8e4d8', opacity: curPage === 1 ? 0.4 : 1 }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>chevron_left</span>
+                    </button>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                      <button key={p} onClick={() => goTo(p)}
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold${p === curPage ? ' btn-primary' : ' border hover:bg-surface-container'}`}
+                        style={{ fontSize: '13px', borderColor: p !== curPage ? '#c8e4d8' : undefined, color: p !== curPage ? '#3d4943' : undefined }}>
+                        {p}
+                      </button>
+                    ))}
+                    <button onClick={() => goTo(curPage + 1)} disabled={curPage === totalPages}
+                      className="w-8 h-8 rounded-lg border flex items-center justify-center hover:bg-surface-container"
+                      style={{ borderColor: '#c8e4d8', opacity: curPage === totalPages ? 0.4 : 1 }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>chevron_right</span>
+                    </button>
                   </div>
                 </div>
               </>
@@ -355,10 +373,10 @@ export default function AdminUsersPage({ search }: Props) {
 
       {/* Customer Modal */}
       {custOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.4)' }}
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)' }}
           onClick={e => { if (e.target === e.currentTarget) setCustOpen(false); }}>
-          <div className="bg-surface-container-lowest rounded-xl border w-[520px] max-w-[95vw] max-h-[90vh] overflow-y-auto" style={{ borderColor: '#c8e4d8' }}>
-            <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: '#c8e4d8' }}>
+          <div className="rounded-2xl w-[520px] max-w-[95vw] max-h-[90vh] overflow-y-auto" style={{ background: '#ffffff', border: '2px solid #00a86b', boxShadow: '0 20px 60px rgba(0,0,0,0.25), 0 4px 16px rgba(0,105,76,0.15)' }}>
+            <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: '#b2e8d0' }}>
               <h3 className="font-bold text-on-surface" style={{ fontSize: '18px' }}>{editCustId ? 'Edit Customer' : 'Add Customer'}</h3>
               <button onClick={() => setCustOpen(false)} className="material-symbols-outlined text-on-surface-variant hover:bg-surface-container rounded-full p-1">close</button>
             </div>
@@ -414,10 +432,10 @@ export default function AdminUsersPage({ search }: Props) {
 
       {/* Staff Modal */}
       {staffOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.4)' }}
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)' }}
           onClick={e => { if (e.target === e.currentTarget) setStaffOpen(false); }}>
-          <div className="bg-surface-container-lowest rounded-xl border w-[520px] max-w-[95vw] max-h-[90vh] overflow-y-auto" style={{ borderColor: '#c8e4d8' }}>
-            <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: '#c8e4d8' }}>
+          <div className="rounded-2xl w-[520px] max-w-[95vw] max-h-[90vh] overflow-y-auto" style={{ background: '#ffffff', border: '2px solid #00a86b', boxShadow: '0 20px 60px rgba(0,0,0,0.25), 0 4px 16px rgba(0,105,76,0.15)' }}>
+            <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: '#b2e8d0' }}>
               <h3 className="font-bold text-on-surface" style={{ fontSize: '18px' }}>{editStaffId ? 'Edit Staff' : 'Add Staff'}</h3>
               <button onClick={() => setStaffOpen(false)} className="material-symbols-outlined text-on-surface-variant hover:bg-surface-container rounded-full p-1">close</button>
             </div>
@@ -477,9 +495,9 @@ export default function AdminUsersPage({ search }: Props) {
 
       {/* Lock/Unlock Modal */}
       {lockOpen && lockUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.4)' }}
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)' }}
           onClick={e => { if (e.target === e.currentTarget) setLockOpen(false); }}>
-          <div className="bg-surface-container-lowest rounded-xl border w-[360px] p-8 text-center" style={{ borderColor: '#c8e4d8' }}>
+          <div className="rounded-2xl w-[360px] p-8 text-center" style={{ background: '#ffffff', border: '2px solid #00a86b', boxShadow: '0 20px 60px rgba(0,0,0,0.25), 0 4px 16px rgba(0,105,76,0.15)' }}>
             <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: isLocking ? '#fff3d6' : '#e0f5ed' }}>
               <span className="material-symbols-outlined" style={{ color: isLocking ? '#7a5c00' : '#004d38', fontSize: '28px' }}>{isLocking ? 'lock' : 'lock_open'}</span>
             </div>

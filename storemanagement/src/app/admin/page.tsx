@@ -37,8 +37,8 @@ const sharedAdminCSS = `
   .modal-input:focus { border-color:#00694c; background:#fff; box-shadow:0 0 0 3px #00694c1a; }
   .tab-btn { padding:8px 18px; border-radius:999px; border:1.5px solid #d4f0e4; background:#fff; font-size:13px; font-weight:500; color:#3d4943; cursor:pointer; transition:all .15s; }
   .tab-btn.tab-active { background:linear-gradient(135deg,#00694c,#00a86b); color:#fff; border-color:transparent; box-shadow:0 2px 8px #00694c33; }
-  .fab { position:fixed; bottom:32px; right:32px; width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,#f59e0b,#d97706); color:#fff; border:none; cursor:pointer; font-size:28px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 16px #f59e0b55; transition:all .2s; z-index:50; }
-  .fab:hover { transform:scale(1.08); box-shadow:0 6px 24px #f59e0b66; }
+  .fab { position:fixed; bottom:32px; right:32px; width:56px; height:56px; border-radius:50%; background:#00694c; color:#fff; border:none; cursor:pointer; font-size:28px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 16px #00694c55; transition:all .2s; z-index:50; }
+  .fab:hover { transform:scale(1.08); box-shadow:0 6px 24px #00694c66; }
   /* Settings-specific */
   .setting-nav-btn { display:flex; align-items:center; gap:10px; padding:10px 16px; border-radius:8px; font-size:14px; font-weight:500; color:#3d4943; cursor:pointer; transition:all .15s; width:100%; background:none; border:none; text-align:left; }
   .setting-nav-btn:hover { background:#e8f5ee; }
@@ -172,7 +172,7 @@ export default function AdminPage() {
         />
         <main style={{ flex: 1, overflowY: 'auto', background: '#f7fbf9' }}>
           {activePage === 'dashboard'  && <DashboardPage  onNav={handleNav} search={search} />}
-          {activePage === 'products'   && <AdminProductsPage  onNav={handleNav} search={search} />}
+          {activePage === 'products'   && <AdminProductsPage  search={search} />}
           {activePage === 'categories' && <AdminCategoriesPage search={search} />}
           {activePage === 'orders'     && <AdminOrdersPage    search={search} />}
           {activePage === 'inventory'  && <InventoryPage      search={search} />}

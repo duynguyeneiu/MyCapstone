@@ -3,7 +3,6 @@ import { useState } from "react";
 import { PRODUCTS } from "../../../lib/data";
 
 interface Props {
-  onNav: (p: string) => void;
   search: string;
 }
 
@@ -37,7 +36,15 @@ const CAT_COLORS: Record<string, { bg: string; text: string }> = {
   household: { bg: "#e0f2fe", text: "#075985" },
 };
 
-const fmt = (n: number) => `$${n.toFixed(2)}`;
+const fmt = (n: number) => n.toLocaleString('vi-VN') + '₫';
+
+const SUB_BY_CAT: Record<string, string[]> = {
+  beverages:       ['water-soft-drinks', 'tea-coffee'],
+  snacks:          ['chips-snacks', 'sweets'],
+  food:            ['instant-foods', 'ready-canned'],
+  'personal-care': ['oral-hair-care', 'body-skin-care'],
+  household:       ['laundry-cleaning', 'paper-storage'],
+};
 
 interface AdminProduct {
   id: number;
@@ -80,6 +87,7 @@ const emptyForm = {
   code: "",
   cat: "",
   subcat: "",
+  image: "",
   stock: "",
   importPrice: "",
   salePrice: "",
@@ -87,7 +95,7 @@ const emptyForm = {
   status: "Active",
 };
 
-export default function AdminProductsPage({ onNav, search }: Props) {
+export default function AdminProductsPage({ search }: Props) {
   const [products, setProducts] = useState<AdminProduct[]>(toAdmin());
   const [catFilter, setCatFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -160,6 +168,7 @@ export default function AdminProductsPage({ onNav, search }: Props) {
       code: p.code,
       cat: p.cat,
       subcat: p.subcat,
+      image: p.image,
       stock: String(p.stock),
       importPrice: String(p.importPrice),
       salePrice: String(p.salePrice),
@@ -183,6 +192,7 @@ export default function AdminProductsPage({ onNav, search }: Props) {
                 code: form.code,
                 cat: form.cat || p.cat,
                 subcat: form.subcat || p.subcat,
+                image: form.image || p.image,
                 stock: parseInt(form.stock) || 0,
                 importPrice: parseFloat(form.importPrice) || 0,
                 salePrice: parseFloat(form.salePrice) || 0,
@@ -202,7 +212,7 @@ export default function AdminProductsPage({ onNav, search }: Props) {
           code: form.code,
           cat: form.cat || "beverages",
           subcat: form.subcat || "",
-          image: "",
+          image: form.image,
           importPrice: parseFloat(form.importPrice) || 0,
           salePrice: parseFloat(form.salePrice) || 0,
           stock,
@@ -813,14 +823,18 @@ export default function AdminProductsPage({ onNav, search }: Props) {
       {formOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ background: "rgba(0,0,0,0.4)" }}
+          style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(2px)" }}
           onClick={(e) => {
             if (e.target === e.currentTarget) setFormOpen(false);
           }}
         >
           <div
-            className="bg-surface-container-lowest rounded-xl border w-[560px] max-w-[95vw] max-h-[90vh] overflow-y-auto"
-            style={{ borderColor: "#c8e4d8" }}
+            className="rounded-2xl w-[600px] max-w-[95vw] max-h-[90vh] overflow-y-auto"
+            style={{
+              background: "#ffffff",
+              border: "1.5px solid #c8e4d8",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.25), 0 4px 16px rgba(0,105,76,0.12)",
+            }}
           >
             <div
               className="flex items-center justify-between p-6 border-b"
@@ -840,24 +854,44 @@ export default function AdminProductsPage({ onNav, search }: Props) {
               </button>
             </div>
             <div className="p-6 space-y-4">
+
+              {/* Image URL + preview */}
+              <div>
+                <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
+                  Image URL
+                </label>
+                <div className="flex gap-3 items-start">
+                  <div className="w-16 h-16 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden"
+                    style={{ background: "#f4fbf7", border: "1.5px solid #c8e4d8" }}>
+                    {form.image
+                      ? <img src={form.image} alt="" style={{ width: "100%", height: "100%", objectFit: "contain", padding: 4 }} />
+                      : <span className="material-symbols-outlined" style={{ color: "#b8d4c8", fontSize: 28 }}>image</span>
+                    }
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="https://… or /images/product.png"
+                    value={form.image}
+                    onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
+                    className="w-full rounded-lg px-3 py-2 focus:outline-none"
+                    style={{ border: "1.5px solid #c8e4d8", background: "#f4fbf7", fontSize: "14px" }}
+                  />
+                </div>
+              </div>
+
+              {/* Name + Code */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
-                    Product Name *
+                    Product Name <span style={{ color: "#dc2626" }}>*</span>
                   </label>
                   <input
                     type="text"
                     placeholder="Enter product name"
                     value={form.name}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, name: e.target.value }))
-                    }
+                    onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                     className="w-full rounded-lg px-3 py-2 focus:outline-none"
-                    style={{
-                      border: "1.5px solid #c8e4d8",
-                      background: "#f4fbf7",
-                      fontSize: "14px",
-                    }}
+                    style={{ border: "1.5px solid #c8e4d8", background: "#f4fbf7", fontSize: "14px" }}
                   />
                 </div>
                 <div>
@@ -868,43 +902,87 @@ export default function AdminProductsPage({ onNav, search }: Props) {
                     type="text"
                     placeholder="e.g. P001"
                     value={form.code}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, code: e.target.value }))
-                    }
+                    onChange={(e) => setForm((f) => ({ ...f, code: e.target.value }))}
                     className="w-full rounded-lg px-3 py-2 focus:outline-none"
-                    style={{
-                      border: "1.5px solid #c8e4d8",
-                      background: "#f4fbf7",
-                      fontSize: "14px",
-                    }}
+                    style={{ border: "1.5px solid #c8e4d8", background: "#f4fbf7", fontSize: "14px" }}
                   />
                 </div>
               </div>
+
+              {/* Category + Subcategory */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
-                    Category *
+                    Category <span style={{ color: "#dc2626" }}>*</span>
                   </label>
                   <select
                     value={form.cat}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, cat: e.target.value }))
-                    }
+                    onChange={(e) => setForm((f) => ({ ...f, cat: e.target.value, subcat: "" }))}
                     className="w-full rounded-lg px-3 py-2 focus:outline-none"
-                    style={{
-                      border: "1.5px solid #c8e4d8",
-                      background: "#f4fbf7",
-                      fontSize: "14px",
-                    }}
+                    style={{ border: "1.5px solid #c8e4d8", background: "#f4fbf7", fontSize: "14px" }}
                   >
                     <option value="">Select category</option>
                     {Object.entries(CAT_LABELS).map(([k, v]) => (
-                      <option key={k} value={k}>
-                        {v}
-                      </option>
+                      <option key={k} value={k}>{v}</option>
                     ))}
                   </select>
                 </div>
+                <div>
+                  <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
+                    Subcategory
+                  </label>
+                  <select
+                    value={form.subcat}
+                    onChange={(e) => setForm((f) => ({ ...f, subcat: e.target.value }))}
+                    disabled={!form.cat}
+                    className="w-full rounded-lg px-3 py-2 focus:outline-none"
+                    style={{
+                      border: "1.5px solid #c8e4d8", background: "#f4fbf7", fontSize: "14px",
+                      opacity: form.cat ? 1 : 0.5, cursor: form.cat ? "pointer" : "not-allowed",
+                    }}
+                  >
+                    <option value="">Select subcategory</option>
+                    {(SUB_BY_CAT[form.cat] ?? []).map((k) => (
+                      <option key={k} value={k}>{SUB_LABELS[k]}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Import Price + Sale Price */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
+                    Import Price (₫) <span style={{ color: "#dc2626" }}>*</span>
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="0"
+                    min="0"
+                    value={form.importPrice}
+                    onChange={(e) => setForm((f) => ({ ...f, importPrice: e.target.value }))}
+                    className="w-full rounded-lg px-3 py-2 focus:outline-none"
+                    style={{ border: "1.5px solid #c8e4d8", background: "#f4fbf7", fontSize: "14px" }}
+                  />
+                </div>
+                <div>
+                  <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
+                    Sale Price (₫) <span style={{ color: "#dc2626" }}>*</span>
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="0"
+                    min="0"
+                    value={form.salePrice}
+                    onChange={(e) => setForm((f) => ({ ...f, salePrice: e.target.value }))}
+                    className="w-full rounded-lg px-3 py-2 focus:outline-none"
+                    style={{ border: "1.5px solid #c8e4d8", background: "#f4fbf7", fontSize: "14px" }}
+                  />
+                </div>
+              </div>
+
+              {/* Stock + Status */}
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
                     Initial Stock
@@ -914,62 +992,28 @@ export default function AdminProductsPage({ onNav, search }: Props) {
                     placeholder="0"
                     min="0"
                     value={form.stock}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, stock: e.target.value }))
-                    }
+                    onChange={(e) => setForm((f) => ({ ...f, stock: e.target.value }))}
                     className="w-full rounded-lg px-3 py-2 focus:outline-none"
-                    style={{
-                      border: "1.5px solid #c8e4d8",
-                      background: "#f4fbf7",
-                      fontSize: "14px",
-                    }}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
-                    Import Price ($) *
-                  </label>
-                  <input
-                    type="number"
-                    placeholder="0.00"
-                    min="0"
-                    step="0.01"
-                    value={form.importPrice}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, importPrice: e.target.value }))
-                    }
-                    className="w-full rounded-lg px-3 py-2 focus:outline-none"
-                    style={{
-                      border: "1.5px solid #c8e4d8",
-                      background: "#f4fbf7",
-                      fontSize: "14px",
-                    }}
+                    style={{ border: "1.5px solid #c8e4d8", background: "#f4fbf7", fontSize: "14px" }}
                   />
                 </div>
                 <div>
                   <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
-                    Sale Price ($) *
+                    Status
                   </label>
-                  <input
-                    type="number"
-                    placeholder="0.00"
-                    min="0"
-                    step="0.01"
-                    value={form.salePrice}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, salePrice: e.target.value }))
-                    }
+                  <select
+                    value={form.status}
+                    onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
                     className="w-full rounded-lg px-3 py-2 focus:outline-none"
-                    style={{
-                      border: "1.5px solid #c8e4d8",
-                      background: "#f4fbf7",
-                      fontSize: "14px",
-                    }}
-                  />
+                    style={{ border: "1.5px solid #c8e4d8", background: "#f4fbf7", fontSize: "14px" }}
+                  >
+                    <option>Active</option>
+                    <option>Inactive</option>
+                  </select>
                 </div>
               </div>
+
+              {/* Description */}
               <div>
                 <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
                   Description
@@ -978,36 +1022,10 @@ export default function AdminProductsPage({ onNav, search }: Props) {
                   rows={3}
                   placeholder="Product description..."
                   value={form.desc}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, desc: e.target.value }))
-                  }
+                  onChange={(e) => setForm((f) => ({ ...f, desc: e.target.value }))}
                   className="w-full rounded-lg px-3 py-2 focus:outline-none resize-none"
-                  style={{
-                    border: "1.5px solid #c8e4d8",
-                    background: "#f4fbf7",
-                    fontSize: "14px",
-                  }}
+                  style={{ border: "1.5px solid #c8e4d8", background: "#f4fbf7", fontSize: "14px" }}
                 />
-              </div>
-              <div>
-                <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
-                  Status
-                </label>
-                <select
-                  value={form.status}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, status: e.target.value }))
-                  }
-                  className="w-full rounded-lg px-3 py-2 focus:outline-none"
-                  style={{
-                    border: "1.5px solid #c8e4d8",
-                    background: "#f4fbf7",
-                    fontSize: "14px",
-                  }}
-                >
-                  <option>Active</option>
-                  <option>Inactive</option>
-                </select>
               </div>
             </div>
             <div
@@ -1037,14 +1055,18 @@ export default function AdminProductsPage({ onNav, search }: Props) {
       {delOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ background: "rgba(0,0,0,0.4)" }}
+          style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(2px)" }}
           onClick={(e) => {
             if (e.target === e.currentTarget) setDelOpen(false);
           }}
         >
           <div
-            className="bg-surface-container-lowest rounded-xl border w-[360px] p-8 text-center"
-            style={{ borderColor: "#c8e4d8" }}
+            className="rounded-2xl w-[360px] p-8 text-center"
+            style={{
+              background: "#ffffff",
+              border: "1.5px solid #c8e4d8",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.25), 0 4px 16px rgba(0,105,76,0.12)",
+            }}
           >
             <div
               className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"

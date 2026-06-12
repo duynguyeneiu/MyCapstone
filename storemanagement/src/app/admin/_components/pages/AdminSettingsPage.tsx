@@ -67,7 +67,6 @@ export default function AdminSettingsPage({ onNav }: Props) {
   // Payment method toggles
   const [payMethods, setPayMethods] = useState<ToggleItem[]>([
     { label: 'Cash',          desc: 'Accept cash payments at POS',            on: true },
-    { label: 'Bank Transfer', desc: 'Accept bank transfers via QR code',      on: true },
     { label: 'VNPay',         desc: 'Online payment gateway',                 on: true },
     { label: 'COD',           desc: 'Cash on delivery for online orders',     on: true },
   ]);
@@ -273,8 +272,7 @@ export default function AdminSettingsPage({ onNav }: Props) {
                     {payMethods.map((p, i) => {
                       const icons: Record<string, { bg: string; color: string; icon: string }> = {
                         'Cash':          { bg: '#d1fae5', color: '#00694c', icon: 'payments' },
-                        'Bank Transfer': { bg: '#dbeafe', color: '#1d6fb8', icon: 'account_balance' },
-                        'VNPay':         { bg: '#ede9fe', color: '#6941c6', icon: 'qr_code' },
+                        'VNPay':         { bg: '#ede9fe', color: '#6941c6', icon: 'qr_code_2' },
                         'COD':           { bg: '#fef3c7', color: '#D97706', icon: 'local_shipping' },
                       };
                       const ic = icons[p.label];

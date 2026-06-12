@@ -361,8 +361,9 @@ export default function DashboardPage({ onNav, search }: Props) {
           </div>
       </div>
 
-      <button className="fab fixed bottom-8 right-8 w-14 h-14 text-white rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all z-50">
-        <span className="material-symbols-outlined">add</span>
+      <button className="fab" onClick={() => document.querySelector('main')?.scrollTo({ top: 0, behavior: 'smooth' })}
+        title="Back to top">
+        <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1", fontSize: 26 }}>arrow_upward</span>
       </button>
     </>
   );

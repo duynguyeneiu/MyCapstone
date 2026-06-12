@@ -8,12 +8,16 @@ const pageCSS = `
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Hanken+Grotesk:wght@600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-.tab-btn { padding: 8px 20px; font-size: 14px; font-weight: 500; border-bottom: 2px solid transparent; color: #3d4943; cursor: pointer; transition: color .15s; background: none; }
-.tab-btn.tab-active { color: #00694c; border-bottom-color: #f59e0b; }
+.inv-tab { padding: 8px 22px; font-size: 14px; font-weight: 500; border-radius: 999px; border: 2px solid #00a86b; color: #00694c; cursor: pointer; transition: all .18s; background: #fff; }
+.inv-tab:hover { background: #e0f5ed; }
+.inv-tab.tab-active { background: linear-gradient(135deg,#00694c,#00a86b); color: #fff; border-color: transparent; box-shadow: 0 2px 8px #00694c44; }
 .filter-select { background: #fff8e6; border: 1.5px solid #fcd97a; border-radius: 8px; padding: 8px 12px; font-size: 13px; color: #3d4943; outline: none; }
 .filter-select:focus { border-color: #f59e0b; }
 .modal-input { border: 1.5px solid #c8e4d8; background: #f4fbf7; border-radius: 8px; padding: 8px 12px; font-size: 14px; width: 100%; outline: none; }
 .modal-input:focus { border-color: #00694c; }
+.inv-cb { appearance: none; -webkit-appearance: none; width: 16px; height: 16px; border: 2px solid #b2e8d0; border-radius: 5px; background: #fff; cursor: pointer; transition: all .15s; flex-shrink: 0; }
+.inv-cb:hover { border-color: #00a86b; background: #f0fdf7; }
+.inv-cb:checked { background: #00694c; border-color: #00694c; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 8l4 4 6-6' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-size: 12px; background-repeat: no-repeat; background-position: center; }
 `;
 
 const fmt = (n: number) => new Intl.NumberFormat('vi-VN').format(n) + '₫';
@@ -109,6 +113,9 @@ export default function InventoryPage({ search }: Props) {
   const [iNote, setINote] = useState('');
   const [importRows, setImportRows] = useState<ImportRow[]>([]);
 
+  // Checkbox selection
+  const [checkedProductId, setCheckedProductId] = useState<number | null>(null);
+
   // Adjust modal
   const [adjustOpen, setAdjustOpen] = useState(false);
   const [adjProductId, setAdjProductId] = useState('');
@@ -184,7 +191,12 @@ export default function InventoryPage({ search }: Props) {
     setAdjustOpen(false);
   };
 
+  const PAGE_SIZE = 6;
+  const [stockPage, setStockPage] = useState(1);
   const data = filteredProducts();
+  const totalPages = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
+  const pagedData = data.slice((stockPage - 1) * PAGE_SIZE, stockPage * PAGE_SIZE);
+  const goToPage = (p: number) => setStockPage(Math.max(1, Math.min(p, totalPages)));
 
   return (
     <>
@@ -231,9 +243,9 @@ export default function InventoryPage({ search }: Props) {
 
           {/* Tabs + Table */}
           <div className="bg-surface-container-lowest border rounded-xl overflow-hidden" style={{ borderColor: '#c8e4d8' }}>
-            <div className="flex border-b px-6" style={{ borderColor: '#c8e4d8' }}>
+            <div className="flex gap-2 px-6 py-3 border-b" style={{ borderColor: '#c8e4d8' }}>
               {(['stock', 'import', 'transactions'] as const).map(tab => (
-                <button key={tab} className={`tab-btn${activeTab === tab ? ' tab-active' : ''}`} onClick={() => setActiveTab(tab)}>
+                <button key={tab} className={`inv-tab${activeTab === tab ? ' tab-active' : ''}`} onClick={() => setActiveTab(tab)}>
                   {tab === 'stock' ? 'Stock Overview' : tab === 'import' ? 'Import Receipts' : 'Transactions'}
                 </button>
               ))}
@@ -260,9 +272,9 @@ export default function InventoryPage({ search }: Props) {
                     </select>
                   </div>
                   <div className="flex items-center gap-3">
-                    <button onClick={() => openAdjustModal()} className="flex items-center gap-2 px-4 py-2 rounded-lg border text-on-surface-variant hover:bg-surface-container" style={{ borderColor: '#c8e4d8', fontSize: '14px' }}>
+                    <button onClick={() => openAdjustModal(checkedProductId ?? undefined)} className="flex items-center gap-2 px-4 py-2 rounded-lg border text-on-surface-variant hover:bg-surface-container" style={{ borderColor: checkedProductId ? '#00a86b' : '#c8e4d8', fontSize: '14px', color: checkedProductId ? '#00694c' : undefined, fontWeight: checkedProductId ? 600 : undefined }}>
                       <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>edit</span>
-                      Adjust Stock
+                      Adjust Stock{checkedProductId ? ` (1)` : ''}
                     </button>
                     <button onClick={openImportModal} className="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg font-bold" style={{ fontSize: '14px' }}>
                       <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add</span>
@@ -274,6 +286,7 @@ export default function InventoryPage({ search }: Props) {
                   <table className="w-full text-left">
                     <thead style={{ background: '#f4fbf7' }}>
                       <tr>
+                        <th className="pl-4 pr-2 py-3 w-8"></th>
                         <th className="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Product</th>
                         <th className="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Category</th>
                         <th className="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Barcode</th>
@@ -285,12 +298,20 @@ export default function InventoryPage({ search }: Props) {
                       </tr>
                     </thead>
                     <tbody className="divide-y" style={{ borderColor: '#c8e4d8' }}>
-                      {data.map(p => {
+                      {pagedData.map(p => {
                         const cc = catColors[p.cat] || { bg: '#e0f5ed', color: '#004d38' };
                         const ss = stockStatus(p.stock);
                         const stockColor = p.stock === 0 ? '#dc2626' : p.stock <= 10 ? '#854f0b' : '#191c1e';
                         return (
-                          <tr key={p.id} className="transition-colors" style={{ borderColor: '#c8e4d8' }}>
+                          <tr key={p.id} className="transition-colors" style={{ borderColor: '#c8e4d8', background: checkedProductId === p.id ? '#f0fdf7' : undefined }}>
+                            <td className="pl-4 pr-2 py-3">
+                              <input
+                                type="checkbox"
+                                className="inv-cb"
+                                checked={checkedProductId === p.id}
+                                onChange={() => setCheckedProductId(checkedProductId === p.id ? null : p.id)}
+                              />
+                            </td>
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-3">
                                 <div className="w-9 h-9 rounded-lg flex-shrink-0 overflow-hidden" style={{ background: '#e0f5ed' }}>
@@ -328,13 +349,25 @@ export default function InventoryPage({ search }: Props) {
                     </tbody>
                   </table>
                 </div>
-                <div className="px-6 py-4 border-t flex items-center justify-between" style={{ borderColor: '#c8e4d8' }}>
-                  <p className="text-on-surface-variant" style={{ fontSize: '13px' }}>Showing {data.length} of {products.length} products</p>
+                <div className="px-6 py-4 border-t flex items-center justify-center" style={{ borderColor: '#c8e4d8' }}>
                   <div className="flex items-center gap-1">
-                    <button className="w-8 h-8 rounded-lg border flex items-center justify-center hover:bg-surface-container" style={{ borderColor: '#c8e4d8' }}><span className="material-symbols-outlined" style={{ fontSize: '16px' }}>chevron_left</span></button>
-                    <button className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold btn-primary" style={{ fontSize: '13px' }}>1</button>
-                    <button className="w-8 h-8 rounded-lg border flex items-center justify-center hover:bg-surface-container" style={{ borderColor: '#c8e4d8', fontSize: '13px' }}>2</button>
-                    <button className="w-8 h-8 rounded-lg border flex items-center justify-center hover:bg-surface-container" style={{ borderColor: '#c8e4d8' }}><span className="material-symbols-outlined" style={{ fontSize: '16px' }}>chevron_right</span></button>
+                    <button onClick={() => goToPage(stockPage - 1)} disabled={stockPage === 1}
+                      className="w-8 h-8 rounded-lg border flex items-center justify-center hover:bg-surface-container"
+                      style={{ borderColor: '#c8e4d8', opacity: stockPage === 1 ? 0.4 : 1 }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>chevron_left</span>
+                    </button>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                      <button key={p} onClick={() => goToPage(p)}
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold${p === stockPage ? ' btn-primary' : ' border hover:bg-surface-container'}`}
+                        style={{ fontSize: '13px', borderColor: p !== stockPage ? '#c8e4d8' : undefined, color: p !== stockPage ? '#3d4943' : undefined }}>
+                        {p}
+                      </button>
+                    ))}
+                    <button onClick={() => goToPage(stockPage + 1)} disabled={stockPage === totalPages}
+                      className="w-8 h-8 rounded-lg border flex items-center justify-center hover:bg-surface-container"
+                      style={{ borderColor: '#c8e4d8', opacity: stockPage === totalPages ? 0.4 : 1 }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>chevron_right</span>
+                    </button>
                   </div>
                 </div>
               </>
@@ -345,10 +378,6 @@ export default function InventoryPage({ search }: Props) {
               <>
                 <div className="p-6 border-b flex items-center justify-between" style={{ borderColor: '#c8e4d8' }}>
                   <p className="text-on-surface-variant" style={{ fontSize: '13px' }}>All import receipts</p>
-                  <button onClick={openImportModal} className="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg font-bold" style={{ fontSize: '14px' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add</span>
-                    New Import
-                  </button>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left">
@@ -428,21 +457,39 @@ export default function InventoryPage({ search }: Props) {
 
       {/* Import Stock Modal */}
       {importOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.4)' }}
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)' }}
           onClick={e => { if (e.target === e.currentTarget) setImportOpen(false); }}>
-          <div className="bg-surface-container-lowest rounded-xl border w-[580px] max-w-[95vw] max-h-[90vh] overflow-y-auto" style={{ borderColor: '#c8e4d8' }}>
-            <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: '#c8e4d8' }}>
-              <h3 className="font-bold text-on-surface" style={{ fontSize: '18px' }}>New Import Receipt</h3>
-              <button onClick={() => setImportOpen(false)} className="material-symbols-outlined text-on-surface-variant hover:bg-surface-container rounded-full p-1">close</button>
+          <div className="rounded-2xl w-[620px] max-w-[95vw] max-h-[90vh] overflow-y-auto" style={{ background: '#ffffff', border: '2px solid #00a86b', boxShadow: '0 24px 64px rgba(0,0,0,0.28), 0 4px 20px rgba(0,105,76,0.15)' }}>
+
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-5 border-b" style={{ borderColor: '#b2e8d0', background: 'linear-gradient(135deg,#f0fdf7 0%,#e6f9f0 100%)' }}>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#00694c,#00a86b)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#fff', fontVariationSettings: "'FILL' 1" }}>inventory_2</span>
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#191c1e', margin: 0 }}>Import Stock</h3>
+                  <p style={{ fontSize: '12px', color: '#3d4943', margin: 0 }}>Add incoming stock from supplier</p>
+                </div>
+              </div>
+              <button onClick={() => setImportOpen(false)} className="material-symbols-outlined rounded-full p-1" style={{ color: '#6b7280', background: 'none', border: 'none', cursor: 'pointer', fontSize: '22px' }}>close</button>
             </div>
-            <div className="p-6 space-y-4">
+
+            <div className="p-6 space-y-5">
+              {/* Row 1: Date + Staff */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Import Date</label>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#3d4943', marginBottom: 5 }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: 4 }}>calendar_today</span>
+                    Import Date
+                  </label>
                   <input type="date" value={iDate} onChange={e => setIDate(e.target.value)} className="modal-input" />
                 </div>
                 <div>
-                  <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Staff</label>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#3d4943', marginBottom: 5 }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: 4 }}>badge</span>
+                    Staff In Charge
+                  </label>
                   <select value={iStaff} onChange={e => setIStaff(e.target.value)} className="modal-input">
                     <option>Alex Nguyen</option>
                     <option>Minh Tran</option>
@@ -450,69 +497,103 @@ export default function InventoryPage({ search }: Props) {
                   </select>
                 </div>
               </div>
+
+              {/* Items table */}
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="font-label-sm text-label-sm text-on-surface-variant">Import Items</label>
-                  <button onClick={addImportRow} className="flex items-center gap-1" style={{ fontSize: '12px', fontWeight: 600, color: '#00694c' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>add</span> Add Item
+                <div className="flex items-center justify-between mb-3">
+                  <label style={{ fontSize: '12px', fontWeight: 600, color: '#3d4943' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: 4 }}>list_alt</span>
+                    Import Items
+                  </label>
+                  <button onClick={addImportRow} className="flex items-center gap-1 px-3 py-1 rounded-lg btn-primary" style={{ fontSize: '12px', fontWeight: 600 }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>add</span> Add Item
                   </button>
                 </div>
-                <table className="w-full" style={{ fontSize: '13px' }}>
-                  <thead>
-                    <tr className="border-b" style={{ borderColor: '#c8e4d8' }}>
-                      <th className="text-left py-2 text-on-surface-variant font-label-sm text-label-sm uppercase">Product</th>
-                      <th className="text-center py-2 text-on-surface-variant font-label-sm text-label-sm uppercase w-20">Qty</th>
-                      <th className="text-right py-2 text-on-surface-variant font-label-sm text-label-sm uppercase w-28">Import Price</th>
-                      <th className="text-right py-2 text-on-surface-variant font-label-sm text-label-sm uppercase w-28">Subtotal</th>
-                      <th className="w-8"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {importRows.map(row => (
-                      <tr key={row.id} style={{ borderBottom: '1px solid #c8e4d8' }}>
-                        <td className="py-2 pr-2">
-                          <select className="w-full rounded-lg px-2 py-1 focus:outline-none" style={{ border: '1.5px solid #c8e4d8', background: '#f4fbf7', fontSize: '13px' }}
-                            onChange={e => {
-                              const opt = e.target.options[e.target.selectedIndex];
-                              updateRow(row.id, 'productName', opt.text);
-                              updateRow(row.id, 'productPrice', Number(opt.value));
-                            }}>
-                            <option value="0">Select product</option>
-                            {products.map(p => <option key={p.id} value={p.importPrice}>{p.name}</option>)}
-                          </select>
-                        </td>
-                        <td className="py-2 px-2">
-                          <input type="number" min="1" value={row.qty} onChange={e => updateRow(row.id, 'qty', parseInt(e.target.value) || 1)} className="w-full rounded-lg px-2 py-1 text-center focus:outline-none" style={{ border: '1.5px solid #c8e4d8', background: '#f4fbf7', fontSize: '13px' }} />
-                        </td>
-                        <td className="py-2 px-2">
-                          <input type="number" min="0" value={row.price || ''} placeholder="0" onChange={e => updateRow(row.id, 'price', parseInt(e.target.value) || 0)} className="w-full rounded-lg px-2 py-1 text-right focus:outline-none" style={{ border: '1.5px solid #c8e4d8', background: '#f4fbf7', fontSize: '13px' }} />
-                        </td>
-                        <td className="py-2 px-2 text-right font-bold text-on-surface" style={{ fontSize: '13px' }}>{fmt(row.qty * row.price)}</td>
-                        <td className="py-2">
-                          <button onClick={() => removeRow(row.id)} className="text-on-surface-variant hover:text-error">
-                            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>close</span>
-                          </button>
-                        </td>
+                <div className="rounded-xl overflow-hidden" style={{ border: '1.5px solid #c8e4d8' }}>
+                  <table className="w-full" style={{ fontSize: '13px' }}>
+                    <thead>
+                      <tr style={{ background: '#f4fbf7', borderBottom: '1px solid #c8e4d8' }}>
+                        <th className="text-left px-3 py-2 text-on-surface-variant" style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Product</th>
+                        <th className="text-center px-3 py-2 text-on-surface-variant" style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', width: 72 }}>Qty</th>
+                        <th className="text-right px-3 py-2 text-on-surface-variant" style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', width: 110 }}>Import Price</th>
+                        <th className="text-right px-3 py-2 text-on-surface-variant" style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', width: 110 }}>Subtotal</th>
+                        <th style={{ width: 32 }}></th>
                       </tr>
-                    ))}
-                  </tbody>
-                  <tfoot>
-                    <tr className="border-t" style={{ borderColor: '#c8e4d8' }}>
-                      <td colSpan={3} className="py-3 text-right font-bold text-on-surface" style={{ fontSize: '13px' }}>Total Amount:</td>
-                      <td className="py-3 text-right font-bold" style={{ fontSize: '14px', color: '#00694c' }}>{fmt(importTotal)}</td>
-                      <td></td>
-                    </tr>
-                  </tfoot>
-                </table>
+                    </thead>
+                    <tbody>
+                      {importRows.length === 0 && (
+                        <tr>
+                          <td colSpan={5} className="py-6 text-center text-on-surface-variant" style={{ fontSize: '13px' }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: '28px', display: 'block', marginBottom: 4, opacity: 0.4 }}>inbox</span>
+                            No items yet — click "Add Item"
+                          </td>
+                        </tr>
+                      )}
+                      {importRows.map((row, idx) => (
+                        <tr key={row.id} style={{ borderTop: idx > 0 ? '1px solid #e8f5ee' : undefined, background: idx % 2 === 0 ? '#fff' : '#fafffe' }}>
+                          <td className="px-3 py-2">
+                            <select className="w-full rounded-lg px-2 py-1.5 focus:outline-none" style={{ border: '1.5px solid #c8e4d8', background: '#f4fbf7', fontSize: '13px' }}
+                              onChange={e => {
+                                const opt = e.target.options[e.target.selectedIndex];
+                                updateRow(row.id, 'productName', opt.text);
+                                updateRow(row.id, 'productPrice', Number(opt.value));
+                              }}>
+                              <option value="0">Select product…</option>
+                              {products.map(p => <option key={p.id} value={p.importPrice}>{p.name}</option>)}
+                            </select>
+                          </td>
+                          <td className="px-2 py-2">
+                            <input type="number" min="1" value={row.qty} onChange={e => updateRow(row.id, 'qty', parseInt(e.target.value) || 1)}
+                              className="w-full rounded-lg px-2 py-1.5 text-center focus:outline-none" style={{ border: '1.5px solid #c8e4d8', background: '#f4fbf7', fontSize: '13px' }} />
+                          </td>
+                          <td className="px-2 py-2">
+                            <input type="number" min="0" value={row.price || ''} placeholder="0" onChange={e => updateRow(row.id, 'price', parseInt(e.target.value) || 0)}
+                              className="w-full rounded-lg px-2 py-1.5 text-right focus:outline-none" style={{ border: '1.5px solid #c8e4d8', background: '#f4fbf7', fontSize: '13px' }} />
+                          </td>
+                          <td className="px-2 py-2 text-right font-bold" style={{ fontSize: '13px', color: '#00694c' }}>{fmt(row.qty * row.price)}</td>
+                          <td className="py-2 pr-2">
+                            <button onClick={() => removeRow(row.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af', display: 'flex', alignItems: 'center' }}>
+                              <span className="material-symbols-outlined" style={{ fontSize: '17px' }}>delete</span>
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    {importRows.length > 0 && (
+                      <tfoot>
+                        <tr style={{ borderTop: '2px solid #c8e4d8', background: '#f0fdf7' }}>
+                          <td colSpan={3} className="px-3 py-3 text-right font-bold text-on-surface" style={{ fontSize: '13px' }}>Total Amount:</td>
+                          <td className="px-2 py-3 text-right font-bold" style={{ fontSize: '15px', color: '#00694c' }}>{fmt(importTotal)}</td>
+                          <td></td>
+                        </tr>
+                      </tfoot>
+                    )}
+                  </table>
+                </div>
               </div>
+
+              {/* Note */}
               <div>
-                <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Note</label>
-                <textarea rows={2} placeholder="Import note..." value={iNote} onChange={e => setINote(e.target.value)} className="modal-input resize-none"></textarea>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#3d4943', marginBottom: 5 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: 4 }}>notes</span>
+                  Note
+                </label>
+                <textarea rows={2} placeholder="Additional notes about this import…" value={iNote} onChange={e => setINote(e.target.value)} className="modal-input resize-none" />
               </div>
             </div>
-            <div className="flex justify-end gap-3 px-6 py-4 border-t" style={{ borderColor: '#c8e4d8' }}>
-              <button onClick={() => setImportOpen(false)} className="px-4 py-2 rounded-lg border text-on-surface-variant hover:bg-surface-container" style={{ borderColor: '#c8e4d8', fontSize: '14px' }}>Cancel</button>
-              <button onClick={saveImport} className="btn-primary px-4 py-2 rounded-lg text-white font-bold" style={{ fontSize: '14px' }}>Save Import</button>
+
+            {/* Footer */}
+            <div className="flex items-center justify-between px-6 py-4 border-t" style={{ borderColor: '#b2e8d0', background: '#fafffe' }}>
+              <p style={{ fontSize: '12px', color: '#6b7280' }}>
+                {importRows.length} item{importRows.length !== 1 ? 's' : ''} · Total: <b style={{ color: '#00694c' }}>{fmt(importTotal)}</b>
+              </p>
+              <div className="flex gap-3">
+                <button onClick={() => setImportOpen(false)} style={{ padding: '9px 20px', border: '1.5px solid #c8e4d8', borderRadius: 8, fontSize: '14px', cursor: 'pointer', background: '#fff', color: '#3d4943' }}>Cancel</button>
+                <button onClick={saveImport} className="btn-primary" style={{ padding: '9px 20px', borderRadius: 8, fontSize: '14px', fontWeight: 700 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px', verticalAlign: 'middle', marginRight: 4 }}>save</span>
+                  Save Import
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -520,20 +601,36 @@ export default function InventoryPage({ search }: Props) {
 
       {/* Adjust Stock Modal */}
       {adjustOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.4)' }}
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)' }}
           onClick={e => { if (e.target === e.currentTarget) setAdjustOpen(false); }}>
-          <div className="bg-surface-container-lowest rounded-xl border w-[420px] max-w-[95vw]" style={{ borderColor: '#c8e4d8' }}>
-            <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: '#c8e4d8' }}>
+          <div className="rounded-xl w-[420px] max-w-[95vw]" style={{ background: '#ffffff', border: '2px solid #00a86b', boxShadow: '0 20px 60px rgba(0,0,0,0.25), 0 4px 16px rgba(0,105,76,0.15)' }}>
+            <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: '#b2e8d0' }}>
               <h3 className="font-bold text-on-surface" style={{ fontSize: '18px' }}>Adjust Stock</h3>
               <button onClick={() => setAdjustOpen(false)} className="material-symbols-outlined text-on-surface-variant hover:bg-surface-container rounded-full p-1">close</button>
             </div>
             <div className="p-6 space-y-4">
               <div>
                 <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Product</label>
-                <select value={adjProductId} onChange={e => setAdjProductId(e.target.value)} className="modal-input">
-                  <option value="">Select product...</option>
-                  {products.map(p => <option key={p.id} value={String(p.id)}>{p.name} ({p.stock} units)</option>)}
-                </select>
+                {adjProductId ? (() => {
+                  const sel = products.find(p => String(p.id) === adjProductId);
+                  return (
+                    <div className="flex items-center gap-3 rounded-lg px-3 py-2" style={{ border: '1.5px solid #00a86b', background: '#f0fdf7' }}>
+                      {sel?.image && <img src={sel.image} alt={sel.name} style={{ width: 32, height: 32, objectFit: 'contain', borderRadius: 6, background: '#e0f5ed', padding: 2 }} />}
+                      <div style={{ flex: 1 }}>
+                        <p style={{ fontSize: 14, fontWeight: 600, color: '#191c1e' }}>{sel?.name}</p>
+                        <p style={{ fontSize: 12, color: '#3d4943' }}>Current stock: <b>{sel?.stock}</b> units</p>
+                      </div>
+                      <button onClick={() => setAdjProductId('')} title="Change product" style={{ color: '#6b7280', background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>close</span>
+                      </button>
+                    </div>
+                  );
+                })() : (
+                  <select value={adjProductId} onChange={e => setAdjProductId(e.target.value)} className="modal-input">
+                    <option value="">Select product...</option>
+                    {products.map(p => <option key={p.id} value={String(p.id)}>{p.name} ({p.stock} units)</option>)}
+                  </select>
+                )}
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>

@@ -69,8 +69,8 @@ const posCSS = `
 .summary-row .val { color: #191c1e; font-weight: 500; }
 .summary-total { display: flex; justify-content: space-between; font-size: 16px; font-weight: 700; color: #191c1e; padding-top: 10px; border-top: 1.5px solid #e0e3e5; margin-top: 6px; }
 .summary-total .val { color: #00694c; font-size: 18px; }
-.payment-section { padding: 12px 16px; border-top: 1px solid #e0e3e5; flex-shrink: 0; }
-.payment-methods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
+.payment-section { padding: 14px 16px 16px; border-top: 1px solid #e0e3e5; flex-shrink: 0; }
+.payment-methods { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
 .pay-method { padding: 8px 6px; border: 1.5px solid #e0e3e5; border-radius: 8px; text-align: center; cursor: pointer; transition: all .15s; display: flex; flex-direction: column; align-items: center; gap: 2px; background: #fff; }
 .pay-method .icon { font-size: 18px; color: #6d7a73; }
 .pay-method .lbl { font-size: 10px; font-weight: 600; color: #6d7a73; margin-top: 2px; }
@@ -95,6 +95,14 @@ const POS_CATS = [
   { slug: 'food', label: 'Food' },
   { slug: 'personal-care', label: 'Personal Care' },
   { slug: 'household', label: 'Household' },
+];
+
+const POS_PROMOS = [
+  { code: 'SUMMER20',   desc: 'Summer sale 20% off',          type: 'Percentage', value: 20,     minOrder: 200000 },
+  { code: 'WELCOME50K', desc: 'New customer 50,000₫ off',     type: 'Fixed',      value: 50000,  minOrder: 300000 },
+  { code: 'FLASH15',    desc: 'Flash sale 15% this weekend',  type: 'Percentage', value: 15,     minOrder: 0      },
+  { code: 'VIP100K',    desc: 'VIP customer 100,000₫ off',    type: 'Fixed',      value: 100000, minOrder: 500000 },
+  { code: 'FREESHIP',   desc: 'Free shipping on all orders',  type: 'Fixed',      value: 30000,  minOrder: 150000 },
 ];
 
 export default function POSPage() {
@@ -143,11 +151,13 @@ export default function POSPage() {
   const vat = (subtotal - discount) * 0.1;
   const total = subtotal - discount + vat;
 
-  const applyPromo = () => {
-    if (promoCode === "WELCOME10") setDiscount(subtotal * 0.1);
-    else if (promoCode === "SAVE50K") setDiscount(Math.min(50000, subtotal));
-    else if (promoCode === "SUMMER20") setDiscount(subtotal * 0.2);
-    else alert("Invalid promo code");
+  const applyPromo = (code: string) => {
+    const promo = POS_PROMOS.find(p => p.code === code);
+    if (!promo) { setDiscount(0); return; }
+    if (subtotal < promo.minOrder) { setDiscount(0); return; }
+    setDiscount(promo.type === 'Percentage'
+      ? Math.round(subtotal * promo.value / 100)
+      : Math.min(promo.value, subtotal));
   };
 
   const processPayment = () => {
@@ -183,8 +193,7 @@ export default function POSPage() {
 
   const payMethods = [
     { id: "Cash", icon: "payments", label: "Cash" },
-    { id: "Card", icon: "credit_card", label: "Card" },
-    { id: "QR", icon: "qr_code", label: "QR Pay" },
+    { id: "QR", icon: "qr_code_2", label: "VNPay" },
   ];
 
   // ── Show history page ──────────────────────────────────────
@@ -207,7 +216,7 @@ export default function POSPage() {
   }
 
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden", background: "#f2f4f6" }}>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", background: "#f2f4f6" }}>
       <style>{posCSS}</style>
       {/* Topbar */}
       <div className="topbar">
@@ -281,7 +290,7 @@ export default function POSPage() {
         </div>
 
         {/* Right: cart */}
-        <div style={{ width: 340, display: "flex", flexDirection: "column", background: "#fff", flexShrink: 0 }}>
+        <div style={{ width: 340, display: "flex", flexDirection: "column", background: "#fff", flexShrink: 0, overflow: "hidden" }}>
           <div style={{ padding: "14px 16px", borderBottom: `1px solid #e0e3e5`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <span style={{ fontSize: 15, fontWeight: 700 }}>Invoice #{String(invoiceNo).padStart(4, "0")}</span>
             <button onClick={() => setCart([])} style={{ display: "flex", alignItems: "center", gap: 4, background: "none", border: "none", cursor: "pointer", color: "#dc2626", fontSize: 12, fontWeight: 600 }}>
@@ -289,7 +298,7 @@ export default function POSPage() {
             </button>
           </div>
 
-          <div style={{ flex: 1, overflow: "auto", padding: "8px 0" }}>
+          <div style={{ flex: 1, overflow: "auto", minHeight: 0, padding: "8px 0" }}>
             {cart.length === 0 ? (
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", color: "#bccac1", gap: 8 }}>
                 <Icon name="shopping_cart" size={48} style={{ color: "#bccac1" }} />
@@ -318,13 +327,20 @@ export default function POSPage() {
             ))}
           </div>
 
-          <div style={{ padding: "12px 16px", borderTop: `1px solid #e0e3e5` }}>
-            <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
-              <input value={promoCode} onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                placeholder="Promo code"
-                style={{ flex: 1, border: `1.5px solid #e0e3e5`, borderRadius: 8, padding: "7px 10px", fontSize: 13, background: "#f7f9fb", outline: "none", textTransform: "uppercase" }} />
-              <button onClick={applyPromo}
-                style={{ padding: "7px 12px", borderRadius: 8, border: `1.5px solid ${C.primary}`, background: C.primaryLight, color: C.primary, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Apply</button>
+          <div style={{ padding: "12px 16px", borderTop: `1px solid #e0e3e5`, flexShrink: 0 }}>
+            <div style={{ marginBottom: 10 }}>
+              <select
+                value={promoCode}
+                onChange={(e) => { setPromoCode(e.target.value); applyPromo(e.target.value); }}
+                style={{ width: "100%", border: `1.5px solid #e0e3e5`, borderRadius: 8, padding: "7px 10px", fontSize: 13, background: "#f7f9fb", outline: "none", cursor: "pointer" }}
+              >
+                <option value="">— Select promotion —</option>
+                {POS_PROMOS.map(p => (
+                  <option key={p.code} value={p.code}>
+                    {p.code} — {p.desc}
+                  </option>
+                ))}
+              </select>
             </div>
             {[["Subtotal", fmt(subtotal)], ["Discount", discount > 0 ? `-${fmt(discount)}` : "—"], ["VAT (10%)", fmt(vat)]].map(([label, val]) => (
               <div key={label} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 6 }}>
@@ -338,8 +354,8 @@ export default function POSPage() {
             </div>
           </div>
 
-          <div style={{ padding: "12px 16px", borderTop: `1px solid #e0e3e5` }}>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 6, marginBottom: 10 }}>
+          <div style={{ padding: "12px 16px 20px", borderTop: `1px solid #e0e3e5`, flexShrink: 0 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 8, marginBottom: 12 }}>
               {payMethods.map((m) => (
                 <button key={m.id} onClick={() => setPaymentMethod(m.id)}
                   style={{ padding: "8px 6px", border: `1.5px solid ${paymentMethod === m.id ? C.primary : "#e0e3e5"}`,
@@ -385,7 +401,7 @@ export default function POSPage() {
               <div style={{ width: 160, height: 160, background: "#f3f4f6", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto" }}>
                 <Icon name="qr_code_2" size={120} style={{ color: C.primary }} />
               </div>
-              <p style={{ fontSize: 12, color: C.textFaint, marginTop: 8 }}>Scan QR code to pay</p>
+              <p style={{ fontSize: 12, color: C.textFaint, marginTop: 8 }}>Scan VNPay QR code to pay</p>
             </div>
           )}
           <button onClick={processPayment}

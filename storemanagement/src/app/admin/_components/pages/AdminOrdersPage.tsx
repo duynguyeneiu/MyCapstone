@@ -18,10 +18,9 @@ const statusConfig: Record<string, { bg: string; color: string }> = {
 };
 
 const payIcon: Record<string, string> = {
-  Cash: "payments",
-  "Bank Transfer": "account_balance",
-  VNPay: "qr_code",
-  COD: "local_shipping",
+  Cash:  "payments",
+  VNPay: "qr_code_2",
+  COD:   "local_shipping",
 };
 
 interface OrderItem {
@@ -70,7 +69,7 @@ const initialOrders: Order[] = [
     address: "45 Nguyen Hue, Q1, TP.HCM",
     date: "24 May 2024 08:15",
     channel: "Online",
-    payment: "Bank Transfer",
+    payment: "COD",
     amount: 850000,
     discount: 50000,
     status: "Processing",
@@ -173,7 +172,7 @@ const initialOrders: Order[] = [
     address: "POS Counter",
     date: "23 May 2024 09:00",
     channel: "POS",
-    payment: "Bank Transfer",
+    payment: "Cash",
     amount: 760000,
     discount: 0,
     status: "Refunded",
@@ -189,7 +188,6 @@ function getInitials(name: string) {
     .join("");
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function AdminOrdersPage({ search }: Props) {
   const [orders, setOrders] = useState<Order[]>(initialOrders);
   const [statusFilter, setStatusFilter] = useState("");
@@ -199,6 +197,8 @@ export default function AdminOrdersPage({ search }: Props) {
   const [currentOrderId, setCurrentOrderId] = useState<number | null>(null);
   const [dStatus, setDStatus] = useState("");
   const [checkAll, setCheckAll] = useState(false);
+  const [curPage, setCurPage] = useState(1);
+  const PAGE_SIZE = 5;
 
   const filtered = () =>
     orders.filter(
@@ -229,6 +229,17 @@ export default function AdminOrdersPage({ search }: Props) {
   };
 
   const data = filtered();
+  const totalPages = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
+  const safePage = Math.min(curPage, totalPages);
+  const paged = data.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const goTo = (p: number) => setCurPage(Math.max(1, Math.min(totalPages, p)));
+  const half = 2;
+  let lo = Math.max(1, safePage - half);
+  let hi = Math.min(totalPages, safePage + half);
+  if (hi - lo < 4) { if (lo === 1) hi = Math.min(totalPages, lo + 4); else lo = Math.max(1, hi - 4); }
+  const pageNums: number[] = [];
+  for (let i = lo; i <= hi; i++) pageNums.push(i);
+
   const currentOrder = orders.find((o) => o.id === currentOrderId);
   const subtotal = currentOrder
     ? currentOrder.items.reduce((s, i) => s + i.qty * i.price, 0)
@@ -425,10 +436,14 @@ export default function AdminOrdersPage({ search }: Props) {
                   className="filter-select"
                 >
                   <option value="">All Payments</option>
-                  <option>Cash</option>
-                  <option>Bank Transfer</option>
-                  <option>VNPay</option>
-                  <option>COD</option>
+                  <optgroup label="── POS ──">
+                    <option>Cash</option>
+                    <option>VNPay</option>
+                  </optgroup>
+                  <optgroup label="── Online ──">
+                    <option>COD</option>
+                    <option>VNPay</option>
+                  </optgroup>
                 </select>
               </div>
               <button
@@ -483,7 +498,7 @@ export default function AdminOrdersPage({ search }: Props) {
                   </tr>
                 </thead>
                 <tbody className="divide-y" style={{ borderColor: "#c8e4d8" }}>
-                  {data.map((o) => {
+                  {paged.map((o) => {
                     const sc =
                       statusConfig[o.status] || statusConfig["Pending"];
                     return (
@@ -544,30 +559,14 @@ export default function AdminOrdersPage({ search }: Props) {
                         </td>
                         <td className="px-4 py-3">
                           {o.channel === "Online" ? (
-                            <span
-                              style={{
-                                background: "#fff3d6",
-                                color: "#7a5c00",
-                                padding: "2px 8px",
-                                borderRadius: "99px",
-                                fontSize: "11px",
-                                fontWeight: 600,
-                              }}
-                            >
-                              🌐 Online
+                            <span style={{ background: "#fff3d6", color: "#7a5c00", padding: "3px 8px", borderRadius: "99px", fontSize: "11px", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 3 }}>
+                              <span className="material-symbols-outlined" style={{ fontSize: "13px", fontVariationSettings: "'FILL' 1" }}>language</span>
+                              Online
                             </span>
                           ) : (
-                            <span
-                              style={{
-                                background: "#e0f5ed",
-                                color: "#004d38",
-                                padding: "2px 8px",
-                                borderRadius: "99px",
-                                fontSize: "11px",
-                                fontWeight: 600,
-                              }}
-                            >
-                              🏪 POS
+                            <span style={{ background: "#e0f5ed", color: "#004d38", padding: "3px 8px", borderRadius: "99px", fontSize: "11px", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 3 }}>
+                              <span className="material-symbols-outlined" style={{ fontSize: "13px", fontVariationSettings: "'FILL' 1" }}>point_of_sale</span>
+                              POS
                             </span>
                           )}
                         </td>
@@ -647,57 +646,63 @@ export default function AdminOrdersPage({ search }: Props) {
               </table>
             </div>
             <div
-              className="px-6 py-4 border-t flex items-center justify-between"
+              className="px-6 py-4 border-t flex items-center justify-center"
               style={{ borderColor: "#c8e4d8" }}
             >
-              <p
-                className="text-on-surface-variant"
-                style={{ fontSize: "13px" }}
-              >
-                Showing {data.length} of {orders.length} orders
-              </p>
-              <div className="flex items-center gap-1">
-                <button
-                  className="w-8 h-8 rounded-lg border flex items-center justify-center hover:bg-surface-container"
-                  style={{ borderColor: "#c8e4d8" }}
-                >
-                  <span
-                    className="material-symbols-outlined"
-                    style={{ fontSize: "16px" }}
+              {totalPages > 1 && (
+                <div className="flex items-center gap-1">
+                  {/* Prev */}
+                  <button
+                    onClick={() => goTo(safePage - 1)}
+                    disabled={safePage === 1}
+                    className="w-8 h-8 rounded-lg border flex items-center justify-center"
+                    style={{ borderColor: "#c8e4d8", opacity: safePage === 1 ? 0.35 : 1, cursor: safePage === 1 ? "not-allowed" : "pointer" }}
+                    onMouseOver={(e) => { if (safePage > 1) (e.currentTarget as HTMLButtonElement).style.background = "#e0f5ed"; }}
+                    onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.background = ""; }}
                   >
-                    chevron_left
-                  </span>
-                </button>
-                <button
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold btn-primary"
-                  style={{ fontSize: "13px" }}
-                >
-                  1
-                </button>
-                <button
-                  className="w-8 h-8 rounded-lg border flex items-center justify-center hover:bg-surface-container"
-                  style={{ borderColor: "#c8e4d8", fontSize: "13px" }}
-                >
-                  2
-                </button>
-                <button
-                  className="w-8 h-8 rounded-lg border flex items-center justify-center hover:bg-surface-container"
-                  style={{ borderColor: "#c8e4d8", fontSize: "13px" }}
-                >
-                  3
-                </button>
-                <button
-                  className="w-8 h-8 rounded-lg border flex items-center justify-center hover:bg-surface-container"
-                  style={{ borderColor: "#c8e4d8" }}
-                >
-                  <span
-                    className="material-symbols-outlined"
-                    style={{ fontSize: "16px" }}
+                    <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>chevron_left</span>
+                  </button>
+
+                  {lo > 1 && (
+                    <>
+                      <button onClick={() => goTo(1)} className="w-8 h-8 rounded-lg border flex items-center justify-center" style={{ borderColor: "#c8e4d8", fontSize: "13px", cursor: "pointer" }}
+                        onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#e0f5ed"; }}
+                        onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.background = ""; }}>1</button>
+                      {lo > 2 && <span style={{ fontSize: "13px", color: "#94a3b8", padding: "0 2px" }}>…</span>}
+                    </>
+                  )}
+
+                  {pageNums.map((n) => (
+                    <button key={n} onClick={() => goTo(n)}
+                      className="w-8 h-8 rounded-lg border flex items-center justify-center"
+                      style={{ borderColor: n === safePage ? "#00694c" : "#c8e4d8", background: n === safePage ? "#00694c" : "", color: n === safePage ? "#fff" : "", fontWeight: n === safePage ? 700 : 400, fontSize: "13px", cursor: "pointer" }}
+                      onMouseOver={(e) => { if (n !== safePage) (e.currentTarget as HTMLButtonElement).style.background = "#e0f5ed"; }}
+                      onMouseOut={(e) => { if (n !== safePage) (e.currentTarget as HTMLButtonElement).style.background = ""; }}
+                    >{n}</button>
+                  ))}
+
+                  {hi < totalPages && (
+                    <>
+                      {hi < totalPages - 1 && <span style={{ fontSize: "13px", color: "#94a3b8", padding: "0 2px" }}>…</span>}
+                      <button onClick={() => goTo(totalPages)} className="w-8 h-8 rounded-lg border flex items-center justify-center" style={{ borderColor: "#c8e4d8", fontSize: "13px", cursor: "pointer" }}
+                        onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#e0f5ed"; }}
+                        onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.background = ""; }}>{totalPages}</button>
+                    </>
+                  )}
+
+                  {/* Next */}
+                  <button
+                    onClick={() => goTo(safePage + 1)}
+                    disabled={safePage === totalPages}
+                    className="w-8 h-8 rounded-lg border flex items-center justify-center"
+                    style={{ borderColor: "#c8e4d8", opacity: safePage === totalPages ? 0.35 : 1, cursor: safePage === totalPages ? "not-allowed" : "pointer" }}
+                    onMouseOver={(e) => { if (safePage < totalPages) (e.currentTarget as HTMLButtonElement).style.background = "#e0f5ed"; }}
+                    onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.background = ""; }}
                   >
-                    chevron_right
-                  </span>
-                </button>
-              </div>
+                    <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>chevron_right</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

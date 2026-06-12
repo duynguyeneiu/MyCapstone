@@ -107,7 +107,12 @@ export default function PromotionsPage({ search }: Props) {
   const openDelete = (id: number) => { setDeleteId(id); setDelOpen(true); };
   const confirmDelete = () => { setPromos(prev => prev.filter(p => p.id !== deleteId)); setDelOpen(false); };
 
+  const PAGE_SIZE = 6;
+  const [curPage, setCurPage] = useState(1);
   const data = filtered();
+  const totalPages = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
+  const pagedData = data.slice((curPage - 1) * PAGE_SIZE, curPage * PAGE_SIZE);
+  const goTo = (p: number) => setCurPage(Math.max(1, Math.min(p, totalPages)));
   const deletePromo = promos.find(p => p.id === deleteId);
 
   // Live preview values
@@ -192,7 +197,7 @@ export default function PromotionsPage({ search }: Props) {
                   </tr>
                 </thead>
                 <tbody className="divide-y" style={{ borderColor: '#c8e4d8' }}>
-                  {data.map(p => {
+                  {pagedData.map(p => {
                     const sc = statusConfig[p.status] || statusConfig['Inactive'];
                     const dl = daysLeft(p.end);
                     return (
@@ -242,12 +247,25 @@ export default function PromotionsPage({ search }: Props) {
                 </tbody>
               </table>
             </div>
-            <div className="px-6 py-4 border-t flex items-center justify-between" style={{ borderColor: '#c8e4d8' }}>
-              <p className="text-on-surface-variant" style={{ fontSize: '13px' }}>Showing {data.length} of {promos.length} promotions</p>
+            <div className="px-6 py-4 border-t flex items-center justify-center" style={{ borderColor: '#c8e4d8' }}>
               <div className="flex items-center gap-1">
-                <button className="w-8 h-8 rounded-lg border flex items-center justify-center hover:bg-surface-container" style={{ borderColor: '#c8e4d8' }}><span className="material-symbols-outlined" style={{ fontSize: '16px' }}>chevron_left</span></button>
-                <button className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold btn-primary" style={{ fontSize: '13px' }}>1</button>
-                <button className="w-8 h-8 rounded-lg border flex items-center justify-center hover:bg-surface-container" style={{ borderColor: '#c8e4d8' }}><span className="material-symbols-outlined" style={{ fontSize: '16px' }}>chevron_right</span></button>
+                <button onClick={() => goTo(curPage - 1)} disabled={curPage === 1}
+                  className="w-8 h-8 rounded-lg border flex items-center justify-center hover:bg-surface-container"
+                  style={{ borderColor: '#c8e4d8', opacity: curPage === 1 ? 0.4 : 1 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>chevron_left</span>
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                  <button key={p} onClick={() => goTo(p)}
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold${p === curPage ? ' btn-primary' : ' border hover:bg-surface-container'}`}
+                    style={{ fontSize: '13px', borderColor: p !== curPage ? '#c8e4d8' : undefined, color: p !== curPage ? '#3d4943' : undefined }}>
+                    {p}
+                  </button>
+                ))}
+                <button onClick={() => goTo(curPage + 1)} disabled={curPage === totalPages}
+                  className="w-8 h-8 rounded-lg border flex items-center justify-center hover:bg-surface-container"
+                  style={{ borderColor: '#c8e4d8', opacity: curPage === totalPages ? 0.4 : 1 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>chevron_right</span>
+                </button>
               </div>
             </div>
           </div>
@@ -255,10 +273,10 @@ export default function PromotionsPage({ search }: Props) {
 
       {/* Add/Edit Modal */}
       {formOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.4)' }}
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)' }}
           onClick={e => { if (e.target === e.currentTarget) setFormOpen(false); }}>
-          <div className="bg-surface-container-lowest rounded-xl border w-[520px] max-w-[95vw] max-h-[90vh] overflow-y-auto" style={{ borderColor: '#c8e4d8' }}>
-            <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: '#c8e4d8' }}>
+          <div className="rounded-2xl w-[520px] max-w-[95vw] max-h-[90vh] overflow-y-auto" style={{ background: '#ffffff', border: '2px solid #00a86b', boxShadow: '0 20px 60px rgba(0,0,0,0.25), 0 4px 16px rgba(0,105,76,0.15)' }}>
+            <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: '#b2e8d0' }}>
               <h3 className="font-bold text-on-surface" style={{ fontSize: '18px' }}>{editId ? 'Edit Promotion' : 'Add Promotion'}</h3>
               <button onClick={() => setFormOpen(false)} className="material-symbols-outlined text-on-surface-variant hover:bg-surface-container rounded-full p-1">close</button>
             </div>
@@ -331,9 +349,9 @@ export default function PromotionsPage({ search }: Props) {
 
       {/* Delete Modal */}
       {delOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.4)' }}
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)' }}
           onClick={e => { if (e.target === e.currentTarget) setDelOpen(false); }}>
-          <div className="bg-surface-container-lowest rounded-xl border w-[360px] p-8 text-center" style={{ borderColor: '#c8e4d8' }}>
+          <div className="rounded-2xl w-[360px] p-8 text-center" style={{ background: '#ffffff', border: '2px solid #00a86b', boxShadow: '0 20px 60px rgba(0,0,0,0.25), 0 4px 16px rgba(0,105,76,0.15)' }}>
             <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: '#fee2e2' }}>
               <span className="material-symbols-outlined" style={{ color: '#991b1b', fontSize: '28px' }}>delete</span>
             </div>
