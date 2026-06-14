@@ -1020,9 +1020,8 @@ export default function AdminCategoriesPage({ search }: Props) {
             className="rounded-2xl w-[360px] p-8 text-center"
             style={{
               background: "#ffffff",
-              border: "1.5px solid #c8e4d8",
-              boxShadow:
-                "0 20px 60px rgba(0,0,0,0.25), 0 4px 16px rgba(0,105,76,0.12)",
+              border: "2px solid #00a86b",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.25), 0 4px 16px rgba(0,105,76,0.15)",
             }}
           >
             <div

@@ -711,18 +711,18 @@ export default function AdminOrdersPage({ search }: Props) {
       {detailOpen && currentOrder && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ background: "rgba(0,0,0,0.4)" }}
+          style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(2px)" }}
           onClick={(e) => {
             if (e.target === e.currentTarget) setDetailOpen(false);
           }}
         >
           <div
-            className="bg-surface-container-lowest rounded-xl border w-[560px] max-w-[95vw] max-h-[90vh] overflow-y-auto"
-            style={{ borderColor: "#c8e4d8" }}
+            className="rounded-2xl w-[560px] max-w-[95vw] max-h-[90vh] overflow-y-auto"
+            style={{ background: "#ffffff", border: "2px solid #00a86b", boxShadow: "0 20px 60px rgba(0,0,0,0.25), 0 4px 16px rgba(0,105,76,0.15)" }}
           >
             <div
               className="flex items-center justify-between p-6 border-b"
-              style={{ borderColor: "#c8e4d8" }}
+              style={{ borderColor: "#b2e8d0" }}
             >
               <div>
                 <h3
