@@ -1,8 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ReviewTab, Review, Product } from '../../lib/types';
-import { PRODUCTS, MY_REVIEWS, STAR_LABELS } from '../../lib/data';
+import { ReviewTab, Review } from '../../lib/types';
+import { MY_REVIEWS, STAR_LABELS } from '../../lib/data';
+import { productService } from '@/src/services/productService';
+import { categoryService } from '@/src/services/categoryService';
+import { Product, Category } from '@/src/lib/data';
 import { useOrders } from '../../context/OrderContext';
 import StarRow from '../ui/StarRow';
 import BtnTeal from '../ui/BtnTeal';
@@ -65,6 +68,26 @@ export default function ReviewsContent() {
   const [deleteState, setDeleteState] = useState<DeleteState | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [minePage, setMinePage] = useState(1);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [productsData, categoriesData] = await Promise.all([
+          productService.getAll(),
+          categoryService.getAll(),
+        ]);
+        setProducts(productsData);
+        setCategories(categoriesData);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadData();
+  }, []);
+
+  const categoryName = (categoryId: number) => categories.find(c => c.id === categoryId)?.name ?? '';
 
   useEffect(() => {
     if (!successMsg) return;
@@ -197,7 +220,7 @@ export default function ReviewsContent() {
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {pendingPids.map(pid => {
-                  const p = PRODUCTS.find(x => x.id === pid)!;
+                  const p = products.find(x => x.id === pid)!;
                   return (
                     <div key={pid} style={{ background: '#fff', borderRadius: '1.25rem', padding: '1rem', boxShadow: '0 2px 10px rgba(0,0,0,.05)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                       <div style={{ width: 56, height: 56, borderRadius: '0.75rem', background: 'var(--teal-xs)', overflow: 'hidden', flexShrink: 0 }}>
@@ -205,7 +228,7 @@ export default function ReviewsContent() {
                       </div>
                       <div style={{ flex: 1 }}>
                         <p style={{ fontWeight: 600, fontSize: '.9rem' }}>{p.name}</p>
-                        <p style={{ fontSize: '.75rem', color: '#94a3b8', marginTop: 2 }}>{p.category}</p>
+                        <p style={{ fontSize: '.75rem', color: '#94a3b8', marginTop: 2 }}>{categoryName(p.categoryId)}</p>
                         <div style={{ display: 'flex', gap: 2, marginTop: 4 }}>
                           {Array.from({ length: 5 }, (_, i) => (
                             <span key={i} style={{ color: '#e2e8f0', fontSize: '.9rem' }}>★</span>
@@ -265,7 +288,7 @@ export default function ReviewsContent() {
               </p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(140px,1fr))', gap: '0.75rem' }}>
                 {pendingPids.map(pid => {
-                  const p = PRODUCTS.find(x => x.id === pid)!;
+                  const p = products.find(x => x.id === pid)!;
                   return (
                     <button key={pid} onClick={() => setPicked(p)}
                       style={{ padding: '0.75rem', borderRadius: '0.75rem', border: '1.5px solid #e2e8f0', background: '#fff', cursor: 'pointer', textAlign: 'center', transition: '.2s' }}
@@ -292,7 +315,7 @@ export default function ReviewsContent() {
                 </div>
                 <div style={{ flex: 1 }}>
                   <p style={{ fontWeight: 600, fontSize: '.9rem' }}>{picked.name}</p>
-                  <p style={{ fontSize: '.75rem', color: '#64748b' }}>{picked.category}</p>
+                  <p style={{ fontSize: '.75rem', color: '#64748b' }}>{categoryName(picked.categoryId)}</p>
                 </div>
                 <button onClick={() => { setPicked(null); setStar(0); setTitle(''); setBody(''); }}
                   style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', display: 'flex', alignItems: 'center' }}>
@@ -404,7 +427,7 @@ export default function ReviewsContent() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {pagedReviews.map((r, idx) => {
                 const realIdx = mineStart + idx;
-                const p = PRODUCTS.find(x => x.id === r.pid)!;
+                const p = products.find(x => x.id === r.pid)!;
                 return (
                   <div key={realIdx}
                     style={{ background: '#fff', borderRadius: '1.25rem', padding: '1.25rem', boxShadow: '0 2px 10px rgba(0,0,0,.05)', transition: '.2s' }}

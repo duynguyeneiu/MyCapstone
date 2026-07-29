@@ -1,25 +1,13 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { PRODUCTS } from '../../../lib/data';
+import { productService } from '@/src/services/productService';
+import { categoryService } from '@/src/services/categoryService';
+import { Product, Category } from '@/src/lib/data';
 
 interface Props { onNav: (p: string) => void; search: string; }
 
-const STOCK = (id: number) => (id * 17 + 3) % 120;
-const CAT_LABELS: Record<string, string> = {
-  beverages: 'Beverages', snacks: 'Snacks', food: 'Food',
-  'personal-care': 'Personal Care', household: 'Household',
-};
-const CAT_COLORS: Record<string, { bg: string; color: string }> = {
-  beverages: { bg: '#e0f5ed', color: '#004d38' },
-  snacks:    { bg: '#fff3d6', color: '#7a5c00' },
-  food:      { bg: '#fef3c7', color: '#92400e' },
-  'personal-care': { bg: '#ede9fe', color: '#4c1d95' },
-  household: { bg: '#e0f2fe', color: '#075985' },
-};
-const lowStockProducts = [...PRODUCTS]
-  .map(p => ({ ...p, stock: STOCK(p.id) }))
-  .sort((a, b) => a.stock - b.stock)
-  .slice(0, 4);
+const CAT_COLORS = ['#e0f5ed', '#fff3d6', '#fef3c7', '#ede9fe', '#e0f2fe'];
+const CAT_TEXT_COLORS = ['#004d38', '#7a5c00', '#92400e', '#4c1d95', '#075985'];
 
 const pageCSS = `
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Hanken+Grotesk:wght@600;700&display=swap');
@@ -39,6 +27,29 @@ const RECENT_ORDERS = [
 
 export default function DashboardPage({ onNav, search }: Props) {
   const q = search.toLowerCase();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [productsData, categoriesData] = await Promise.all([
+          productService.getAll(),
+          categoryService.getAll(),
+        ]);
+        setProducts(productsData);
+        setCategories(categoriesData);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadData();
+  }, []);
+
+  const lowStockProducts = [...products]
+    .sort((a, b) => a.quantity - b.quantity)
+    .slice(0, 4);
+
   useEffect(() => {
     const script = document.createElement('script');
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js';
@@ -209,7 +220,7 @@ export default function DashboardPage({ onNav, search }: Props) {
               <div className="flex justify-between items-start">
                 <div>
                   <p className="font-label-md text-label-md text-on-surface-variant mb-1">Low Stock Products</p>
-                  <h3 className="font-headline-md text-headline-md font-bold" style={{ color: '#854f0b' }}>{PRODUCTS.filter(p => STOCK(p.id) <= 10).length}</h3>
+                  <h3 className="font-headline-md text-headline-md font-bold" style={{ color: '#854f0b' }}>{products.filter(p => p.quantity <= 10).length}</h3>
                 </div>
                 <span className="material-symbols-outlined p-2 rounded-lg" style={{ color: '#854f0b', background: '#fff3d6' }}>inventory</span>
               </div>
@@ -329,9 +340,14 @@ export default function DashboardPage({ onNav, search }: Props) {
                     </tr>
                   </thead>
                   <tbody className="divide-y" style={{ borderColor: '#c8e4d8' }}>
-                    {lowStockProducts.filter(p => !q || p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q)).map(p => {
-                      const cc = CAT_COLORS[p.category] ?? { bg: '#e0f5ed', color: '#004d38' };
-                      const stockColor = p.stock === 0 ? '#dc2626' : p.stock <= 10 ? '#854f0b' : undefined;
+                    {lowStockProducts.filter(p => {
+                      const categoryName = categories.find(c => c.id === p.categoryId)?.name ?? '';
+                      return !q || p.name.toLowerCase().includes(q) || categoryName.toLowerCase().includes(q);
+                    }).map(p => {
+                      const categoryName = categories.find(c => c.id === p.categoryId)?.name ?? '';
+                      const colorIdx = p.categoryId % CAT_COLORS.length;
+                      const cc = { bg: CAT_COLORS[colorIdx], color: CAT_TEXT_COLORS[colorIdx] };
+                      const stockColor = p.quantity === 0 ? '#dc2626' : p.quantity <= 10 ? '#854f0b' : undefined;
                       return (
                         <tr key={p.id} className="transition-colors">
                           <td className="px-6 py-4">
@@ -341,16 +357,16 @@ export default function DashboardPage({ onNav, search }: Props) {
                               </div>
                               <div>
                                 <p className="font-body-sm text-body-sm font-medium">{p.name}</p>
-                                <p className="text-[11px] text-on-surface-variant">{CAT_LABELS[p.category]}</p>
+                                <p className="text-[11px] text-on-surface-variant">{categoryName}</p>
                               </div>
                             </div>
                           </td>
                           <td className="px-6 py-4">
                             <span style={{ background: cc.bg, color: cc.color, padding: '2px 8px', borderRadius: 99, fontSize: 11, fontWeight: 600 }}>
-                              {CAT_LABELS[p.category]}
+                              {categoryName}
                             </span>
                           </td>
-                          <td className="px-6 py-4 font-label-md text-label-md text-right font-bold" style={{ color: stockColor }}>{p.stock} units</td>
+                          <td className="px-6 py-4 font-label-md text-label-md text-right font-bold" style={{ color: stockColor }}>{p.quantity} units</td>
                         </tr>
                       );
                     })}

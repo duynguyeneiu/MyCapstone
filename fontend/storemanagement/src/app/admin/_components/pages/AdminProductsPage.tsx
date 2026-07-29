@@ -1,57 +1,23 @@
 "use client";
-import { useState } from "react";
-import { PRODUCTS } from "../../../lib/data";
+import { useState, useEffect } from "react";
+import { productService } from "@/src/services/productService";
+import { categoryService } from "@/src/services/categoryService";
+import { Product, Category } from "@/src/lib/data";
 
 interface Props {
   search: string;
 }
 
-
-const CAT_LABELS: Record<string, string> = {
-  beverages: "Beverages",
-  snacks: "Snacks & Confectionery",
-  food: "Food",
-  "personal-care": "Personal Care",
-  household: "Household Essentials",
-};
-
-const SUB_LABELS: Record<string, string> = {
-  "water-soft-drinks": "Water & Soft Drinks",
-  "tea-coffee": "Tea & Coffee",
-  "chips-snacks": "Chips & Snacks",
-  sweets: "Sweets",
-  "instant-foods": "Instant Foods",
-  "ready-canned": "Ready & Canned Foods",
-  "oral-hair-care": "Oral & Hair Care",
-  "body-skin-care": "Body & Skin Care",
-  "laundry-cleaning": "Laundry & Cleaning",
-  "paper-storage": "Paper & Storage",
-};
-
-const CAT_COLORS: Record<string, { bg: string; text: string }> = {
-  beverages: { bg: "#e0f5ed", text: "#004d38" },
-  snacks: { bg: "#fff3d6", text: "#7a5c00" },
-  food: { bg: "#fef3c7", text: "#92400e" },
-  "personal-care": { bg: "#ede9fe", text: "#4c1d95" },
-  household: { bg: "#e0f2fe", text: "#075985" },
-};
+const CAT_COLORS = ["#e0f5ed", "#fff3d6", "#fef3c7", "#ede9fe", "#e0f2fe"];
+const CAT_TEXT_COLORS = ["#004d38", "#7a5c00", "#92400e", "#4c1d95", "#075985"];
 
 const fmt = (n: number) => n.toLocaleString('vi-VN') + '₫';
-
-const SUB_BY_CAT: Record<string, string[]> = {
-  beverages:       ['water-soft-drinks', 'tea-coffee'],
-  snacks:          ['chips-snacks', 'sweets'],
-  food:            ['instant-foods', 'ready-canned'],
-  'personal-care': ['oral-hair-care', 'body-skin-care'],
-  household:       ['laundry-cleaning', 'paper-storage'],
-};
 
 interface AdminProduct {
   id: number;
   name: string;
   code: string;
-  cat: string;
-  subcat: string;
+  categoryId: number;
   image: string;
   importPrice: number;
   salePrice: number;
@@ -61,32 +27,25 @@ interface AdminProduct {
   rating: number;
 }
 
-const toAdmin = (): AdminProduct[] =>
-  PRODUCTS.map((p) => {
-    const stock = 20 + ((p.id * 17 + 3) % 120);
-    return {
-      id: p.id,
-      name: p.name,
-      code: `P${String(p.id).padStart(3, "0")}`,
-      cat: p.category,
-      subcat: p.subcategory,
-      image: p.image,
-      importPrice: p.original
-        ? Math.round(p.original * 0.72 * 100) / 100
-        : Math.round(p.price * 0.72 * 100) / 100,
-      salePrice: p.price,
-      stock,
-      status: stock <= 10 ? "Low Stock" : "Active",
-      desc: p.desc,
-      rating: p.rating,
-    };
-  });
+const toAdmin = (products: Product[]): AdminProduct[] =>
+  products.map((p) => ({
+    id: p.id,
+    name: p.name,
+    code: p.barcode || `P${String(p.id).padStart(3, "0")}`,
+    categoryId: p.categoryId,
+    image: p.image,
+    importPrice: Math.round(p.price * 0.72 * 100) / 100,
+    salePrice: p.price,
+    stock: p.quantity,
+    status: p.quantity <= 10 ? "Low Stock" : "Active",
+    desc: p.description,
+    rating: p.rating ?? 0,
+  }));
 
 const emptyForm = {
   name: "",
   code: "",
-  cat: "",
-  subcat: "",
+  categoryId: "",
   image: "",
   stock: "",
   importPrice: "",
@@ -96,7 +55,8 @@ const emptyForm = {
 };
 
 export default function AdminProductsPage({ search }: Props) {
-  const [products, setProducts] = useState<AdminProduct[]>(toAdmin());
+  const [products, setProducts] = useState<AdminProduct[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [catFilter, setCatFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [curPage, setCurPage] = useState(1);
@@ -106,12 +66,30 @@ export default function AdminProductsPage({ search }: Props) {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [form, setForm] = useState(emptyForm);
 
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [productsData, categoriesData] = await Promise.all([
+          productService.getAll(),
+          categoryService.getAll(),
+        ]);
+        setProducts(toAdmin(productsData));
+        setCategories(categoriesData);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadData();
+  }, []);
+
+  const categoryName = (id: number) => categories.find((c) => c.id === id)?.name ?? "—";
+
   const filtered = products.filter(
     (p) =>
       (!search ||
         p.name.toLowerCase().includes(search.toLowerCase()) ||
         p.code.toLowerCase().includes(search.toLowerCase())) &&
-      (!catFilter || p.cat === catFilter) &&
+      (!catFilter || String(p.categoryId) === catFilter) &&
       (!statusFilter || p.status === statusFilter),
   );
 
@@ -166,8 +144,7 @@ export default function AdminProductsPage({ search }: Props) {
     setForm({
       name: p.name,
       code: p.code,
-      cat: p.cat,
-      subcat: p.subcat,
+      categoryId: String(p.categoryId),
       image: p.image,
       stock: String(p.stock),
       importPrice: String(p.importPrice),
@@ -182,6 +159,7 @@ export default function AdminProductsPage({ search }: Props) {
       alert("Product name is required");
       return;
     }
+    const categoryId = Number(form.categoryId) || 0;
     if (editId !== null) {
       setProducts((prev) =>
         prev.map((p) =>
@@ -190,8 +168,7 @@ export default function AdminProductsPage({ search }: Props) {
                 ...p,
                 name: form.name,
                 code: form.code,
-                cat: form.cat || p.cat,
-                subcat: form.subcat || p.subcat,
+                categoryId: categoryId || p.categoryId,
                 image: form.image || p.image,
                 stock: parseInt(form.stock) || 0,
                 importPrice: parseFloat(form.importPrice) || 0,
@@ -210,8 +187,7 @@ export default function AdminProductsPage({ search }: Props) {
           id: Date.now(),
           name: form.name,
           code: form.code,
-          cat: form.cat || "beverages",
-          subcat: form.subcat || "",
+          categoryId,
           image: form.image,
           importPrice: parseFloat(form.importPrice) || 0,
           salePrice: parseFloat(form.salePrice) || 0,
@@ -269,7 +245,7 @@ export default function AdminProductsPage({ search }: Props) {
                   className="font-label-sm text-label-sm"
                   style={{ color: "#00694c" }}
                 >
-                  {Object.keys(CAT_LABELS).length} categories
+                  {categories.length} categories
                 </span>
               </div>
             </div>
@@ -301,7 +277,7 @@ export default function AdminProductsPage({ search }: Props) {
                   className="font-label-sm text-label-sm"
                   style={{ color: "#b47b10" }}
                 >
-                  {Math.round((activeCount / products.length) * 100)}% of total
+                  {products.length ? Math.round((activeCount / products.length) * 100) : 0}% of total
                 </span>
               </div>
             </div>
@@ -350,17 +326,17 @@ export default function AdminProductsPage({ search }: Props) {
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-on-surface-variant font-label-md text-label-md mb-1">
-                    Subcategories
+                    Out of Stock
                   </p>
                   <h3 className="font-bold" style={{ fontSize: "24px" }}>
-                    {Object.keys(SUB_LABELS).length}
+                    {products.filter((p) => p.stock === 0).length}
                   </h3>
                 </div>
                 <span
                   className="material-symbols-outlined p-2 rounded-lg"
                   style={{ color: "#00694c", background: "#e0f5ed" }}
                 >
-                  category
+                  inventory_2
                 </span>
               </div>
               <div className="mt-4">
@@ -368,7 +344,7 @@ export default function AdminProductsPage({ search }: Props) {
                   className="font-label-sm text-label-sm"
                   style={{ color: "#00694c" }}
                 >
-                  Across all categories
+                  Needs immediate restock
                 </span>
               </div>
             </div>
@@ -398,9 +374,9 @@ export default function AdminProductsPage({ search }: Props) {
                   }}
                 >
                   <option value="">All Categories</option>
-                  {Object.entries(CAT_LABELS).map(([k, v]) => (
-                    <option key={k} value={k}>
-                      {v}
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
                     </option>
                   ))}
                 </select>
@@ -451,9 +427,6 @@ export default function AdminProductsPage({ search }: Props) {
                       Category
                     </th>
                     <th className="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">
-                      Subcategory
-                    </th>
-                    <th className="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">
                       Import Price
                     </th>
                     <th className="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">
@@ -475,10 +448,8 @@ export default function AdminProductsPage({ search }: Props) {
                 </thead>
                 <tbody className="divide-y" style={{ borderColor: "#c8e4d8" }}>
                   {paged.map((p) => {
-                    const cc = CAT_COLORS[p.cat] ?? {
-                      bg: "#e0f5ed",
-                      text: "#004d38",
-                    };
+                    const colorIdx = p.categoryId % CAT_COLORS.length;
+                    const cc = { bg: CAT_COLORS[colorIdx], text: CAT_TEXT_COLORS[colorIdx] };
                     const stockColor = p.stock <= 10 ? "#854f0b" : "#191c1e";
                     return (
                       <tr
@@ -536,14 +507,8 @@ export default function AdminProductsPage({ search }: Props) {
                               fontWeight: 600,
                             }}
                           >
-                            {CAT_LABELS[p.cat] ?? p.cat}
+                            {categoryName(p.categoryId)}
                           </span>
-                        </td>
-                        <td
-                          className="px-4 py-3 text-on-surface-variant"
-                          style={{ fontSize: "12px" }}
-                        >
-                          {SUB_LABELS[p.subcat] ?? p.subcat}
                         </td>
                         <td
                           className="px-4 py-3 text-on-surface"
@@ -909,44 +874,22 @@ export default function AdminProductsPage({ search }: Props) {
                 </div>
               </div>
 
-              {/* Category + Subcategory */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
-                    Category <span style={{ color: "#dc2626" }}>*</span>
-                  </label>
-                  <select
-                    value={form.cat}
-                    onChange={(e) => setForm((f) => ({ ...f, cat: e.target.value, subcat: "" }))}
-                    className="w-full rounded-lg px-3 py-2 focus:outline-none"
-                    style={{ border: "1.5px solid #c8e4d8", background: "#f4fbf7", fontSize: "14px" }}
-                  >
-                    <option value="">Select category</option>
-                    {Object.entries(CAT_LABELS).map(([k, v]) => (
-                      <option key={k} value={k}>{v}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
-                    Subcategory
-                  </label>
-                  <select
-                    value={form.subcat}
-                    onChange={(e) => setForm((f) => ({ ...f, subcat: e.target.value }))}
-                    disabled={!form.cat}
-                    className="w-full rounded-lg px-3 py-2 focus:outline-none"
-                    style={{
-                      border: "1.5px solid #c8e4d8", background: "#f4fbf7", fontSize: "14px",
-                      opacity: form.cat ? 1 : 0.5, cursor: form.cat ? "pointer" : "not-allowed",
-                    }}
-                  >
-                    <option value="">Select subcategory</option>
-                    {(SUB_BY_CAT[form.cat] ?? []).map((k) => (
-                      <option key={k} value={k}>{SUB_LABELS[k]}</option>
-                    ))}
-                  </select>
-                </div>
+              {/* Category */}
+              <div>
+                <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
+                  Category <span style={{ color: "#dc2626" }}>*</span>
+                </label>
+                <select
+                  value={form.categoryId}
+                  onChange={(e) => setForm((f) => ({ ...f, categoryId: e.target.value }))}
+                  className="w-full rounded-lg px-3 py-2 focus:outline-none"
+                  style={{ border: "1.5px solid #c8e4d8", background: "#f4fbf7", fontSize: "14px" }}
+                >
+                  <option value="">Select category</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
               </div>
 
               {/* Import Price + Sale Price */}

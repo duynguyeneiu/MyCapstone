@@ -1,9 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { PRODUCTS } from '../../lib/data';
-import { fmt, subtotal } from '../../lib/utils';
+import { productService } from '@/src/services/productService';
+import { categoryService } from '@/src/services/categoryService';
+import { Product, Category } from '@/src/lib/data';
+import { fmt } from '../../lib/utils';
 import { useCart } from '../../context/CartContext';
 import BtnTeal from '../ui/BtnTeal';
 import BtnOutline from '../ui/BtnOutline';
@@ -11,8 +13,26 @@ import BtnOutline from '../ui/BtnOutline';
 export default function CartContent() {
   const router = useRouter();
   const { cart, updateQty, removeItem } = useCart();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
 
-  const sub = subtotal(cart);
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [productsData, categoriesData] = await Promise.all([
+          productService.getAll(),
+          categoryService.getAll(),
+        ]);
+        setProducts(productsData);
+        setCategories(categoriesData);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadData();
+  }, []);
+
+  const sub = cart.reduce((s, item) => s + (products.find(p => p.id === item.id)?.price ?? 0) * item.qty, 0);
   const tax = sub * 0.1;
   const total = sub + tax;
 
@@ -33,7 +53,9 @@ export default function CartContent() {
       <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           {cart.map(item => {
-            const p = PRODUCTS.find(x => x.id === item.id)!;
+            const p = products.find(x => x.id === item.id);
+            if (!p) return null;
+            const categoryName = categories.find(c => c.id === p.categoryId)?.name ?? '';
             return (
               <div key={item.id} style={{ background: '#fff', borderRadius: '1.25rem', padding: '1rem', boxShadow: '0 2px 10px rgba(0,0,0,.05)', display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem' }}>
                 <div style={{ width: 64, height: 64, borderRadius: '0.75rem', background: 'var(--teal-xs)', overflow: 'hidden', flexShrink: 0 }}>
@@ -41,7 +63,7 @@ export default function CartContent() {
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ fontWeight: 600, fontSize: '.9rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</p>
-                  <p style={{ fontSize: '.75rem', color: '#94a3b8', marginTop: 2 }}>{p.category}</p>
+                  <p style={{ fontSize: '.75rem', color: '#94a3b8', marginTop: 2 }}>{categoryName}</p>
                   <p style={{ fontWeight: 700, fontSize: '.9rem', color: 'var(--teal)', marginTop: 4 }}>{fmt(p.price * item.qty)}</p>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

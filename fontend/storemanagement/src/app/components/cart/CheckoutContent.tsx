@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { PaymentMethod } from "../../lib/types";
-import { fmt, subtotal } from "../../lib/utils";
-import { PRODUCTS } from "../../lib/data";
+import { fmt } from "../../lib/utils";
+import { productService } from "@/src/services/productService";
+import { Product } from "@/src/lib/data";
 import { useCart } from "../../context/CartContext";
 import { useOrders } from "../../context/OrderContext";
 import { useAuth } from "../../context/AuthContext";
@@ -29,6 +30,11 @@ export default function CheckoutContent() {
   const { user } = useAuth();
   const [payment, setPayment] = useState<PaymentMethod>("vnpay");
   const [showQR, setShowQR] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    productService.getAll().then(setProducts).catch((err) => console.error(err));
+  }, []);
 
   const [ship, setShip] = useState<ShipForm>(() => {
     /* Try to read default saved address from profile */
@@ -57,7 +63,7 @@ export default function CheckoutContent() {
     Partial<Record<keyof ShipForm, string>>
   >({});
 
-  const sub = subtotal(cart);
+  const sub = cart.reduce((s, item) => s + (products.find((p) => p.id === item.id)?.price ?? 0) * item.qty, 0);
   const tax = sub * 0.1;
   const total = sub + tax;
 
@@ -480,7 +486,8 @@ export default function CheckoutContent() {
               }}
             >
               {cart.map((item) => {
-                const p = PRODUCTS.find((x) => x.id === item.id)!;
+                const p = products.find((x) => x.id === item.id);
+                if (!p) return null;
                 return (
                   <div
                     key={item.id}

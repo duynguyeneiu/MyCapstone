@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Tài liệu Đồ Án tốt nghiệp\\StoreManagement\\MyCapstone\\StoreManagementAPI\\StoreManagementAPI\\CatalogService.API.csproj": {}
+    "D:\\Tài liệu Đồ Án tốt nghiệp\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\CatalogService.API.csproj": {}
   },
   "projects": {
-    "D:\\Tài liệu Đồ Án tốt nghiệp\\StoreManagement\\MyCapstone\\StoreManagementAPI\\StoreManagementAPI\\CatalogService.API.csproj": {
+    "D:\\Tài liệu Đồ Án tốt nghiệp\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\CatalogService.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Tài liệu Đồ Án tốt nghiệp\\StoreManagement\\MyCapstone\\StoreManagementAPI\\StoreManagementAPI\\CatalogService.API.csproj",
+        "projectUniqueName": "D:\\Tài liệu Đồ Án tốt nghiệp\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\CatalogService.API.csproj",
         "projectName": "CatalogService.API",
-        "projectPath": "D:\\Tài liệu Đồ Án tốt nghiệp\\StoreManagement\\MyCapstone\\StoreManagementAPI\\StoreManagementAPI\\CatalogService.API.csproj",
+        "projectPath": "D:\\Tài liệu Đồ Án tốt nghiệp\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\CatalogService.API.csproj",
         "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "D:\\Tài liệu Đồ Án tốt nghiệp\\StoreManagement\\MyCapstone\\StoreManagementAPI\\StoreManagementAPI\\obj\\",
+        "outputPath": "D:\\Tài liệu Đồ Án tốt nghiệp\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

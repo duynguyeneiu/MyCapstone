@@ -3,16 +3,46 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { PRODUCTS } from '../../lib/data';
+import { productService } from '@/src/services/productService';
+import { categoryService } from '@/src/services/categoryService';
+import { Product, Category } from '@/src/lib/data';
 import BtnTeal from '../ui/BtnTeal';
 import BtnOutline from '../ui/BtnOutline';
 import ProductCard from '../ui/ProductCard';
 
+const CATEGORY_META: Record<string, { sub: string; icon: string; iconBg: string; iconColor: string }> = {
+  'Beverages':              { sub: 'Water, tea, coffee & soft drinks', icon: 'local_drink',       iconBg: '#e0f5ed', iconColor: '#00694c' },
+  'Snacks & Confectionery': { sub: 'Chips, sweets & sweet treats',     icon: 'cookie',            iconBg: '#fff3d6', iconColor: '#b47b10' },
+  'Food':                   { sub: 'Instant foods & canned goods',     icon: 'lunch_dining',      iconBg: '#fef3c7', iconColor: '#92400e' },
+  'Personal Care':          { sub: 'Oral, hair & skin care',           icon: 'self_care',         iconBg: '#ede9fe', iconColor: '#4c1d95' },
+  'Household Essentials':   { sub: 'Cleaning & storage supplies',      icon: 'cleaning_services', iconBg: '#e0f2fe', iconColor: '#075985' },
+};
+const DEFAULT_CATEGORY_META = { sub: '', icon: 'category', iconBg: '#e0f5ed', iconColor: '#00694c' };
+
 export default function HomeContent() {
   const router = useRouter();
-  const featured = [...PRODUCTS].sort((a, b) => b.rating - a.rating).slice(0, 8);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [productsData, categoriesData] = await Promise.all([
+          productService.getAll(),
+          categoryService.getAll(),
+        ]);
+        setProducts(productsData);
+        setCategories(categoriesData);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadData();
+  }, []);
+
+  const featured = [...products].sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)).slice(0, 8);
   const SHOW = 5; // cards visible at once
-  const maxStep = featured.length - SHOW;
+  const maxStep = Math.max(0, featured.length - SHOW);
   const [featStep, setFeatStep] = useState(0);
   const [featPaused, setFeatPaused] = useState(false);
 
@@ -24,13 +54,9 @@ export default function HomeContent() {
     return () => clearInterval(id);
   }, [featPaused, maxStep]);
 
-  const ALL_CATS = [
-    { key: 'beverages',     label: 'Beverages',              sub: 'Water, tea, coffee & soft drinks', icon: 'local_drink',       iconBg: '#e0f5ed', iconColor: '#00694c' },
-    { key: 'snacks',        label: 'Snacks & Confectionery', sub: 'Chips, sweets & sweet treats',     icon: 'cookie',            iconBg: '#fff3d6', iconColor: '#b47b10' },
-    { key: 'food',          label: 'Food',                   sub: 'Instant foods & canned goods',     icon: 'lunch_dining',      iconBg: '#fef3c7', iconColor: '#92400e' },
-    { key: 'personal-care', label: 'Personal Care',          sub: 'Oral, hair & skin care',           icon: 'self_care',         iconBg: '#ede9fe', iconColor: '#4c1d95' },
-    { key: 'household',     label: 'Household Essentials',   sub: 'Cleaning & storage supplies',      icon: 'cleaning_services', iconBg: '#e0f2fe', iconColor: '#075985' },
-  ];
+  const ALL_CATS = categories
+    .filter(c => c.parentCategoryId == null)
+    .map(c => ({ id: c.id, label: c.name, ...(CATEGORY_META[c.name] ?? DEFAULT_CATEGORY_META) }));
   const [catOffset, setCatOffset] = useState(0);
 
   const stats = [['500+', 'Products'], ['50K+', 'Customers'], ['4.9★', 'Avg Rating'], ['24h', 'Delivery']];
@@ -97,9 +123,9 @@ export default function HomeContent() {
               background: '#f8fafc',
             }}>
               {ALL_CATS.map(c => (
-                <div key={c.key} style={{ width: '20%', padding: '0 0.625rem', boxSizing: 'border-box', background: '#f8fafc' }}>
+                <div key={c.id} style={{ width: '20%', padding: '0 0.625rem', boxSizing: 'border-box', background: '#f8fafc' }}>
                   <button
-                    onClick={() => router.push(`/shop?category=${c.key}`)}
+                    onClick={() => router.push(`/shop?category=${c.id}`)}
                     style={{ width: '100%', background: '#fff', borderRadius: '1.5rem', padding: '2rem', textAlign: 'left', border: '2px solid var(--teal)', cursor: 'pointer', transition: 'box-shadow .2s, transform .2s, border-color .2s', boxShadow: '0 4px 24px rgba(0,0,0,.08)' }}
                     onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 36px rgba(0,105,76,.25)'; e.currentTarget.style.borderColor = 'var(--teal-dk)'; }}
                     onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 4px 24px rgba(0,0,0,.08)'; e.currentTarget.style.borderColor = 'var(--teal)'; }}
@@ -174,7 +200,7 @@ export default function HomeContent() {
             }}>
               {featured.map(p => (
                 <div key={p.id} style={{ width: `calc(100% / ${featured.length})`, padding: '0 0.5rem', boxSizing: 'border-box', background: '#fff' }}>
-                  <ProductCard p={p} />
+                  <ProductCard p={p} categoryName={categories.find(c => c.id === p.categoryId)?.name ?? ''} />
                 </div>
               ))}
             </div>
