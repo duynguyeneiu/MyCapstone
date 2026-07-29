@@ -1,9 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { PRODUCTS } from '../../lib/data';
-import { fmt, subtotal } from '../../lib/utils';
+import { productService } from '@/src/services/productService';
+import { Product } from '@/src/lib/data';
+import { fmt } from '../../lib/utils';
 import { useOrders } from '../../context/OrderContext';
 import BtnTeal from '../ui/BtnTeal';
 
@@ -14,7 +15,14 @@ interface SuccessContentProps {
 export default function SuccessContent({ orderId }: SuccessContentProps) {
   const router = useRouter();
   const { prevCart } = useOrders();
-  const total = subtotal(prevCart) * 1.1;
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    productService.getAll().then(setProducts).catch(err => console.error(err));
+  }, []);
+
+  const sub = prevCart.reduce((s, item) => s + (products.find(p => p.id === item.id)?.price ?? 0) * item.qty, 0);
+  const total = sub * 1.1;
 
   return (
     <div style={{ maxWidth: 520, margin: '0 auto', padding: '5rem 1.5rem', textAlign: 'center' }}>
@@ -31,7 +39,8 @@ export default function SuccessContent({ orderId }: SuccessContentProps) {
         <div style={{ background: '#fff', borderRadius: '1.25rem', padding: '1.5rem', boxShadow: '0 2px 12px rgba(0,0,0,.06)', textAlign: 'left', marginBottom: '2rem' }}>
           <p style={{ fontWeight: 600, fontSize: '.9rem', marginBottom: '0.75rem' }}>Order Details</p>
           {prevCart.map(item => {
-            const p = PRODUCTS.find(x => x.id === item.id)!;
+            const p = products.find(x => x.id === item.id);
+            if (!p) return null;
             return (
               <div key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '.875rem', marginBottom: '0.4rem', gap: 8 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>

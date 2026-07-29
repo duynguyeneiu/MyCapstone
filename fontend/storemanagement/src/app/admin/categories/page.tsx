@@ -1,19 +1,16 @@
-import Image from 'next/image'
+'use client'
+
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { categoryService } from '@/src/services/categoryService'
+import { Category } from '@/src/lib/data'
 
-interface Category {
-  categoryId: number
-  name: string
-  avatar: string
-}
+export default function CategoryTablePage() {
+  const [categories, setCategories] = useState<Category[]>([])
 
-async function getCategories(): Promise<Category[]> {
-  // TODO: fetch('/api/categories')
-  return []
-}
-
-export default async function CategoryTablePage() {
-  const categories = await getCategories()
+  useEffect(() => {
+    categoryService.getAll().then(setCategories).catch((err) => console.error(err))
+  }, [])
 
   return (
     <section className="Categorylist List">
@@ -25,24 +22,21 @@ export default async function CategoryTablePage() {
         <thead>
           <tr>
             <th>#</th>
-            <th>Image</th>
             <th>Name</th>
+            <th>Description</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {categories.map((item) => (
-            <tr key={item.categoryId}>
-              <th scope="row">{item.categoryId}</th>
-              <td>
-                <Image src={`/images/Products/${item.avatar}`} alt={item.name}
-                  width={50} height={50} style={{ objectFit: 'cover' }} />
-              </td>
+            <tr key={item.id}>
+              <th scope="row">{item.id}</th>
               <td>{item.name}</td>
+              <td>{item.description}</td>
               <td>
                 <div className="btn-group" role="group">
-                  <Link href={`/admin/categories/${item.categoryId}/edit`} className="btn btn-warning">Edit</Link>
-                  <Link href={`/admin/categories/${item.categoryId}/delete`} className="btn btn-danger">Delete</Link>
+                  <Link href={`/admin/categories/${item.id}/edit`} className="btn btn-warning">Edit</Link>
+                  <Link href={`/admin/categories/${item.id}/delete`} className="btn btn-danger">Delete</Link>
                 </div>
               </td>
             </tr>

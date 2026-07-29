@@ -1,8 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { PRODUCTS } from '../../lib/data';
+import { productService } from '@/src/services/productService';
+import { categoryService } from '@/src/services/categoryService';
+import { Product, Category } from '@/src/lib/data';
 import ProductCard from '../ui/ProductCard';
 import BtnTeal from '../ui/BtnTeal';
 import Badge from '../ui/Badge';
@@ -19,13 +21,34 @@ function matchesTerm(text: string, term: string): boolean {
 
 export default function SearchContent({ initialTerm }: SearchContentProps) {
   const router = useRouter();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [productsData, categoriesData] = await Promise.all([
+          productService.getAll(),
+          categoryService.getAll(),
+        ]);
+        setProducts(productsData);
+        setCategories(categoriesData);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadData();
+  }, []);
 
   const results = initialTerm
-    ? PRODUCTS.filter(p =>
-        matchesTerm(p.name, initialTerm) ||
-        matchesTerm(p.desc, initialTerm) ||
-        matchesTerm(p.category, initialTerm)
-      )
+    ? products.filter(p => {
+        const categoryName = categories.find(c => c.id === p.categoryId)?.name ?? '';
+        return (
+          matchesTerm(p.name, initialTerm) ||
+          matchesTerm(p.description, initialTerm) ||
+          matchesTerm(categoryName, initialTerm)
+        );
+      })
     : [];
 
   return (
@@ -74,7 +97,13 @@ export default function SearchContent({ initialTerm }: SearchContentProps) {
       {/* Results grid */}
       {results.length > 0 && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(180px,1fr))', gap: '1.25rem' }}>
-          {results.map(p => <ProductCard key={p.id} p={p} />)}
+          {results.map(p => (
+            <ProductCard
+              key={p.id}
+              p={p}
+              categoryName={categories.find(c => c.id === p.categoryId)?.name ?? ''}
+            />
+          ))}
         </div>
       )}
     </div>

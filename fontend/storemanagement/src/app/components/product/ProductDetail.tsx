@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { PRODUCTS } from '../../lib/data';
+import { productService } from '@/src/services/productService';
+import { categoryService } from '@/src/services/categoryService';
+import { Product, Category } from '@/src/lib/data';
 import { fmt, disc } from '../../lib/utils';
 import { useCart } from '../../context/CartContext';
 import Badge from '../ui/Badge';
@@ -20,12 +22,41 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
   const router = useRouter();
   const { addToCart } = useCart();
   const [qty, setQty] = useState(1);
+  const [p, setP] = useState<Product | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [related, setRelated] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const p = PRODUCTS.find(x => x.id === productId);
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      try {
+        const [productData, categoriesData, allProducts] = await Promise.all([
+          productService.getById(productId),
+          categoryService.getAll(),
+          productService.getAll(),
+        ]);
+        setP(productData);
+        setCategories(categoriesData);
+        setRelated(
+          (allProducts as Product[])
+            .filter((r) => r.categoryId === productData.categoryId && r.id !== productData.id)
+            .slice(0, 4)
+        );
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, [productId]);
+
+  if (loading) return <div style={{ padding: '5rem', textAlign: 'center' }}>Loading...</div>;
   if (!p) return <div style={{ padding: '5rem', textAlign: 'center' }}>Product not found.</div>;
 
   const d = disc(p);
-  const related = PRODUCTS.filter(r => r.category === p.category && r.id !== p.id).slice(0, 4);
+  const categoryName = categories.find((c) => c.id === p.categoryId)?.name ?? '';
 
   const handleAdd = () => {
     for (let i = 0; i < qty; i++) addToCart(p.id);
@@ -60,18 +91,17 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
           </div>
         </div>
         <div style={{ flex: 1, minWidth: 280 }}>
-          <Badge style={{ marginBottom: '0.5rem' }}>{p.category}</Badge>
+          <Badge style={{ marginBottom: '0.5rem' }}>{categoryName}</Badge>
           <h1 className="serif" style={{ fontSize: '1.85rem', fontWeight: 700, margin: '.5rem 0 .75rem' }}>{p.name}</h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: '1.25rem' }}>
-            <StarRow rating={p.rating} size="text-lg" />
-            <span style={{ fontSize: '.875rem', color: '#64748b' }}>{p.rating} ({p.reviews} reviews)</span>
+            <StarRow rating={p.rating ?? 0} size="text-lg" />
+            <span style={{ fontSize: '.875rem', color: '#64748b' }}>{p.rating ?? 0} ({p.reviews ?? 0} reviews)</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10, marginBottom: '1.25rem' }}>
             <span className="serif" style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--teal)' }}>{fmt(p.price)}</span>
-            {p.original && <span style={{ textDecoration: 'line-through', color: '#94a3b8', fontSize: '1.1rem' }}>{fmt(p.original)}</span>}
             {d > 0 && <span style={{ background: '#fef9c3', color: '#854d0e', borderRadius: 9999, padding: '.15rem .65rem', fontSize: '.75rem', fontWeight: 600 }}>-{d}% OFF</span>}
           </div>
-          <p style={{ color: '#4b5563', lineHeight: 1.7, marginBottom: '1.5rem' }}>{p.desc}</p>
+          <p style={{ color: '#4b5563', lineHeight: 1.7, marginBottom: '1.5rem' }}>{p.description}</p>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.25rem' }}>
             <span style={{ fontWeight: 600, fontSize: '.875rem' }}>Quantity</span>
@@ -109,13 +139,19 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
         </div>
       </div>
 
-      <ReviewSection productId={p.id} rating={p.rating} reviewCount={p.reviews} />
+      <ReviewSection productId={p.id} rating={p.rating ?? 0} reviewCount={p.reviews ?? 0} />
 
       {related.length > 0 && (
         <div style={{ marginTop: '3.5rem' }}>
           <h2 className="serif" style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.5rem' }}>You Might Also Like</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(180px,1fr))', gap: '1.25rem' }}>
-            {related.map(r => <ProductCard key={r.id} p={r} />)}
+            {related.map(r => (
+              <ProductCard
+                key={r.id}
+                p={r}
+                categoryName={categories.find((c) => c.id === r.categoryId)?.name ?? ''}
+              />
+            ))}
           </div>
         </div>
       )}

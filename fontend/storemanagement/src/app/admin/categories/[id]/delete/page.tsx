@@ -3,21 +3,28 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import { categoryService } from '@/src/services/categoryService'
 
 export default function DeleteCategoryPage() {
   const router = useRouter()
   const params = useParams()
-  const id     = params.id as string
+  const id     = Number(params.id)
   const [name, setName] = useState('')
 
   useEffect(() => {
-    // TODO: fetch(`/api/categories/${id}`).then(r => r.json()).then(d => setName(d.name))
-    setName('Category #' + id)
+    categoryService.getById(id)
+      .then((d) => setName(d.name))
+      .catch((err) => console.error(err))
   }, [id])
 
   const handleDelete = async () => {
-    // TODO: await fetch(`/api/categories/${id}`, { method: 'DELETE' })
-    router.push('/admin/categories')
+    try {
+      await categoryService.delete(id)
+      router.push('/admin/categories')
+    } catch (err) {
+      console.error(err)
+      alert('Failed to delete category')
+    }
   }
 
   return (

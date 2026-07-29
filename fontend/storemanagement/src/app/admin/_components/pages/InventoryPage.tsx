@@ -1,6 +1,8 @@
 'use client';
-import { useState } from 'react';
-import { PRODUCTS } from '../../../lib/data';
+import { useState, useEffect } from 'react';
+import { productService } from '@/src/services/productService';
+import { categoryService } from '@/src/services/categoryService';
+import { Product, Category } from '@/src/lib/data';
 
 interface Props { search: string; }
 
@@ -22,20 +24,8 @@ const pageCSS = `
 
 const fmt = (n: number) => new Intl.NumberFormat('vi-VN').format(n) + '₫';
 
-const catColors: Record<string, { bg: string; color: string }> = {
-  'beverages':     { bg: '#e0f5ed', color: '#004d38' },
-  'snacks':        { bg: '#fff3d6', color: '#7a5c00' },
-  'food':          { bg: '#fef3c7', color: '#92400e' },
-  'personal-care': { bg: '#ede9fe', color: '#4c1d95' },
-  'household':     { bg: '#e0f2fe', color: '#075985' },
-};
-
-const CAT_LABELS: Record<string, string> = {
-  beverages: 'Beverages', snacks: 'Snacks', food: 'Food',
-  'personal-care': 'Personal Care', household: 'Household',
-};
-
-const STOCK = (id: number) => (id * 17 + 3) % 120;
+const CAT_COLORS = ['#e0f5ed', '#fff3d6', '#fef3c7', '#ede9fe', '#e0f2fe'];
+const CAT_TEXT_COLORS = ['#004d38', '#7a5c00', '#92400e', '#4c1d95', '#075985'];
 
 const typeConfig: Record<string, { bg: string; color: string }> = {
   'Sale':   { bg: '#fee2e2', color: '#7f1d1d' },
@@ -43,21 +33,22 @@ const typeConfig: Record<string, { bg: string; color: string }> = {
   'Adjust': { bg: '#fff3d6', color: '#7a5c00' },
 };
 
-interface StockProduct { id: number; name: string; code: string; barcode: string; cat: string; stock: number; importPrice: number; image: string; }
+interface StockProduct { id: number; name: string; code: string; barcode: string; categoryId: number; stock: number; importPrice: number; image: string; }
 interface ImportReceipt { id: string; date: string; staff: string; items: number; total: number; status: string; }
 interface Transaction { date: string; product: string; type: string; qty: number; after: number; ref: string; }
 interface ImportRow { id: number; productName: string; productPrice: number; qty: number; price: number; }
 
-const initialProducts: StockProduct[] = PRODUCTS.map(p => ({
-  id: p.id,
-  name: p.name,
-  code: `P${String(p.id).padStart(3, '0')}`,
-  barcode: `893521748${String(p.id).padStart(4, '0')}`,
-  cat: p.category,
-  stock: STOCK(p.id),
-  importPrice: Math.round(p.price * 0.7),
-  image: p.image,
-}));
+const buildInitialProducts = (products: Product[]): StockProduct[] =>
+  products.map(p => ({
+    id: p.id,
+    name: p.name,
+    code: `P${String(p.id).padStart(3, '0')}`,
+    barcode: p.barcode || `893521748${String(p.id).padStart(4, '0')}`,
+    categoryId: p.categoryId,
+    stock: p.quantity,
+    importPrice: Math.round(p.price * 0.7),
+    image: p.image,
+  }));
 
 const initialImports: ImportReceipt[] = [
   { id:'IMP-001', date:'24 May 2024', staff:'Alex Nguyen', items:5, total:2450000, status:'Completed' },
@@ -99,12 +90,31 @@ function StockBar({ stock, max = 150 }: { stock: number; max?: number }) {
 let rowIdCounter = 1;
 
 export default function InventoryPage({ search }: Props) {
-  const [products, setProducts] = useState<StockProduct[]>(initialProducts);
+  const [products, setProducts] = useState<StockProduct[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [imports, setImports] = useState<ImportReceipt[]>(initialImports);
   const [transactions] = useState<Transaction[]>(initialTransactions);
   const [activeTab, setActiveTab] = useState<'stock' | 'import' | 'transactions'>('stock');
   const [catFilter, setCatFilter] = useState('');
   const [stockFilter, setStockFilter] = useState('');
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [productsData, categoriesData] = await Promise.all([
+          productService.getAll(),
+          categoryService.getAll(),
+        ]);
+        setProducts(buildInitialProducts(productsData));
+        setCategories(categoriesData);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadData();
+  }, []);
+
+  const categoryName = (id: number) => categories.find(c => c.id === id)?.name ?? '—';
 
   // Import modal
   const [importOpen, setImportOpen] = useState(false);
@@ -127,7 +137,7 @@ export default function InventoryPage({ search }: Props) {
   const filteredProducts = () => products.filter(p => {
     const ss = stockStatus(p.stock).label;
     return (!search || p.name.toLowerCase().includes(search.toLowerCase()) || p.barcode.includes(search)) &&
-           (!catFilter || p.cat === catFilter) &&
+           (!catFilter || String(p.categoryId) === catFilter) &&
            (!stockFilter || ss === stockFilter);
   });
 
@@ -258,11 +268,9 @@ export default function InventoryPage({ search }: Props) {
                   <div className="flex items-center gap-3">
                     <select value={catFilter} onChange={e => setCatFilter(e.target.value)} className="filter-select">
                       <option value="">All Categories</option>
-                      <option value="beverages">Beverages</option>
-                      <option value="snacks">Snacks</option>
-                      <option value="food">Food</option>
-                      <option value="personal-care">Personal Care</option>
-                      <option value="household">Household</option>
+                      {categories.map(c => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                      ))}
                     </select>
                     <select value={stockFilter} onChange={e => setStockFilter(e.target.value)} className="filter-select">
                       <option value="">All Stock Status</option>
@@ -299,7 +307,8 @@ export default function InventoryPage({ search }: Props) {
                     </thead>
                     <tbody className="divide-y" style={{ borderColor: '#c8e4d8' }}>
                       {pagedData.map(p => {
-                        const cc = catColors[p.cat] || { bg: '#e0f5ed', color: '#004d38' };
+                        const colorIdx = p.categoryId % CAT_COLORS.length;
+                        const cc = { bg: CAT_COLORS[colorIdx], color: CAT_TEXT_COLORS[colorIdx] };
                         const ss = stockStatus(p.stock);
                         const stockColor = p.stock === 0 ? '#dc2626' : p.stock <= 10 ? '#854f0b' : '#191c1e';
                         return (
@@ -323,7 +332,7 @@ export default function InventoryPage({ search }: Props) {
                                 </div>
                               </div>
                             </td>
-                            <td className="px-4 py-3"><span style={{ background: cc.bg, color: cc.color, padding: '2px 8px', borderRadius: '99px', fontSize: '11px', fontWeight: 600 }}>{CAT_LABELS[p.cat] ?? p.cat}</span></td>
+                            <td className="px-4 py-3"><span style={{ background: cc.bg, color: cc.color, padding: '2px 8px', borderRadius: '99px', fontSize: '11px', fontWeight: 600 }}>{categoryName(p.categoryId)}</span></td>
                             <td className="px-4 py-3 text-on-surface-variant" style={{ fontSize: '12px', fontFamily: 'monospace' }}>{p.barcode}</td>
                             <td className="px-4 py-3 text-center font-bold" style={{ fontSize: '13px', color: stockColor }}>{p.stock}</td>
                             <td className="px-4 py-3" style={{ minWidth: '140px' }}>

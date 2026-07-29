@@ -1,57 +1,85 @@
 'use client'
 
-import Image from 'next/image'
-import { useState, FormEvent, useRef, useEffect } from 'react'
+import { useState, FormEvent, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-
-interface SelectItem { value: string; text: string }
-
-// TODO: fetch từ API
-const mockBrands:     SelectItem[] = []
-const mockCategories: SelectItem[] = []
+import { productService, ApiProductRaw } from '@/src/services/productService'
+import { categoryService } from '@/src/services/categoryService'
+import { Category } from '@/src/lib/data'
 
 export default function EditProductPage() {
   const router = useRouter()
   const params = useParams()
-  const id     = params.id as string
-  const fileRef = useRef<HTMLInputElement>(null)
+  const id     = Number(params.id)
 
+  const [raw, setRaw] = useState<ApiProductRaw | null>(null)
+  const [categories, setCategories] = useState<Category[]>([])
   const [form, setForm] = useState({
-    productId: id,
-    name: '', description: '', brandId: '', categoryId: '',
-    price: '', quantity: '', barCode: '', imageUrl: '',
+    name: '', description: '', categoryId: '',
+    price: '', quantity: '', barcode: '', image: '',
   })
-  const [preview, setPreview] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    // TODO: fetch product by id
-    // fetch(`/api/products/${id}`).then(r => r.json()).then(data => setForm({...data}))
+    async function loadData() {
+      try {
+        const [product, categoriesData] = await Promise.all([
+          productService.getRawById(id),
+          categoryService.getAll(),
+        ])
+        setRaw(product)
+        setCategories(categoriesData)
+        setForm({
+          name: product.productName,
+          description: product.description ?? '',
+          categoryId: String(product.categoryId),
+          price: String(product.salePrice),
+          quantity: String(product.quantityInStock),
+          barcode: product.barcode ?? '',
+          image: product.image ?? '',
+        })
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
   }, [id])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }))
 
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) setPreview(URL.createObjectURL(file))
-  }
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    const formData = new FormData()
-    Object.entries(form).forEach(([k, v]) => formData.append(k, v))
-    if (fileRef.current?.files?.[0]) formData.append('ImageFile', fileRef.current.files[0])
-    // TODO: await fetch(`/api/products/${id}`, { method: 'PUT', body: formData })
-    console.log('Update product:', form)
-    router.push('/admin/products')
+    if (!raw) return
+    setSaving(true)
+    try {
+      await productService.update(id, {
+        ...raw,
+        productName: form.name,
+        description: form.description,
+        categoryId: Number(form.categoryId) || raw.categoryId,
+        salePrice: Number(form.price) || 0,
+        quantityInStock: Number(form.quantity) || 0,
+        barcode: form.barcode,
+        image: form.image,
+      })
+      router.push('/admin/products')
+    } catch (err) {
+      console.error(err)
+      alert('Failed to update product')
+    } finally {
+      setSaving(false)
+    }
   }
+
+  if (loading) return <section className="EditProduct List"><p>Loading…</p></section>
 
   return (
     <section className="EditProduct List">
       <h3>Edit product information</h3>
-      <form className="row g-3" onSubmit={handleSubmit} encType="multipart/form-data">
-        <input type="hidden" name="productId" value={form.productId} />
-
+      <form className="row g-3" onSubmit={handleSubmit}>
         <div className="col-12">
           <label className="form-label" htmlFor="inputName">Name</label>
           <input id="inputName" name="name" type="text" className="form-control"
@@ -63,19 +91,11 @@ export default function EditProductPage() {
             value={form.description} onChange={handleChange} rows={3} />
         </div>
         <div className="col-md-6">
-          <label className="form-label" htmlFor="inputBrand">Brand</label>
-          <select id="inputBrand" name="brandId" className="form-select"
-            value={form.brandId} onChange={handleChange}>
-            <option value="">--Choose Brand--</option>
-            {mockBrands.map((b) => <option key={b.value} value={b.value}>{b.text}</option>)}
-          </select>
-        </div>
-        <div className="col-md-6">
-          <label className="form-label" htmlFor="inputCategory">Type</label>
+          <label className="form-label" htmlFor="inputCategory">Category</label>
           <select id="inputCategory" name="categoryId" className="form-select"
             value={form.categoryId} onChange={handleChange}>
-            <option value="">--Choose Type--</option>
-            {mockCategories.map((c) => <option key={c.value} value={c.value}>{c.text}</option>)}
+            <option value="">--Choose Category--</option>
+            {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </div>
         <div className="col-md-6">
@@ -90,25 +110,18 @@ export default function EditProductPage() {
         </div>
         <div className="col-6">
           <label className="form-label" htmlFor="inputBarCode">BarCode</label>
-          <input id="inputBarCode" name="barCode" className="form-control"
-            value={form.barCode} onChange={handleChange} />
+          <input id="inputBarCode" name="barcode" className="form-control"
+            value={form.barcode} onChange={handleChange} />
         </div>
         <div className="col-md-6">
-          <label className="form-label" htmlFor="inputImage">Image</label>
-          <input ref={fileRef} id="inputImage" name="ImageFile" type="file"
-            className="form-control" accept="image/*" onChange={handleFile} />
-          <div className="mt-2">
-            {preview
-              ? <img src={preview} alt="Preview" style={{ maxWidth: '50%', height: 'auto' }} />
-              : form.imageUrl && (
-                  <Image src={`/images/Products/${form.imageUrl}`} alt="Current"
-                    width={200} height={200} style={{ maxWidth: '50%', height: 'auto', objectFit: 'cover' }} />
-                )
-            }
-          </div>
+          <label className="form-label" htmlFor="inputImage">Image filename</label>
+          <input id="inputImage" name="image" type="text" className="form-control"
+            placeholder="e.g. image1.png" value={form.image} onChange={handleChange} />
         </div>
         <div className="col-12">
-          <button type="submit" className="btn btn-primary">Update</button>
+          <button type="submit" className="btn btn-primary" disabled={saving}>
+            {saving ? 'Updating…' : 'Update'}
+          </button>
         </div>
       </form>
     </section>

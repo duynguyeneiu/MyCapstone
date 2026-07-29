@@ -6,7 +6,9 @@ import { Modal, ModalHeader } from '../ui/AdminModal';
 import Btn from '../ui/AdminBtn';
 import { C } from '../../_lib/types';
 import { fmt } from '../../_lib/utils';
-import { PRODUCTS } from '../../../lib/data';
+import { productService } from '@/src/services/productService';
+import { categoryService } from '@/src/services/categoryService';
+import { Product, Category } from '@/src/lib/data';
 import ReceiptModal, { TransactionRecord } from './ReceiptModal';
 import POSHistoryPage from './POSHistoryPage';
 
@@ -82,21 +84,6 @@ const posCSS = `
 .checkout-btn:disabled { background: #bccac1; cursor: not-allowed; }
 `;
 
-const STOCK = (id: number) => (id * 17 + 3) % 120;
-const POS_PRODUCTS = PRODUCTS.map(p => ({
-  ...p,
-  sku: `P${String(p.id).padStart(3, '0')}`,
-  stock: STOCK(p.id),
-}));
-const POS_CATS = [
-  { slug: 'all', label: 'All' },
-  { slug: 'beverages', label: 'Beverages' },
-  { slug: 'snacks', label: 'Snacks' },
-  { slug: 'food', label: 'Food' },
-  { slug: 'personal-care', label: 'Personal Care' },
-  { slug: 'household', label: 'Household' },
-];
-
 const POS_PROMOS = [
   { code: 'SUMMER20',   desc: 'Summer sale 20% off',          type: 'Percentage', value: 20,     minOrder: 200000 },
   { code: 'WELCOME50K', desc: 'New customer 50,000₫ off',     type: 'Fixed',      value: 50000,  minOrder: 300000 },
@@ -123,14 +110,44 @@ export default function POSPage() {
   const [posHistory, setPosHistory] = useState<TransactionRecord[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [currentReceipt, setCurrentReceipt] = useState<TransactionRecord | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [productsData, categoriesData] = await Promise.all([
+          productService.getAll(),
+          categoryService.getAll(),
+        ]);
+        setProducts(productsData);
+        setCategories(categoriesData);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadData();
+  }, []);
 
   useEffect(() => {
     const tick = () => setClock(new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }));
     tick(); const t = setInterval(tick, 1000); return () => clearInterval(t);
   }, []);
 
+  const POS_PRODUCTS = products.map(p => ({
+    ...p,
+    sku: p.barcode || `P${String(p.id).padStart(3, '0')}`,
+    stock: p.quantity,
+  }));
+  const POS_CATS = [
+    { slug: 'all', label: 'All' },
+    ...categories
+      .filter((c) => c.parentCategoryId == null)
+      .map((c) => ({ slug: String(c.id), label: c.name })),
+  ];
+
   const filtered = POS_PRODUCTS.filter((p) =>
-    (activeCategory === "all" || p.category === activeCategory) &&
+    (activeCategory === "all" || String(p.categoryId) === activeCategory) &&
     (p.name.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase()))
   );
 

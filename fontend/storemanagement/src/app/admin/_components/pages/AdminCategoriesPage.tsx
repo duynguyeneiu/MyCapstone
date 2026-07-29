@@ -1,6 +1,8 @@
 "use client";
-import { useState } from "react";
-import { PRODUCTS } from "../../../lib/data";
+import { useState, useEffect } from "react";
+import { productService } from "@/src/services/productService";
+import { categoryService } from "@/src/services/categoryService";
+import { Product, Category as ApiCategory } from "@/src/lib/data";
 
 interface Props {
   search: string;
@@ -50,144 +52,21 @@ interface Category {
   status: string;
 }
 
-const catProductCount = (cat: string) =>
-  PRODUCTS.filter((p) => p.category === cat).length;
-const subProductCount = (sub: string) =>
-  PRODUCTS.filter((p) => p.subcategory === sub).length;
-
-const initialCategories: Category[] = [
-  // ── Top-level categories ──────────────────────────────────────────────────
-  {
-    id: 1,
-    name: "Beverages",
-    parent: "",
-    products: catProductCount("beverages"),
-    desc: "Drinks, teas, coffees and soft beverages",
+const buildCategories = (apiCategories: ApiCategory[], products: Product[]): Category[] =>
+  apiCategories.map((c) => ({
+    id: c.id,
+    name: c.name,
+    parent: apiCategories.find((p) => p.id === c.parentCategoryId)?.name ?? "",
+    products: products.filter((p) => p.categoryId === c.id).length,
+    desc: c.description,
     status: "Active",
-  },
-  {
-    id: 2,
-    name: "Snacks & Confectionery",
-    parent: "",
-    products: catProductCount("snacks"),
-    desc: "Chips, crackers, sweets and candy",
-    status: "Active",
-  },
-  {
-    id: 3,
-    name: "Food",
-    parent: "",
-    products: catProductCount("food"),
-    desc: "Instant noodles, canned and ready-to-eat foods",
-    status: "Active",
-  },
-  {
-    id: 4,
-    name: "Personal Care",
-    parent: "",
-    products: catProductCount("personal-care"),
-    desc: "Oral hygiene, hair, body and skin care products",
-    status: "Active",
-  },
-  {
-    id: 5,
-    name: "Household Essentials",
-    parent: "",
-    products: catProductCount("household"),
-    desc: "Cleaning supplies, paper goods and storage",
-    status: "Active",
-  },
-  // ── Subcategories › Beverages ─────────────────────────────────────────────
-  {
-    id: 6,
-    name: "Water & Soft Drinks",
-    parent: "Beverages",
-    products: subProductCount("water-soft-drinks"),
-    desc: "Purified water, mineral water and soft drinks",
-    status: "Active",
-  },
-  {
-    id: 7,
-    name: "Tea & Coffee",
-    parent: "Beverages",
-    products: subProductCount("tea-coffee"),
-    desc: "Ready-to-drink teas and canned coffees",
-    status: "Active",
-  },
-  // ── Subcategories › Snacks & Confectionery ───────────────────────────────
-  {
-    id: 8,
-    name: "Chips & Snacks",
-    parent: "Snacks & Confectionery",
-    products: subProductCount("chips-snacks"),
-    desc: "Potato chips, crackers and savory snacks",
-    status: "Active",
-  },
-  {
-    id: 9,
-    name: "Sweets",
-    parent: "Snacks & Confectionery",
-    products: subProductCount("sweets"),
-    desc: "Candy, chocolate bars and wafer treats",
-    status: "Active",
-  },
-  // ── Subcategories › Food ─────────────────────────────────────────────────
-  {
-    id: 10,
-    name: "Instant Foods",
-    parent: "Food",
-    products: subProductCount("instant-foods"),
-    desc: "Instant noodles, porridge and quick meals",
-    status: "Active",
-  },
-  {
-    id: 11,
-    name: "Ready & Canned Foods",
-    parent: "Food",
-    products: subProductCount("ready-canned"),
-    desc: "Canned meats, tuna and ready-to-eat products",
-    status: "Active",
-  },
-  // ── Subcategories › Personal Care ────────────────────────────────────────
-  {
-    id: 12,
-    name: "Oral & Hair Care",
-    parent: "Personal Care",
-    products: subProductCount("oral-hair-care"),
-    desc: "Toothpaste, toothbrush, mouthwash and shampoo",
-    status: "Active",
-  },
-  {
-    id: 13,
-    name: "Body & Skin Care",
-    parent: "Personal Care",
-    products: subProductCount("body-skin-care"),
-    desc: "Body wash, soap, lotion and sunscreen",
-    status: "Active",
-  },
-  // ── Subcategories › Household Essentials ─────────────────────────────────
-  {
-    id: 14,
-    name: "Laundry & Cleaning",
-    parent: "Household Essentials",
-    products: subProductCount("laundry-cleaning"),
-    desc: "Detergent, fabric softener and surface cleaners",
-    status: "Active",
-  },
-  {
-    id: 15,
-    name: "Paper & Storage",
-    parent: "Household Essentials",
-    products: subProductCount("paper-storage"),
-    desc: "Toilet paper, tissues, wet wipes and foil",
-    status: "Active",
-  },
-];
+  }));
 
 const emptyForm = { name: "", parent: "", desc: "", status: "Active" };
 
 export default function AdminCategoriesPage({ search }: Props) {
-  const [categories, setCategories] = useState<Category[]>(initialCategories);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [statusFilter, setStatusFilter] = useState("");
   const [parentFilter, setParentFilter] = useState("");
   const [formOpen, setFormOpen] = useState(false);
@@ -197,6 +76,22 @@ export default function AdminCategoriesPage({ search }: Props) {
   const [form, setForm] = useState(emptyForm);
   const [checkAll, setCheckAll] = useState(false);
   const [curPage, setCurPage] = useState(1);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [productsData, categoriesData] = await Promise.all([
+          productService.getAll(),
+          categoryService.getAll(),
+        ]);
+        setProducts(productsData);
+        setCategories(buildCategories(categoriesData, productsData));
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadData();
+  }, []);
 
   const filtered = () =>
     categories.filter(
@@ -375,7 +270,7 @@ export default function AdminCategoriesPage({ search }: Props) {
                       Total Products
                     </p>
                     <h3 className="font-bold" style={{ fontSize: "24px" }}>
-                      {PRODUCTS.length}
+                      {products.length}
                     </h3>
                   </div>
                   <span
@@ -944,11 +839,9 @@ export default function AdminCategoriesPage({ search }: Props) {
                   }}
                 >
                   <option value="">None (Top-level category)</option>
-                  <option>Beverages</option>
-                  <option>Snacks &amp; Confectionery</option>
-                  <option>Food</option>
-                  <option>Personal Care</option>
-                  <option>Household Essentials</option>
+                  {categories.filter((c) => !c.parent).map((c) => (
+                    <option key={c.id}>{c.name}</option>
+                  ))}
                 </select>
               </div>
 

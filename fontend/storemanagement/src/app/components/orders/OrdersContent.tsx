@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Order, OrderStatus } from '../../lib/types';
-import { PRODUCTS } from '../../lib/data';
+import { productService } from '@/src/services/productService';
+import { Product } from '@/src/lib/data';
 import { fmt } from '../../lib/utils';
 import { useOrders } from '../../context/OrderContext';
 import BtnTeal from '../ui/BtnTeal';
@@ -25,11 +26,20 @@ export default function OrdersContent() {
   const [search, setSearch] = useState('');
   const [detailOrder, setDetailOrder] = useState<Order | null>(null);
   const [curPage, setCurPage] = useState(1);
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    productService.getAll().then(setProducts).catch(err => console.error(err));
+  }, []);
+
+  if (orders.length > 0 && products.length === 0) {
+    return <div style={{ padding: '4rem', textAlign: 'center' }}>Loading...</div>;
+  }
 
   const filtered = orders.filter(o =>
     (filter === 'all' || o.status === filter) &&
     (!search || o.id.toLowerCase().includes(search.toLowerCase()) ||
-      o.items.some(i => PRODUCTS.find(p => p.id === i.pid)?.name.toLowerCase().includes(search.toLowerCase())))
+      o.items.some(i => products.find(p => p.id === i.pid)?.name.toLowerCase().includes(search.toLowerCase())))
   );
 
   const PAGE_SIZE = 5;
@@ -74,7 +84,7 @@ export default function OrdersContent() {
 
               <p style={{ fontWeight: 600, fontSize: '.9rem', margin: '1.25rem 0 .75rem' }}>Items Ordered</p>
               {detailOrder.items.map(item => {
-                const p = PRODUCTS.find(x => x.id === item.pid)!;
+                const p = products.find(x => x.id === item.pid)!;
                 return (
                   <div key={item.pid} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'var(--teal-xs)', borderRadius: '0.75rem', padding: '0.75rem', marginBottom: '0.5rem' }}>
                     <div style={{ width: 40, height: 40, borderRadius: '0.5rem', background: '#fff', overflow: 'hidden', flexShrink: 0 }}>
@@ -87,7 +97,7 @@ export default function OrdersContent() {
               })}
 
               {(() => {
-                const sub = detailOrder.items.reduce((s, i) => s + PRODUCTS.find(p => p.id === i.pid)!.price * i.qty, 0);
+                const sub = detailOrder.items.reduce((s, i) => s + products.find(p => p.id === i.pid)!.price * i.qty, 0);
                 return (
                   <div style={{ background: 'var(--teal-xs)', borderRadius: '0.75rem', padding: '1rem', margin: '1rem 0' }}>
                     {[['Subtotal', fmt(sub)], ['Shipping', 'FREE'], ['Tax (10%)', fmt(sub * .1)], ['Total', fmt(sub * 1.1)]].map(([l, v], i) => (
@@ -149,8 +159,8 @@ export default function OrdersContent() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {paged.map(o => {
             const sc = statusCfg[o.status];
-            const total = o.items.reduce((s, i) => s + PRODUCTS.find(p => p.id === i.pid)!.price * i.qty, 0) * 1.1;
-            const fp = PRODUCTS.find(p => p.id === o.items[0].pid)!;
+            const total = o.items.reduce((s, i) => s + products.find(p => p.id === i.pid)!.price * i.qty, 0) * 1.1;
+            const fp = products.find(p => p.id === o.items[0].pid)!;
             const extra = o.items.length - 1;
             const pct = progressPct(o.status);
             return (
@@ -177,7 +187,7 @@ export default function OrdersContent() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
                     <div style={{ display: 'flex' }}>
                       {o.items.slice(0, 3).map(i => {
-                        const p = PRODUCTS.find(x => x.id === i.pid)!;
+                        const p = products.find(x => x.id === i.pid)!;
                         return (
                           <div key={i.pid} style={{ width: 40, height: 40, borderRadius: '0.6rem', background: 'var(--teal-xs)', overflow: 'hidden', border: '2px solid #fff', marginLeft: -4, flexShrink: 0 }}>
                             <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 4 }} />

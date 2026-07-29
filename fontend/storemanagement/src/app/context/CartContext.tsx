@@ -2,7 +2,8 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { CartItem } from '../lib/types';
-import { PRODUCTS } from '../lib/data';
+import { productService } from '@/src/services/productService';
+import { Product } from '@/src/lib/data';
 
 interface CartContextValue {
   cart: CartItem[];
@@ -20,12 +21,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [toast, setToast] = useState<string | null>(null);
   const toastRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     try {
       const saved = localStorage.getItem('aq-cart');
       if (saved) setCart(JSON.parse(saved));
     } catch {}
+  }, []);
+
+  useEffect(() => {
+    productService.getAll().then(setProducts).catch(err => console.error(err));
   }, []);
 
   useEffect(() => {
@@ -44,8 +50,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (existing) return c.map(i => i.id === id ? { ...i, qty: i.qty + 1 } : i);
       return [...c, { id, qty: 1 }];
     });
-    showToast(`${PRODUCTS.find(p => p.id === id)?.name} added!`);
-  }, [showToast]);
+    showToast(`${products.find(p => p.id === id)?.name} added!`);
+  }, [showToast, products]);
 
   const updateQty = useCallback((id: number, delta: number) => {
     setCart(c => c.map(i => i.id === id ? { ...i, qty: i.qty + delta } : i).filter(i => i.qty > 0));

@@ -1,45 +1,39 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { PRODUCTS } from '../../lib/data'
+import { productService } from '@/src/services/productService'
+import { categoryService } from '@/src/services/categoryService'
+import { Product, Category } from '@/src/lib/data'
 
 const PAGE_SIZE = 10
 
-const CAT_LABELS: Record<string, string> = {
-  beverages:       'Beverages',
-  snacks:          'Snacks & Confectionery',
-  food:            'Food',
-  'personal-care': 'Personal Care',
-  household:       'Household Essentials',
-}
-
-const SUB_LABELS: Record<string, string> = {
-  'water-soft-drinks': 'Water & Soft Drinks',
-  'tea-coffee':        'Tea & Coffee',
-  'chips-snacks':      'Chips & Snacks',
-  'sweets':            'Sweets',
-  'instant-foods':     'Instant Foods',
-  'ready-canned':      'Ready & Canned Foods',
-  'oral-hair-care':    'Oral & Hair Care',
-  'body-skin-care':    'Body & Skin Care',
-  'laundry-cleaning':  'Laundry & Cleaning',
-  'paper-storage':     'Paper & Storage',
-}
-
-const CAT_COLORS: Record<string, { bg: string; color: string }> = {
-  beverages:       { bg: '#e0f5ed', color: '#004d38' },
-  snacks:          { bg: '#fff3d6', color: '#7a5c00' },
-  food:            { bg: '#fef3c7', color: '#92400e' },
-  'personal-care': { bg: '#ede9fe', color: '#4c1d95' },
-  household:       { bg: '#e0f2fe', color: '#075985' },
-}
+const CAT_COLORS = ['#e0f5ed', '#fff3d6', '#fef3c7', '#ede9fe', '#e0f2fe']
+const CAT_TEXT_COLORS = ['#004d38', '#7a5c00', '#92400e', '#4c1d95', '#075985']
 
 export default function ProductTablePage() {
   const [page, setPage] = useState(1)
+  const [products, setProducts] = useState<Product[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
 
-  const totalPages = Math.ceil(PRODUCTS.length / PAGE_SIZE)
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [productsData, categoriesData] = await Promise.all([
+          productService.getAll(),
+          categoryService.getAll(),
+        ])
+        setProducts(productsData)
+        setCategories(categoriesData)
+      } catch (err) {
+        console.error(err)
+      }
+    }
+    loadData()
+  }, [])
+
+  const totalPages = Math.max(1, Math.ceil(products.length / PAGE_SIZE))
   const start      = (page - 1) * PAGE_SIZE
-  const paged      = PRODUCTS.slice(start, start + PAGE_SIZE)
+  const paged      = products.slice(start, start + PAGE_SIZE)
 
   const goTo = (p: number) => setPage(Math.max(1, Math.min(totalPages, p)))
 
@@ -71,9 +65,8 @@ export default function ProductTablePage() {
                 <th style={th}>#</th>
                 <th style={th}>Product</th>
                 <th style={th}>Category</th>
-                <th style={th}>Subcategory</th>
                 <th style={th}>Price</th>
-                <th style={th}>Original</th>
+                <th style={th}>Stock</th>
                 <th style={th}>Rating</th>
                 <th style={th}>Reviews</th>
                 <th style={th}>Actions</th>
@@ -81,7 +74,9 @@ export default function ProductTablePage() {
             </thead>
             <tbody>
               {paged.map((item, idx) => {
-                const cc = CAT_COLORS[item.category] ?? { bg: '#e0f5ed', color: '#004d38' }
+                const category = categories.find(c => c.id === item.categoryId)
+                const colorIdx = item.categoryId % CAT_COLORS.length
+                const cc = { bg: CAT_COLORS[colorIdx], color: CAT_TEXT_COLORS[colorIdx] }
                 return (
                   <tr key={item.id} style={{ borderBottom: '1px solid #e8f4ee', background: idx % 2 === 0 ? '#fff' : '#fafcfb' }}>
                     <td style={td}>{item.id}</td>
@@ -98,16 +93,13 @@ export default function ProductTablePage() {
                     </td>
                     <td style={td}>
                       <span style={{ background: cc.bg, color: cc.color, padding: '3px 10px', borderRadius: '99px', fontSize: '11px', fontWeight: 600 }}>
-                        {CAT_LABELS[item.category] ?? item.category}
+                        {category?.name ?? '—'}
                       </span>
                     </td>
-                    <td style={{ ...td, color: '#64748b' }}>{SUB_LABELS[item.subcategory] ?? item.subcategory}</td>
                     <td style={{ ...td, fontWeight: 700, color: '#00694c' }}>${item.price.toFixed(2)}</td>
-                    <td style={{ ...td, color: '#94a3b8', textDecoration: item.original ? 'line-through' : 'none' }}>
-                      {item.original ? `$${item.original.toFixed(2)}` : '—'}
-                    </td>
-                    <td style={{ ...td, color: '#b47b10', fontWeight: 600 }}>★ {item.rating.toFixed(1)}</td>
-                    <td style={td}>{item.reviews}</td>
+                    <td style={td}>{item.quantity}</td>
+                    <td style={{ ...td, color: '#b47b10', fontWeight: 600 }}>★ {(item.rating ?? 0).toFixed(1)}</td>
+                    <td style={td}>{item.reviews ?? 0}</td>
                     <td style={td}>
                       <div style={{ display: 'flex', gap: 6 }}>
                         <Link href={`/admin/products/${item.id}/edit`} style={{ padding: '4px 12px', borderRadius: '6px', background: '#fff3d6', color: '#7a5c00', textDecoration: 'none', fontSize: '12px', fontWeight: 600, border: '1px solid #fcd97a' }}>
@@ -128,7 +120,7 @@ export default function ProductTablePage() {
         {/* Pagination footer */}
         <div style={{ padding: '0.75rem 1.5rem', borderTop: '1px solid #c8e4d8', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
           <span style={{ fontSize: '0.8125rem', color: '#64748b' }}>
-            Showing {start + 1}–{Math.min(start + PAGE_SIZE, PRODUCTS.length)} of {PRODUCTS.length} products
+            Showing {start + 1}–{Math.min(start + PAGE_SIZE, products.length)} of {products.length} products
           </span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             {/* Prev */}

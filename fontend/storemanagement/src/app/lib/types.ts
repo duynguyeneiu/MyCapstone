@@ -26,8 +26,9 @@ export type SortMode = "default" | "price-asc" | "price-desc" | "rating";
 export interface Product {
   id: number;
   name: string;
-  category: Category;
-  subcategory: Subcategory;
+  category: string;
+  subcategory?: string;
+  categoryId?: number;
   price: number;
   original: number | null;
   rating: number;
@@ -35,6 +36,22 @@ export interface Product {
   emoji: string;
   image: string;
   desc: string;
+}
+
+// Raw shapes returned by CatalogService.API (backend field names, camelCase JSON)
+export interface ApiProduct {
+  productId: number;
+  productName: string;
+  salePrice: number;
+  image: string | null;
+  description: string | null;
+  categoryId: number;
+}
+
+export interface ApiCategory {
+  categoryId: number;
+  categoryName: string;
+  parentCategoryId: number | null;
 }
 
 export interface CartItem { id: number; qty: number; }
