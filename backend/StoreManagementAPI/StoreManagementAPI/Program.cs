@@ -35,10 +35,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseStaticFiles();  
+
 app.UseCors("AllowFrontend");
 
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapGet("/", () => Results.Redirect("/swagger"));
 
 app.Run();

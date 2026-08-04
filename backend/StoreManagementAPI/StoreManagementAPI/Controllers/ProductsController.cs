@@ -92,6 +92,44 @@ public class ProductsController : ControllerBase
         return NoContent();
     }
 
+    [HttpGet("{id:int}/related")]
+    public async Task<ActionResult<IEnumerable<Product>>>
+    GetRelatedProducts(int id)
+    {
+        var currentProduct =
+            await _context.Products
+                .AsNoTracking()
+                .FirstOrDefaultAsync(product =>
+                    product.ProductId == id);
+
+        if (currentProduct == null)
+        {
+            return NotFound(new
+            {
+                message =
+                    $"Product with ID {id} was not found."
+            });
+        }
+
+        var relatedProducts =
+            await _context.Products
+                .AsNoTracking()
+                .Where(product =>
+                    product.CategoryId ==
+                        currentProduct.CategoryId &&
+                    product.ProductId !=
+                        currentProduct.ProductId &&
+                    product.Status == "Active")
+                .OrderByDescending(product =>
+                    product.CreatedAt)
+                .Take(10)
+                .ToListAsync();
+
+        return Ok(relatedProducts);
+    }
+
+
+
     private bool ProductExists(int? productid)
     {
         return _context.Products.Any(e => e.ProductId == productid);
