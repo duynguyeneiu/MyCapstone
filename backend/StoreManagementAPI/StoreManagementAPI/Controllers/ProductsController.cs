@@ -18,10 +18,123 @@ public class ProductsController : ControllerBase
     }
 
     // GET: api/Product
+    //[HttpGet]
+    //public async Task<ActionResult<IEnumerable<Product>>> GetProduct()
+    //{
+    //    return await _context.Products.ToListAsync();
+    //}
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Product>>> GetProduct()
+    public async Task<IActionResult> GetProduct(
+    [FromQuery] string? keyword,
+    [FromQuery] string? status,
+    [FromQuery] int? categoryId,
+    [FromQuery] decimal? minPrice,
+    [FromQuery] decimal? maxPrice,
+    [FromQuery] string? sortBy)
     {
-        return await _context.Products.ToListAsync();
+        var query = _context.Products
+            .AsNoTracking()
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            var s = status.Trim().ToLower();
+
+            query = query.Where(p =>
+                p.Status != null &&
+                p.Status.ToLower() == s);
+        }
+
+        if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            var k = keyword.Trim().ToLower();
+
+            query = query.Where(p =>
+                p.ProductName.ToLower().Contains(k) ||
+                p.ProductCode.ToLower().Contains(k) ||
+                (p.Barcode != null &&
+                 p.Barcode.ToLower().Contains(k)));
+        }
+
+        if (categoryId.HasValue)
+        {
+            var selectedCategoryId =
+                categoryId.Value;
+
+            var categoryIds =
+                await _context.Categories
+                    .AsNoTracking()
+                    .Where(c =>
+                        c.CategoryId ==
+                            selectedCategoryId ||
+                        c.ParentCategoryId ==
+                            selectedCategoryId)
+                    .Select(c => c.CategoryId)
+                    .ToListAsync();
+
+            query = query.Where(p =>
+                categoryIds.Contains(
+                    p.CategoryId));
+        }
+
+        if (minPrice.HasValue)
+        {
+            query = query.Where(p =>
+                p.SalePrice >= minPrice.Value);
+        }
+
+        if (maxPrice.HasValue)
+        {
+            query = query.Where(p =>
+                p.SalePrice <= maxPrice.Value);
+        }
+
+        var normalizedSort =
+            sortBy?.Trim().ToLower();
+
+        query = normalizedSort switch
+        {
+            "pricelowhigh" =>
+                query.OrderBy(p =>
+                    p.SalePrice),
+
+            "pricehighlow" =>
+                query.OrderByDescending(p =>
+                    p.SalePrice),
+
+            "newest" =>
+                query.OrderByDescending(p =>
+                    p.CreatedAt),
+
+            _ =>
+                query.OrderBy(p =>
+                    p.ProductName)
+        };
+
+        var products = await query
+            .Take(100)
+            .Select(p => new
+            {
+                p.ProductId,
+                p.ProductCode,
+                p.ProductName,
+                p.Barcode,
+                p.CategoryId,
+
+                CategoryName =
+                    p.Category.CategoryName,
+
+                p.Unit,
+                p.SalePrice,
+                p.QuantityInStock,
+                p.Status,
+                p.Image,
+                p.CreatedAt,
+                p.UpdatedAt
+            })
+            .ToListAsync();
+
+        return Ok(products);
     }
 
     // GET: api/Product/5
@@ -95,6 +208,45 @@ public class ProductsController : ControllerBase
 
         return NoContent();
     }
+
+    //mobile you may like
+
+    [HttpGet("{id:int}/related")]
+    public async Task<ActionResult<IEnumerable<Product>>>
+    GetRelatedProducts(int id)
+    {
+        var currentProduct =
+            await _context.Products
+                .AsNoTracking()
+                .FirstOrDefaultAsync(product =>
+                    product.ProductId == id);
+
+        if (currentProduct == null)
+        {
+            return NotFound(new
+            {
+                message =
+                    $"Product with ID {id} was not found."
+            });
+        }
+
+        var relatedProducts =
+            await _context.Products
+                .AsNoTracking()
+                .Where(product =>
+                    product.CategoryId ==
+                        currentProduct.CategoryId &&
+                    product.ProductId !=
+                        currentProduct.ProductId &&
+                    product.Status == "Active")
+                .OrderByDescending(product =>
+                    product.CreatedAt)
+                .Take(10)
+                .ToListAsync();
+
+        return Ok(relatedProducts);
+    }
+
 
     private bool ProductExists(int? productid)
     {
