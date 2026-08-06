@@ -44,22 +44,10 @@
               "RelativeDocumentMoniker": "StoreManagementAPI\\Controllers\\ProductsController.cs",
               "ToolTip": "D:\\Capstone\\Capstone2\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Controllers\\ProductsController.cs",
               "RelativeToolTip": "StoreManagementAPI\\Controllers\\ProductsController.cs",
-              "ViewState": "AgIAAFQAAAAAAAAAAAAYwOQAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAqwA8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-08-02T15:16:45.848Z",
               "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "CatalogContext.cs",
-              "DocumentMoniker": "D:\\Capstone\\Capstone2\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Data\\CatalogContext.cs",
-              "RelativeDocumentMoniker": "StoreManagementAPI\\Data\\CatalogContext.cs",
-              "ToolTip": "D:\\Capstone\\Capstone2\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Data\\CatalogContext.cs",
-              "RelativeToolTip": "StoreManagementAPI\\Data\\CatalogContext.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEEAAAAmAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-08-01T03:43:45.722Z"
             },
             {
               "$type": "Document",
@@ -93,10 +81,22 @@
               "RelativeDocumentMoniker": "StoreManagementAPI\\Models\\Product.cs",
               "ToolTip": "D:\\Capstone\\Capstone2\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Models\\Product.cs",
               "RelativeToolTip": "StoreManagementAPI\\Models\\Product.cs",
-              "ViewState": "AgIAAAUAAAAAAAAAAAAxwBMAAAAcAAAAAAAAAA==",
+              "ViewState": "AgIAABcAAAAAAAAAAAAIwCcAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-07-29T15:55:44.382Z",
               "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "CatalogContext.cs",
+              "DocumentMoniker": "D:\\Capstone\\Capstone2\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Data\\CatalogContext.cs",
+              "RelativeDocumentMoniker": "StoreManagementAPI\\Data\\CatalogContext.cs",
+              "ToolTip": "D:\\Capstone\\Capstone2\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Data\\CatalogContext.cs",
+              "RelativeToolTip": "StoreManagementAPI\\Data\\CatalogContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEEAAAAmAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-01T03:43:45.722Z"
             }
           ]
         }

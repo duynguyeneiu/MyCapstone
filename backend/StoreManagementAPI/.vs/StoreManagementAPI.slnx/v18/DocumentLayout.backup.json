@@ -30,12 +30,8 @@
       "DocumentGroups": [
         {
           "DockedWidth": 97,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 0,
           "Children": [
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
-            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
@@ -44,7 +40,7 @@
               "RelativeDocumentMoniker": "StoreManagementAPI\\Controllers\\ProductsController.cs",
               "ToolTip": "D:\\Capstone\\Capstone2\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Controllers\\ProductsController.cs",
               "RelativeToolTip": "StoreManagementAPI\\Controllers\\ProductsController.cs",
-              "ViewState": "AgIAAGUAAAAAAAAAAAAUwOQAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAFIAAAAAAAAAAAAAwF0AAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-08-02T15:16:45.848Z",
               "EditorCaption": ""
@@ -95,8 +91,7 @@
               "RelativeToolTip": "StoreManagementAPI\\Models\\Product.cs",
               "ViewState": "AgIAAAUAAAAAAAAAAAAxwBMAAAAcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-07-29T15:55:44.382Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-07-29T15:55:44.382Z"
             }
           ]
         }

@@ -13,92 +13,48 @@ public class ProductsController : ControllerBase
         _context = context;
     }
 
-    //// GET: api/Product
-    //[HttpGet]
-    //public async Task<ActionResult<IEnumerable<Product>>> GetProduct()
-    //{
-    //    return await _context.Products.ToListAsync();
-    //}
-
-    // GET: api/Products
-    // GET: api/Products?keyword=coca&status=active
-
-    //[HttpGet]
-    //public async Task<ActionResult<IEnumerable<Product>>> GetProduct(
-    //    [FromQuery] string? keyword,
-    //    [FromQuery] string? status)
-    //{
-    //    var query = _context.Products.AsQueryable();
-
-    //    if (!string.IsNullOrWhiteSpace(status))
-    //    {
-    //        var s = status.Trim().ToLower();
-    //        query = query.Where(p =>
-    //            p.Status != null &&
-    //            p.Status.ToLower() == s);
-    //    }
-
-    //    if (!string.IsNullOrWhiteSpace(keyword))
-    //    {
-    //        var k = keyword.Trim().ToLower();
-    //        query = query.Where(p =>
-    //            (p.ProductName != null &&
-    //                p.ProductName.ToLower().Contains(k)) ||
-    //            (p.ProductCode != null &&
-    //                p.ProductCode.ToLower().Contains(k)) ||
-    //            (p.Barcode != null &&
-    //                p.Barcode.ToLower().Contains(k)));
-    //    }
-
-    //    var products = await query
-    //        .OrderBy(p => p.ProductName)
-    //        .Take(100)
-    //        .ToListAsync();
-
-    //    return Ok(products);
-    //}
 
     // GET: api/Products?keyword=coca&status=active&categoryId=2&minPrice=0&maxPrice=500000
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Product>>> GetProduct(
-        [FromQuery] string? keyword,
-        [FromQuery] string? status,
-        [FromQuery] int? categoryId,
-        [FromQuery] decimal? minPrice,
-        [FromQuery] decimal? maxPrice)
+    public async Task<IActionResult> GetProduct(
+    [FromQuery] string? keyword,
+    [FromQuery] string? status,
+    [FromQuery] int? categoryId,
+    [FromQuery] decimal? minPrice,
+    [FromQuery] decimal? maxPrice)
     {
-        var query = _context.Products.AsQueryable();
+        var query = _context.Products
+            .AsNoTracking()
+            .AsQueryable();
 
-        // Lọc theo status
         if (!string.IsNullOrWhiteSpace(status))
         {
             var s = status.Trim().ToLower();
+
             query = query.Where(p =>
                 p.Status != null &&
                 p.Status.ToLower() == s);
         }
 
-        // Lọc theo keyword: tên / mã / barcode
         if (!string.IsNullOrWhiteSpace(keyword))
         {
             var k = keyword.Trim().ToLower();
+
             query = query.Where(p =>
                 (p.ProductName != null &&
-                    p.ProductName.ToLower().Contains(k)) ||
+                 p.ProductName.ToLower().Contains(k)) ||
                 (p.ProductCode != null &&
-                    p.ProductCode.ToLower().Contains(k)) ||
+                 p.ProductCode.ToLower().Contains(k)) ||
                 (p.Barcode != null &&
-                    p.Barcode.ToLower().Contains(k)));
+                 p.Barcode.ToLower().Contains(k)));
         }
 
-        // Lọc theo category
         if (categoryId.HasValue)
         {
             query = query.Where(p =>
                 p.CategoryId == categoryId.Value);
         }
 
-        // Lọc theo khoảng giá
         if (minPrice.HasValue)
         {
             query = query.Where(p =>
@@ -114,6 +70,24 @@ public class ProductsController : ControllerBase
         var products = await query
             .OrderBy(p => p.ProductName)
             .Take(100)
+            .Select(p => new
+            {
+                p.ProductId,
+                p.ProductCode,
+                p.ProductName,
+                p.Barcode,
+                p.CategoryId,
+
+                CategoryName = p.Category.CategoryName,
+
+                p.Unit,
+                p.SalePrice,
+                p.QuantityInStock,
+                p.Status,
+                p.Image,
+                p.CreatedAt,
+                p.UpdatedAt
+            })
             .ToListAsync();
 
         return Ok(products);
