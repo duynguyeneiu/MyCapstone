@@ -13,11 +13,110 @@ public class ProductsController : ControllerBase
         _context = context;
     }
 
-    // GET: api/Product
+    //// GET: api/Product
+    //[HttpGet]
+    //public async Task<ActionResult<IEnumerable<Product>>> GetProduct()
+    //{
+    //    return await _context.Products.ToListAsync();
+    //}
+
+    // GET: api/Products
+    // GET: api/Products?keyword=coca&status=active
+
+    //[HttpGet]
+    //public async Task<ActionResult<IEnumerable<Product>>> GetProduct(
+    //    [FromQuery] string? keyword,
+    //    [FromQuery] string? status)
+    //{
+    //    var query = _context.Products.AsQueryable();
+
+    //    if (!string.IsNullOrWhiteSpace(status))
+    //    {
+    //        var s = status.Trim().ToLower();
+    //        query = query.Where(p =>
+    //            p.Status != null &&
+    //            p.Status.ToLower() == s);
+    //    }
+
+    //    if (!string.IsNullOrWhiteSpace(keyword))
+    //    {
+    //        var k = keyword.Trim().ToLower();
+    //        query = query.Where(p =>
+    //            (p.ProductName != null &&
+    //                p.ProductName.ToLower().Contains(k)) ||
+    //            (p.ProductCode != null &&
+    //                p.ProductCode.ToLower().Contains(k)) ||
+    //            (p.Barcode != null &&
+    //                p.Barcode.ToLower().Contains(k)));
+    //    }
+
+    //    var products = await query
+    //        .OrderBy(p => p.ProductName)
+    //        .Take(100)
+    //        .ToListAsync();
+
+    //    return Ok(products);
+    //}
+
+    // GET: api/Products?keyword=coca&status=active&categoryId=2&minPrice=0&maxPrice=500000
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Product>>> GetProduct()
+    public async Task<ActionResult<IEnumerable<Product>>> GetProduct(
+        [FromQuery] string? keyword,
+        [FromQuery] string? status,
+        [FromQuery] int? categoryId,
+        [FromQuery] decimal? minPrice,
+        [FromQuery] decimal? maxPrice)
     {
-        return await _context.Products.ToListAsync();
+        var query = _context.Products.AsQueryable();
+
+        // Lọc theo status
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            var s = status.Trim().ToLower();
+            query = query.Where(p =>
+                p.Status != null &&
+                p.Status.ToLower() == s);
+        }
+
+        // Lọc theo keyword: tên / mã / barcode
+        if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            var k = keyword.Trim().ToLower();
+            query = query.Where(p =>
+                (p.ProductName != null &&
+                    p.ProductName.ToLower().Contains(k)) ||
+                (p.ProductCode != null &&
+                    p.ProductCode.ToLower().Contains(k)) ||
+                (p.Barcode != null &&
+                    p.Barcode.ToLower().Contains(k)));
+        }
+
+        // Lọc theo category
+        if (categoryId.HasValue)
+        {
+            query = query.Where(p =>
+                p.CategoryId == categoryId.Value);
+        }
+
+        // Lọc theo khoảng giá
+        if (minPrice.HasValue)
+        {
+            query = query.Where(p =>
+                p.SalePrice >= minPrice.Value);
+        }
+
+        if (maxPrice.HasValue)
+        {
+            query = query.Where(p =>
+                p.SalePrice <= maxPrice.Value);
+        }
+
+        var products = await query
+            .OrderBy(p => p.ProductName)
+            .Take(100)
+            .ToListAsync();
+
+        return Ok(products);
     }
 
     // GET: api/Product/5
@@ -92,6 +191,9 @@ public class ProductsController : ControllerBase
         return NoContent();
     }
 
+
+    //mobile you may like
+
     [HttpGet("{id:int}/related")]
     public async Task<ActionResult<IEnumerable<Product>>>
     GetRelatedProducts(int id)
@@ -134,4 +236,8 @@ public class ProductsController : ControllerBase
     {
         return _context.Products.Any(e => e.ProductId == productid);
     }
+
+
+
+
 }
