@@ -2,11 +2,12 @@
 
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
+import { userService } from '@/src/services/userService'
 
 interface SelectItem { value: string; text: string }
 
-// TODO: fetch từ API
-const mockRoles: SelectItem[] = [
+// TODO: no /api/Roles endpoint yet — hardcoded to match seeded RoleId values
+const roleOptions: SelectItem[] = [
   { value: '1', text: 'Admin' },
   { value: '2', text: 'Staff' },
   { value: '3', text: 'Customer' },
@@ -15,41 +16,62 @@ const mockRoles: SelectItem[] = [
 export default function CreateUserPage() {
   const router = useRouter()
   const [form, setForm] = useState({
-    fullname: '', description: '', password: '',
+    fullName: '', username: '', password: '', gender: '',
     phone: '', email: '', address: '', roleId: '',
   })
-  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }))
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    const formData = new FormData()
-    Object.entries(form).forEach(([k, v]) => formData.append(k, v))
-    if (imageFile) formData.append('ImageFile', imageFile)
-    // TODO: await fetch('/api/users', { method: 'POST', body: formData })
-    console.log('Create user:', form)
-    router.push('/admin/users')
+    setError(null)
+    setSubmitting(true)
+    try {
+      await userService.create({
+        fullName: form.fullName,
+        username: form.username,
+        password: form.password,
+        gender: form.gender || null,
+        phone: form.phone || null,
+        email: form.email || null,
+        address: form.address || null,
+        roleId: Number(form.roleId),
+        status: 'Active',
+      })
+      router.push('/admin/users')
+    } catch (err) {
+      console.error('Failed to create user:', err)
+      setError('Failed to create user. Please check the fields and try again.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
     <section className="Create">
       <h3>Create new user</h3>
-      <form className="row g-3" onSubmit={handleSubmit} encType="multipart/form-data">
+      <form className="row g-3" onSubmit={handleSubmit}>
+        {error && (
+          <div className="col-12">
+            <div className="alert alert-danger">{error}</div>
+          </div>
+        )}
         <div className="col-12">
           <label className="form-label" htmlFor="inputName">Name</label>
-          <input id="inputName" name="fullname" type="text" className="form-control"
-            value={form.fullname} onChange={handleChange} />
+          <input id="inputName" name="fullName" type="text" className="form-control" required
+            value={form.fullName} onChange={handleChange} />
         </div>
-        <div className="col-12">
-          <label className="form-label" htmlFor="inputDesc">Description</label>
-          <textarea id="inputDesc" name="description" className="form-control"
-            value={form.description} onChange={handleChange} rows={2} />
+        <div className="col-md-6">
+          <label className="form-label" htmlFor="inputUsername">Username</label>
+          <input id="inputUsername" name="username" type="text" className="form-control" required
+            value={form.username} onChange={handleChange} />
         </div>
-        <div className="col-12">
+        <div className="col-md-6">
           <label className="form-label" htmlFor="inputPassword">Password</label>
-          <input id="inputPassword" name="password" type="password" className="form-control"
+          <input id="inputPassword" name="password" type="password" className="form-control" required
             value={form.password} onChange={handleChange} placeholder="Password" />
         </div>
         <div className="col-md-6">
@@ -68,20 +90,22 @@ export default function CreateUserPage() {
             value={form.address} onChange={handleChange} />
         </div>
         <div className="col-md-6">
-          <label className="form-label" htmlFor="inputAvatar">Avatar</label>
-          <input id="inputAvatar" name="ImageFile" type="file" className="form-control"
-            accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] ?? null)} />
+          <label className="form-label" htmlFor="inputGender">Gender</label>
+          <input id="inputGender" name="gender" className="form-control"
+            value={form.gender} onChange={handleChange} />
         </div>
         <div className="col-md-6">
           <label className="form-label" htmlFor="inputRole">Role</label>
-          <select id="inputRole" name="roleId" className="form-select"
+          <select id="inputRole" name="roleId" className="form-select" required
             value={form.roleId} onChange={handleChange}>
             <option value="">--Choose Role--</option>
-            {mockRoles.map((r) => <option key={r.value} value={r.value}>{r.text}</option>)}
+            {roleOptions.map((r) => <option key={r.value} value={r.value}>{r.text}</option>)}
           </select>
         </div>
         <div className="col-12">
-          <button type="submit" className="btn btn-primary">Create</button>
+          <button type="submit" className="btn btn-primary" disabled={submitting}>
+            {submitting ? 'Creating…' : 'Create'}
+          </button>
         </div>
       </form>
     </section>

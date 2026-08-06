@@ -1,6 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import axios from 'axios';
+import api from '@/src/lib/api';
 
 export type UserRole = 'client' | 'admin' | 'staff';
 
@@ -21,21 +23,27 @@ interface PendingRegistration {
 interface AuthContextValue {
   user: User | null;
   pendingPhone: string | null;
-  login: (phone: string, password: string) => { success: boolean; error?: string };
+  login: (phone: string, password: string) => Promise<{ success: boolean; error?: string }>;
   startRegister: (name: string, phone: string, password: string) => { success: boolean; error?: string };
   completeRegister: (otp: string) => { success: boolean; error?: string };
   logout: () => void;
 }
 
-const DEMO_ACCOUNTS: (User & { password: string })[] = [
-  { id: '1', name: 'Admin User',  phone: '0901234567', password: 'admin123',  role: 'admin'  },
-  { id: '2', name: 'Staff User',  phone: '0901234568', password: 'staff123',  role: 'staff'  },
-  { id: '3', name: 'Client User', phone: '0901234569', password: 'client123', role: 'client' },
-];
-
+// Registration has no backend endpoint yet (AuthController.Register is commented
+// out) — this stays a local-only demo flow until that's implemented.
 const registeredAccounts: (User & { password: string })[] = [];
-
 const DEMO_OTP = '12345';
+
+function mapRole(roleName: string | undefined): UserRole {
+  switch (roleName?.toLowerCase()) {
+    case 'admin':
+      return 'admin';
+    case 'staff':
+      return 'staff';
+    default:
+      return 'client';
+  }
+}
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
@@ -52,19 +60,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch {}
   }, []);
 
-  const login = (phone: string, password: string): { success: boolean; error?: string } => {
-    const all = [...DEMO_ACCOUNTS, ...registeredAccounts];
-    const found = all.find(a => a.phone === phone && a.password === password);
-    if (!found) return { success: false, error: 'Invalid phone number or password' };
-    const { password: _, ...userData } = found;
-    setUser(userData);
-    localStorage.setItem('hm-user', JSON.stringify(userData));
-    return { success: true };
+  const login = async (phone: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const res = await api.post('/Auth/login', { phone, password });
+      const { token, userId, fullName, role } = res.data;
+      const userData: User = { id: String(userId), name: fullName, phone, role: mapRole(role) };
+      localStorage.setItem('hm-token', token);
+      localStorage.setItem('hm-user', JSON.stringify(userData));
+      setUser(userData);
+      return { success: true };
+    } catch (err) {
+      let message = 'Invalid phone number or password';
+      if (axios.isAxiosError(err) && typeof err.response?.data === 'string') {
+        message = err.response.data;
+      }
+      return { success: false, error: message };
+    }
   };
 
   const startRegister = (name: string, phone: string, password: string): { success: boolean; error?: string } => {
-    const all = [...DEMO_ACCOUNTS, ...registeredAccounts];
-    if (all.find(a => a.phone === phone)) {
+    if (registeredAccounts.find(a => a.phone === phone)) {
       return { success: false, error: 'Phone number is already registered' };
     }
     const pendingData = { name, phone, password };
@@ -88,6 +103,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('hm-user');
+    localStorage.removeItem('hm-token');
   };
 
   return (

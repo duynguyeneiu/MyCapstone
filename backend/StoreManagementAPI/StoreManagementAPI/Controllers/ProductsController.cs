@@ -1,16 +1,20 @@
+using CatalogService.API.DTOs.Product;
+using CatalogService.API.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using StoreManagementAPI.Models;
 using StoreManagementAPI.Data;
+using StoreManagementAPI.Models;
 
 [Route("api/[controller]")]
 [ApiController]
 public class ProductsController : ControllerBase
 {
     private readonly CatalogContext _context;
-    public ProductsController(CatalogContext context)
+    private readonly IProductService _productService;
+    public ProductsController(CatalogContext context, IProductService productService)
     {
         _context = context;
+        _productService = productService;
     }
 
     // GET: api/Product
@@ -95,5 +99,16 @@ public class ProductsController : ControllerBase
     private bool ProductExists(int? productid)
     {
         return _context.Products.Any(e => e.ProductId == productid);
+    }
+
+
+    [HttpPut("{productId:int}/stock")]
+    public async Task<IActionResult> UpdateStock(
+    int productId,
+    UpdateStockRequest request)
+    {
+        await _productService.UpdateStockAsync(productId, request.Quantity);
+
+        return NoContent();
     }
 }

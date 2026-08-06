@@ -3,24 +3,208 @@
   "WorkspaceRootPath": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\storemanagementapi\\controllers\\categoriescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|solutionrelative:storemanagementapi\\controllers\\categoriescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\storemanagementapi\\services\\productservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|solutionrelative:storemanagementapi\\services\\productservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\controllers\\ordercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\controllers\\ordercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\services\\orderservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\services\\orderservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\repositories\\orderrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\repositories\\orderrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\interfaces\\iorderrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\interfaces\\iorderrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\services\\invoiceservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\services\\invoiceservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\interfaces\\iinvoiceservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\interfaces\\iinvoiceservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\storemanagementapi\\controllers\\productscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|solutionrelative:storemanagementapi\\controllers\\productscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\storemanagementapi\\models\\category.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|solutionrelative:storemanagementapi\\models\\category.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\storemanagementapi\\dtos\\product\\updatestockrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|solutionrelative:storemanagementapi\\dtos\\product\\updatestockrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\storemanagementapi\\catalogservice.api.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
-      "RelativeMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|solutionrelative:storemanagementapi\\catalogservice.api.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\dtos\\catalog\\updatestockrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\dtos\\catalog\\updatestockrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\storemanagementapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|solutionrelative:storemanagementapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\storemanagementapi\\interfaces\\iproductservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|solutionrelative:storemanagementapi\\interfaces\\iproductservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\orderserviceapi.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\orderserviceapi.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\client\\catalogserviceclient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\client\\catalogserviceclient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\interfaces\\icatalogserviceclient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\interfaces\\icatalogserviceclient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\interfaces\\iorderservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\interfaces\\iorderservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\dtos\\order\\updateorderstatusrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\dtos\\order\\updateorderstatusrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\controllers\\invoicecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\controllers\\invoicecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\dtos\\invoice\\invoicedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\dtos\\invoice\\invoicedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\repositories\\invoicerepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\repositories\\invoicerepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\interfaces\\iinvoicerepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\interfaces\\iinvoicerepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\interfaces\\icartrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\interfaces\\icartrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\dtos\\checkoutrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\dtos\\checkoutrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\repositories\\cartrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\repositories\\cartrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\dtos\\order\\orderdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\dtos\\order\\orderdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\dtos\\order\\orderitemdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\dtos\\order\\orderitemdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\services\\cartservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\services\\cartservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\controllers\\cartcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\controllers\\cartcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\interfaces\\icartservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\interfaces\\icartservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\dtos\\cart\\updatecartitemrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\dtos\\cart\\updatecartitemrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\dtos\\product\\productdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\dtos\\product\\productdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\dtos\\cart\\addcartitemrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\dtos\\cart\\addcartitemrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\dtos\\cart\\cartdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\dtos\\cart\\cartdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\dtos\\cart\\cartitemdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\dtos\\cart\\cartitemdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\data\\orderdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\data\\orderdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Models\\OrderDbContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:StoreManagementAPI\\Models\\OrderDbContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{006ADDA4-8D07-43DE-BB7B-DCF6C62B6B46}|UserService.API\\UserService.API.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\userservice.api\\userservice.api.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{006ADDA4-8D07-43DE-BB7B-DCF6C62B6B46}|UserService.API\\UserService.API.csproj|solutionrelative:userservice.api\\userservice.api.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{006ADDA4-8D07-43DE-BB7B-DCF6C62B6B46}|UserService.API\\UserService.API.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\userservice.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{006ADDA4-8D07-43DE-BB7B-DCF6C62B6B46}|UserService.API\\UserService.API.csproj|solutionrelative:userservice.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{006ADDA4-8D07-43DE-BB7B-DCF6C62B6B46}|UserService.API\\UserService.API.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\userservice.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{006ADDA4-8D07-43DE-BB7B-DCF6C62B6B46}|UserService.API\\UserService.API.csproj|solutionrelative:userservice.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{006ADDA4-8D07-43DE-BB7B-DCF6C62B6B46}|UserService.API\\UserService.API.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\userservice.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{006ADDA4-8D07-43DE-BB7B-DCF6C62B6B46}|UserService.API\\UserService.API.csproj|solutionrelative:userservice.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{006ADDA4-8D07-43DE-BB7B-DCF6C62B6B46}|UserService.API\\UserService.API.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\userservice.api\\services\\jwtservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{006ADDA4-8D07-43DE-BB7B-DCF6C62B6B46}|UserService.API\\UserService.API.csproj|solutionrelative:userservice.api\\services\\jwtservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{006ADDA4-8D07-43DE-BB7B-DCF6C62B6B46}|UserService.API\\UserService.API.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\userservice.api\\helpers\\passwordhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{006ADDA4-8D07-43DE-BB7B-DCF6C62B6B46}|UserService.API\\UserService.API.csproj|solutionrelative:userservice.api\\helpers\\passwordhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{006ADDA4-8D07-43DE-BB7B-DCF6C62B6B46}|UserService.API\\UserService.API.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\userservice.api\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{006ADDA4-8D07-43DE-BB7B-DCF6C62B6B46}|UserService.API\\UserService.API.csproj|solutionrelative:userservice.api\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{006ADDA4-8D07-43DE-BB7B-DCF6C62B6B46}|UserService.API\\UserService.API.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\userservice.api\\models\\dtos\\loginresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{006ADDA4-8D07-43DE-BB7B-DCF6C62B6B46}|UserService.API\\UserService.API.csproj|solutionrelative:userservice.api\\models\\dtos\\loginresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{006ADDA4-8D07-43DE-BB7B-DCF6C62B6B46}|UserService.API\\UserService.API.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\userservice.api\\models\\dtos\\loginrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{006ADDA4-8D07-43DE-BB7B-DCF6C62B6B46}|UserService.API\\UserService.API.csproj|solutionrelative:userservice.api\\models\\dtos\\loginrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{006ADDA4-8D07-43DE-BB7B-DCF6C62B6B46}|UserService.API\\UserService.API.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\userservice.api\\data\\userservicedbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{006ADDA4-8D07-43DE-BB7B-DCF6C62B6B46}|UserService.API\\UserService.API.csproj|solutionrelative:userservice.api\\data\\userservicedbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\storemanagementapi\\controllers\\categoriescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|solutionrelative:storemanagementapi\\controllers\\categoriescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\storemanagementapi\\models\\category.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|solutionrelative:storemanagementapi\\models\\category.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{006ADDA4-8D07-43DE-BB7B-DCF6C62B6B46}|UserService.API\\UserService.API.csproj|d:\\t\u00E0i li\u1EC7u \u0111\u1ED3 \u00E1n t\u1ED1t nghi\u1EC7p\\storemanagement\\mycapstone\\backend\\storemanagementapi\\userservice.api\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{006ADDA4-8D07-43DE-BB7B-DCF6C62B6B46}|UserService.API\\UserService.API.csproj|solutionrelative:userservice.api\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,7 +214,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 97,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Bookmark",
@@ -38,7 +222,644 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "InvoiceService.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Services\\InvoiceService.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\Services\\InvoiceService.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Services\\InvoiceService.cs",
+              "RelativeToolTip": "OrderServiceAPI\\Services\\InvoiceService.cs",
+              "ViewState": "AgIAACIAAAAAAAAAAAAQwAcAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-06T11:15:59.385Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "UpdateStockRequest.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\DTOs\\Product\\UpdateStockRequest.cs",
+              "RelativeDocumentMoniker": "StoreManagementAPI\\DTOs\\Product\\UpdateStockRequest.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\DTOs\\Product\\UpdateStockRequest.cs",
+              "RelativeToolTip": "StoreManagementAPI\\DTOs\\Product\\UpdateStockRequest.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-06T11:34:04.832Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "IOrderRepository.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Interfaces\\IOrderRepository.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\Interfaces\\IOrderRepository.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Interfaces\\IOrderRepository.cs",
+              "RelativeToolTip": "OrderServiceAPI\\Interfaces\\IOrderRepository.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAswA0AAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-06T11:06:09.457Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "OrderRepository.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Repositories\\OrderRepository.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\Repositories\\OrderRepository.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Repositories\\OrderRepository.cs",
+              "RelativeToolTip": "OrderServiceAPI\\Repositories\\OrderRepository.cs",
+              "ViewState": "AgIAABMAAAAAAAAAAAAYwC4AAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-06T10:50:29.693Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "OrderController.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Controllers\\OrderController.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\Controllers\\OrderController.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Controllers\\OrderController.cs",
+              "RelativeToolTip": "OrderServiceAPI\\Controllers\\OrderController.cs",
+              "ViewState": "AgIAACUAAAAAAAAAAAA/wDoAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-06T10:49:03.631Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ProductService.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Services\\ProductService.cs",
+              "RelativeDocumentMoniker": "StoreManagementAPI\\Services\\ProductService.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Services\\ProductService.cs",
+              "RelativeToolTip": "StoreManagementAPI\\Services\\ProductService.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAA7wCAAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-06T11:27:26.223Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 2,
+              "Title": "OrderService.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Services\\OrderService.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\Services\\OrderService.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Services\\OrderService.cs",
+              "RelativeToolTip": "OrderServiceAPI\\Services\\OrderService.cs",
+              "ViewState": "AgIAAKwAAAAAAAAAAAAUwLcAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-06T10:51:42.137Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "UpdateStockRequest.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\DTOs\\Catalog\\UpdateStockRequest.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\DTOs\\Catalog\\UpdateStockRequest.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\DTOs\\Catalog\\UpdateStockRequest.cs",
+              "RelativeToolTip": "OrderServiceAPI\\DTOs\\Catalog\\UpdateStockRequest.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-06T11:23:00.83Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "ProductsController.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Controllers\\ProductsController.cs",
+              "RelativeDocumentMoniker": "StoreManagementAPI\\Controllers\\ProductsController.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Controllers\\ProductsController.cs",
+              "RelativeToolTip": "StoreManagementAPI\\Controllers\\ProductsController.cs",
+              "ViewState": "AgIAAE4AAAAAAAAAAAAowFoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-09T11:03:30.555Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Program.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\Program.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Program.cs",
+              "RelativeToolTip": "OrderServiceAPI\\Program.cs",
+              "ViewState": "AgIAABMAAAAAAAAAAAAuwCIAAAA+AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-05T08:27:16.696Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "IInvoiceService.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Interfaces\\IInvoiceService.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\Interfaces\\IInvoiceService.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Interfaces\\IInvoiceService.cs",
+              "RelativeToolTip": "OrderServiceAPI\\Interfaces\\IInvoiceService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-06T11:15:51.097Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Program.cs",
+              "RelativeDocumentMoniker": "StoreManagementAPI\\Program.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Program.cs",
+              "RelativeToolTip": "StoreManagementAPI\\Program.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAAABsAAAA+AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-09T11:04:11.274Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "IProductService.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Interfaces\\IProductService.cs",
+              "RelativeDocumentMoniker": "StoreManagementAPI\\Interfaces\\IProductService.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Interfaces\\IProductService.cs",
+              "RelativeToolTip": "StoreManagementAPI\\Interfaces\\IProductService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAA7AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-06T11:28:45.486Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "ICatalogServiceClient.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Interfaces\\ICatalogServiceClient.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\Interfaces\\ICatalogServiceClient.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Interfaces\\ICatalogServiceClient.cs",
+              "RelativeToolTip": "OrderServiceAPI\\Interfaces\\ICatalogServiceClient.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-06T10:01:45.504Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "CatalogServiceClient.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Client\\CatalogServiceClient.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\Client\\CatalogServiceClient.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Client\\CatalogServiceClient.cs",
+              "RelativeToolTip": "OrderServiceAPI\\Client\\CatalogServiceClient.cs",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAQwCAAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-06T10:00:49.93Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "OrderServiceAPI",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\OrderServiceAPI.csproj",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\OrderServiceAPI.csproj",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\OrderServiceAPI.csproj",
+              "RelativeToolTip": "OrderServiceAPI\\OrderServiceAPI.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-08-05T08:24:00.352Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "IOrderService.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Interfaces\\IOrderService.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\Interfaces\\IOrderService.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Interfaces\\IOrderService.cs",
+              "RelativeToolTip": "OrderServiceAPI\\Interfaces\\IOrderService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAABOAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-06T10:51:52.75Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "UpdateOrderStatusRequest.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\DTOs\\Order\\UpdateOrderStatusRequest.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\DTOs\\Order\\UpdateOrderStatusRequest.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\DTOs\\Order\\UpdateOrderStatusRequest.cs",
+              "RelativeToolTip": "OrderServiceAPI\\DTOs\\Order\\UpdateOrderStatusRequest.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-06T11:19:54.33Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "InvoiceController.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Controllers\\InvoiceController.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\Controllers\\InvoiceController.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Controllers\\InvoiceController.cs",
+              "RelativeToolTip": "OrderServiceAPI\\Controllers\\InvoiceController.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAxwBsAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-06T11:17:32.704Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "InvoiceDto.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\DTOs\\Invoice\\InvoiceDto.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\DTOs\\Invoice\\InvoiceDto.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\DTOs\\Invoice\\InvoiceDto.cs",
+              "RelativeToolTip": "OrderServiceAPI\\DTOs\\Invoice\\InvoiceDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-06T11:16:53.184Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "InvoiceRepository.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Repositories\\InvoiceRepository.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\Repositories\\InvoiceRepository.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Repositories\\InvoiceRepository.cs",
+              "RelativeToolTip": "OrderServiceAPI\\Repositories\\InvoiceRepository.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAzwB0AAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-06T11:14:41.539Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "IInvoiceRepository.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Interfaces\\IInvoiceRepository.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\Interfaces\\IInvoiceRepository.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Interfaces\\IInvoiceRepository.cs",
+              "RelativeToolTip": "OrderServiceAPI\\Interfaces\\IInvoiceRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-06T11:14:31.839Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "ICartRepository.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Interfaces\\ICartRepository.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\Interfaces\\ICartRepository.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Interfaces\\ICartRepository.cs",
+              "RelativeToolTip": "OrderServiceAPI\\Interfaces\\ICartRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAuwAYAAAAUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-05T08:31:27.725Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "CartRepository.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Repositories\\CartRepository.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\Repositories\\CartRepository.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Repositories\\CartRepository.cs",
+              "RelativeToolTip": "OrderServiceAPI\\Repositories\\CartRepository.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAIA/wBYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-05T08:32:19.094Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "CheckoutRequest.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\DTOs\\CheckoutRequest.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\DTOs\\CheckoutRequest.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\DTOs\\CheckoutRequest.cs",
+              "RelativeToolTip": "OrderServiceAPI\\DTOs\\CheckoutRequest.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-06T10:49:37.478Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "OrderDto.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\DTOs\\Order\\OrderDto.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\DTOs\\Order\\OrderDto.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\DTOs\\Order\\OrderDto.cs",
+              "RelativeToolTip": "OrderServiceAPI\\DTOs\\Order\\OrderDto.cs",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAzwBUAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-06T10:57:05.403Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 26,
+              "Title": "OrderItemDto.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\DTOs\\Order\\OrderItemDto.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\DTOs\\Order\\OrderItemDto.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\DTOs\\Order\\OrderItemDto.cs",
+              "RelativeToolTip": "OrderServiceAPI\\DTOs\\Order\\OrderItemDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-06T10:56:41.898Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 27,
+              "Title": "CartService.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Services\\CartService.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\Services\\CartService.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Services\\CartService.cs",
+              "RelativeToolTip": "OrderServiceAPI\\Services\\CartService.cs",
+              "ViewState": "AgIAAI4AAAAAAAAAAAAwwKMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-05T08:36:57.832Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 28,
+              "Title": "CartController.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Controllers\\CartController.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\Controllers\\CartController.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Controllers\\CartController.cs",
+              "RelativeToolTip": "OrderServiceAPI\\Controllers\\CartController.cs",
+              "ViewState": "AgIAACUAAAAAAAAAAAA/wDEAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-05T08:48:05.559Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 29,
+              "Title": "ICartService.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Interfaces\\ICartService.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\Interfaces\\ICartService.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Interfaces\\ICartService.cs",
+              "RelativeToolTip": "OrderServiceAPI\\Interfaces\\ICartService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAuwA4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-05T08:36:25.428Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 30,
+              "Title": "UpdateCartItemRequest.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\DTOs\\Cart\\UpdateCartItemRequest.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\DTOs\\Cart\\UpdateCartItemRequest.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\DTOs\\Cart\\UpdateCartItemRequest.cs",
+              "RelativeToolTip": "OrderServiceAPI\\DTOs\\Cart\\UpdateCartItemRequest.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-06T10:28:42.032Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 31,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\appsettings.json",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\appsettings.json",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\appsettings.json",
+              "RelativeToolTip": "OrderServiceAPI\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-08-05T08:27:06.181Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 32,
+              "Title": "ProductDto.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\DTOs\\Product\\ProductDto.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\DTOs\\Product\\ProductDto.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\DTOs\\Product\\ProductDto.cs",
+              "RelativeToolTip": "OrderServiceAPI\\DTOs\\Product\\ProductDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-06T09:59:54.508Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 33,
+              "Title": "AddCartItemRequest.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\DTOs\\Cart\\AddCartItemRequest.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\DTOs\\Cart\\AddCartItemRequest.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\DTOs\\Cart\\AddCartItemRequest.cs",
+              "RelativeToolTip": "OrderServiceAPI\\DTOs\\Cart\\AddCartItemRequest.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-06T09:46:21.799Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 34,
+              "Title": "CartDto.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\DTOs\\Cart\\CartDto.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\DTOs\\Cart\\CartDto.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\DTOs\\Cart\\CartDto.cs",
+              "RelativeToolTip": "OrderServiceAPI\\DTOs\\Cart\\CartDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-05T08:35:30.072Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 35,
+              "Title": "CartItemDto.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\DTOs\\Cart\\CartItemDto.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\DTOs\\Cart\\CartItemDto.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\DTOs\\Cart\\CartItemDto.cs",
+              "RelativeToolTip": "OrderServiceAPI\\DTOs\\Cart\\CartItemDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-05T08:35:22.812Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 36,
+              "Title": "OrderDbContext.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Data\\OrderDbContext.cs",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\Data\\OrderDbContext.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Data\\OrderDbContext.cs",
+              "RelativeToolTip": "OrderServiceAPI\\Data\\OrderDbContext.cs",
+              "ViewState": "AgIAABYAAAAAAAAAAAAkwB4AAAADAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-05T08:23:15.394Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 37,
+              "Title": "OrderDbContext.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Models\\OrderDbContext.cs",
+              "RelativeDocumentMoniker": "StoreManagementAPI\\Models\\OrderDbContext.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Models\\OrderDbContext.cs",
+              "RelativeToolTip": "StoreManagementAPI\\Models\\OrderDbContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-05T08:21:08.565Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 39,
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\Controllers\\AuthController.cs",
+              "RelativeDocumentMoniker": "UserService.API\\Controllers\\AuthController.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\Controllers\\AuthController.cs",
+              "RelativeToolTip": "UserService.API\\Controllers\\AuthController.cs",
+              "ViewState": "AgIAABkAAAAAAAAAAAAQwCQAAAA0AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-30T10:34:37.689Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 40,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\appsettings.json",
+              "RelativeDocumentMoniker": "UserService.API\\appsettings.json",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\appsettings.json",
+              "RelativeToolTip": "UserService.API\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAWwA8AAAAbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-07-30T10:00:19.265Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 41,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\Program.cs",
+              "RelativeDocumentMoniker": "UserService.API\\Program.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\Program.cs",
+              "RelativeToolTip": "UserService.API\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEUAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-30T10:12:41.501Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 44,
+              "Title": "User.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\Models\\User.cs",
+              "RelativeDocumentMoniker": "UserService.API\\Models\\User.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\Models\\User.cs",
+              "RelativeToolTip": "UserService.API\\Models\\User.cs",
+              "ViewState": "AgIAABIAAAAAAAAAAAAYwCkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-30T10:09:53.416Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 38,
+              "Title": "UserService.API.csproj",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\UserService.API.csproj",
+              "RelativeDocumentMoniker": "UserService.API\\UserService.API.csproj",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\UserService.API.csproj",
+              "RelativeToolTip": "UserService.API\\UserService.API.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-07-30T09:55:44.345Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 42,
+              "Title": "JwtService.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\Services\\JwtService.cs",
+              "RelativeDocumentMoniker": "UserService.API\\Services\\JwtService.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\Services\\JwtService.cs",
+              "RelativeToolTip": "UserService.API\\Services\\JwtService.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAAA+wCIAAAAbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-30T11:07:15.824Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 43,
+              "Title": "PasswordHelper.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\Helpers\\PasswordHelper.cs",
+              "RelativeDocumentMoniker": "UserService.API\\Helpers\\PasswordHelper.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\Helpers\\PasswordHelper.cs",
+              "RelativeToolTip": "UserService.API\\Helpers\\PasswordHelper.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-30T10:56:46.115Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 45,
+              "Title": "LoginResponse.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\Models\\DTOs\\LoginResponse.cs",
+              "RelativeDocumentMoniker": "UserService.API\\Models\\DTOs\\LoginResponse.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\Models\\DTOs\\LoginResponse.cs",
+              "RelativeToolTip": "UserService.API\\Models\\DTOs\\LoginResponse.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAA6wAIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-30T10:39:48.356Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 46,
+              "Title": "LoginRequest.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\Models\\DTOs\\LoginRequest.cs",
+              "RelativeDocumentMoniker": "UserService.API\\Models\\DTOs\\LoginRequest.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\Models\\DTOs\\LoginRequest.cs",
+              "RelativeToolTip": "UserService.API\\Models\\DTOs\\LoginRequest.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-30T10:38:26.633Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 50,
+              "Title": "UsersController.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\Controllers\\UsersController.cs",
+              "RelativeDocumentMoniker": "UserService.API\\Controllers\\UsersController.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\Controllers\\UsersController.cs",
+              "RelativeToolTip": "UserService.API\\Controllers\\UsersController.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-30T10:12:19.918Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 47,
+              "Title": "UserServiceDbContext.cs",
+              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\Data\\UserServiceDbContext.cs",
+              "RelativeDocumentMoniker": "UserService.API\\Data\\UserServiceDbContext.cs",
+              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\Data\\UserServiceDbContext.cs",
+              "RelativeToolTip": "UserService.API\\Data\\UserServiceDbContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAApAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-30T10:08:29.908Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 49,
               "Title": "Category.cs",
               "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Models\\Category.cs",
               "RelativeDocumentMoniker": "StoreManagementAPI\\Models\\Category.cs",
@@ -46,56 +867,21 @@
               "RelativeToolTip": "StoreManagementAPI\\Models\\Category.cs",
               "ViewState": "AgIAAAQAAAAAAAAAAAAUwBkAAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-07-28T11:07:15.958Z"
+              "WhenOpened": "2026-07-28T11:07:15.958Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "CatalogService.API.csproj",
-              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\CatalogService.API.csproj",
-              "RelativeDocumentMoniker": "StoreManagementAPI\\CatalogService.API.csproj",
-              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\CatalogService.API.csproj",
-              "RelativeToolTip": "StoreManagementAPI\\CatalogService.API.csproj",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2026-07-28T10:59:57.723Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 48,
               "Title": "CategoriesController.cs",
               "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Controllers\\CategoriesController.cs",
               "RelativeDocumentMoniker": "StoreManagementAPI\\Controllers\\CategoriesController.cs",
               "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Controllers\\CategoriesController.cs",
               "RelativeToolTip": "StoreManagementAPI\\Controllers\\CategoriesController.cs",
-              "ViewState": "AgIAABwAAAAAAAAAAAAUwDgAAAAiAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADAAAAALAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-07-28T10:58:02.738Z",
               "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "Program.cs",
-              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Program.cs",
-              "RelativeDocumentMoniker": "StoreManagementAPI\\Program.cs",
-              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Program.cs",
-              "RelativeToolTip": "StoreManagementAPI\\Program.cs",
-              "ViewState": "AgIAAAkAAAAAAAAAAAAAABoAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-07-09T11:04:11.274Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "ProductsController.cs",
-              "DocumentMoniker": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Controllers\\ProductsController.cs",
-              "RelativeDocumentMoniker": "StoreManagementAPI\\Controllers\\ProductsController.cs",
-              "ToolTip": "D:\\T\u00E0i li\u1EC7u \u0110\u1ED3 \u00C1n t\u1ED1t nghi\u1EC7p\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Controllers\\ProductsController.cs",
-              "RelativeToolTip": "StoreManagementAPI\\Controllers\\ProductsController.cs",
-              "ViewState": "AgIAAD0AAAAAAAAAAAAkwAMAAAAYAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-07-09T11:03:30.555Z"
             }
           ]
         }

@@ -1,3 +1,5 @@
+using CatalogService.API.Interfaces;
+using CatalogService.API.Services;
 using Microsoft.EntityFrameworkCore;
 using StoreManagementAPI.Data;
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +24,8 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<IProductService, ProductService>();
 
 var app = builder.Build();
 
