@@ -1,5 +1,7 @@
 <Solution>
   <Folder Name="/Services/">
+    <Project Path="OrderServiceAPI/OrderServiceAPI.csproj" Id="b5d1e2b8-8c56-4495-9288-9d78d5be4020" />
     <Project Path="StoreManagementAPI/CatalogService.API.csproj" />
+    <Project Path="UserService.API/UserService.API.csproj" Id="006adda4-8d07-43de-bb7b-dcf6c62b6b46" />
   </Folder>
 </Solution>

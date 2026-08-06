@@ -29,24 +29,22 @@ export default function LoginRegisterPage({ defaultTab = 'login' }: Props) {
   const [regError, setRegError] = useState('');
   const [regLoading, setRegLoading] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!loginPhone || !loginPass) { setLoginError('Please fill in all fields'); return; }
     setLoginLoading(true);
-    setTimeout(() => {
-      const result = login(loginPhone, loginPass);
-      setLoginLoading(false);
-      if (!result.success) { setLoginError(result.error ?? 'Login failed'); return; }
-      try {
-        const savedUser = JSON.parse(localStorage.getItem('hm-user') || '{}');
-        if (savedUser.role === 'admin' || savedUser.role === 'staff') {
-          router.push('/admin');
-        } else {
-          router.push('/');
-        }
-      } catch {
+    const result = await login(loginPhone, loginPass);
+    setLoginLoading(false);
+    if (!result.success) { setLoginError(result.error ?? 'Login failed'); return; }
+    try {
+      const savedUser = JSON.parse(localStorage.getItem('hm-user') || '{}');
+      if (savedUser.role === 'admin' || savedUser.role === 'staff') {
+        router.push('/admin');
+      } else {
         router.push('/');
       }
-    }, 600);
+    } catch {
+      router.push('/');
+    }
   };
 
   const handleRegister = () => {
@@ -61,12 +59,6 @@ export default function LoginRegisterPage({ defaultTab = 'login' }: Props) {
       router.push('/register/verify');
     }, 600);
   };
-
-  const demoAccounts = [
-    { role: 'Client', phone: '0901234569', pass: 'client123', color: '#00694c', bg: '#e0f5ed' },
-    { role: 'Admin',  phone: '0901234567', pass: 'admin123',  color: '#b47b10', bg: '#fff3d6' },
-    { role: 'Staff',  phone: '0901234568', pass: 'staff123',  color: '#1d6fb8', bg: '#dbeafe' },
-  ];
 
   const inputStyle: React.CSSProperties = {
     width: '100%', border: '1.5px solid #c8e4d8', borderRadius: 10,
@@ -94,22 +86,6 @@ export default function LoginRegisterPage({ defaultTab = 'login' }: Props) {
           <p style={{ color: '#b8e0cc', fontSize: '1.05rem', lineHeight: 1.6, marginBottom: '2.5rem' }}>
             Fresh finds delivered daily. Home appliances, gourmet food & premium beauty products.
           </p>
-          <div style={{ background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.15)', borderRadius: 14, padding: '1.25rem', textAlign: 'left' }}>
-            <p style={{ fontSize: '.75rem', fontWeight: 700, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: '0.75rem' }}>
-              Demo Accounts
-            </p>
-            {demoAccounts.map(a => (
-              <div key={a.role}
-                onClick={() => { setTab('login'); setLoginPhone(a.phone); setLoginPass(a.pass); setLoginError(''); }}
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem', cursor: 'pointer' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ background: a.bg, color: a.color, borderRadius: 99, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>{a.role}</span>
-                  <span style={{ fontSize: 12, color: '#b8e0cc' }}>{a.phone}</span>
-                </div>
-                <span style={{ fontSize: 11, color: '#86c5a8', background: 'rgba(255,255,255,.1)', borderRadius: 6, padding: '2px 6px' }}>click to fill</span>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
 

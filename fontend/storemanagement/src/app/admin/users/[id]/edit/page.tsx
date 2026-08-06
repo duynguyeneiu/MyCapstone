@@ -1,64 +1,105 @@
 'use client'
 
-import Image from 'next/image'
-import { useState, FormEvent, useRef, useEffect } from 'react'
+import { useState, FormEvent, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import { userService, ApiUser } from '@/src/services/userService'
 
 interface SelectItem { value: string; text: string }
-const mockRoles: SelectItem[] = [
+
+// TODO: no /api/Roles endpoint yet — hardcoded to match seeded RoleId values
+const roleOptions: SelectItem[] = [
   { value: '1', text: 'Admin' },
   { value: '2', text: 'Staff' },
   { value: '3', text: 'Customer' },
 ]
 
 export default function EditUserPage() {
-  const router  = useRouter()
-  const params  = useParams()
-  const id      = params.id as string
-  const fileRef = useRef<HTMLInputElement>(null)
+  const router = useRouter()
+  const params = useParams()
+  const id = Number(params.id)
 
+  const [original, setOriginal] = useState<ApiUser | null>(null)
   const [form, setForm] = useState({
-    fullname: '', description: '', phone: '', email: '',
-    address: '', roleId: '', avatar: '',
+    fullName: '', gender: '', phone: '', email: '', address: '', roleId: '',
   })
-  const [preview, setPreview] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    // TODO: fetch(`/api/users/${id}`).then(r => r.json()).then(d => setForm({ ...d }))
+    userService.getById(id)
+      .then((u) => {
+        setOriginal(u)
+        setForm({
+          fullName: u.fullName ?? '',
+          gender: u.gender ?? '',
+          phone: u.phone ?? '',
+          email: u.email ?? '',
+          address: u.address ?? '',
+          roleId: String(u.roleId),
+        })
+      })
+      .catch((err) => {
+        console.error('Failed to load user:', err)
+        setError('Failed to load user.')
+      })
+      .finally(() => setLoading(false))
   }, [id])
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }))
-
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) setPreview(URL.createObjectURL(file))
-  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    const formData = new FormData()
-    formData.append('userId', id)
-    Object.entries(form).forEach(([k, v]) => formData.append(k, v))
-    if (fileRef.current?.files?.[0]) formData.append('ImageFile', fileRef.current.files[0])
-    // TODO: await fetch(`/api/users/${id}`, { method: 'PUT', body: formData })
-    router.push('/admin/users')
+    if (!original) return
+    setError(null)
+    setSubmitting(true)
+    try {
+      const { role, ...rest } = original
+      await userService.update(id, {
+        ...rest,
+        fullName: form.fullName,
+        gender: form.gender || null,
+        phone: form.phone || null,
+        email: form.email || null,
+        address: form.address || null,
+        roleId: Number(form.roleId),
+      })
+      router.push('/admin/users')
+    } catch (err) {
+      console.error('Failed to update user:', err)
+      setError('Failed to update user.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <section className="EditProduct List">
+        <p>Loading…</p>
+      </section>
+    )
   }
 
   return (
     <section className="EditProduct List">
       <h3>Edit user information</h3>
-      <form className="row g-3" onSubmit={handleSubmit} encType="multipart/form-data">
-        <input type="hidden" name="userId" value={id} />
+      <form className="row g-3" onSubmit={handleSubmit}>
+        {error && (
+          <div className="col-12">
+            <div className="alert alert-danger">{error}</div>
+          </div>
+        )}
         <div className="col-12">
           <label className="form-label" htmlFor="inputName">Name</label>
-          <input id="inputName" name="fullname" type="text" className="form-control"
-            value={form.fullname} onChange={handleChange} />
+          <input id="inputName" name="fullName" type="text" className="form-control"
+            value={form.fullName} onChange={handleChange} />
         </div>
-        <div className="col-12">
-          <label className="form-label" htmlFor="inputDesc">Description</label>
-          <textarea id="inputDesc" name="description" className="form-control"
-            value={form.description} onChange={handleChange} rows={2} />
+        <div className="col-md-6">
+          <label className="form-label" htmlFor="inputGender">Gender</label>
+          <input id="inputGender" name="gender" className="form-control"
+            value={form.gender} onChange={handleChange} />
         </div>
         <div className="col-md-6">
           <label className="form-label" htmlFor="inputPhone">Phone</label>
@@ -80,26 +121,13 @@ export default function EditUserPage() {
           <select id="inputRole" name="roleId" className="form-select"
             value={form.roleId} onChange={handleChange}>
             <option value="">--Choose Role--</option>
-            {mockRoles.map((r) => <option key={r.value} value={r.value}>{r.text}</option>)}
+            {roleOptions.map((r) => <option key={r.value} value={r.value}>{r.text}</option>)}
           </select>
         </div>
-        <div className="col-md-6">
-          <label className="form-label" htmlFor="inputAvatar">Avatar</label>
-          <input ref={fileRef} id="inputAvatar" name="ImageFile" type="file"
-            className="form-control" accept="image/*" onChange={handleFile} />
-          <div className="mt-2">
-            {preview
-              ? <img src={preview} alt="Preview" className="user-img" style={{ maxWidth: '50%', height: 'auto' }} />
-              : form.avatar && (
-                  <Image src={`/images/Users/${form.avatar}`} alt="Current"
-                    width={200} height={200} className="user-img"
-                    style={{ maxWidth: '50%', height: 'auto', objectFit: 'cover' }} />
-                )
-            }
-          </div>
-        </div>
         <div className="col-12">
-          <button type="submit" className="btn btn-primary">Update</button>
+          <button type="submit" className="btn btn-primary" disabled={submitting}>
+            {submitting ? 'Updating…' : 'Update'}
+          </button>
         </div>
       </form>
     </section>

@@ -1,19 +1,13 @@
-import Image from 'next/image'
 import Link from 'next/link'
+import { userService, ApiUser } from '@/src/services/userService'
 
-interface User {
-  userId: number
-  fullname: string
-  avatar: string
-  phone: string
-  email: string
-  address: string
-  roleName: string
-}
-
-async function getUsers(): Promise<User[]> {
-  // TODO: fetch('/api/users')
-  return []
+async function getUsers(): Promise<ApiUser[]> {
+  try {
+    return await userService.getAll()
+  } catch (err) {
+    console.error('Failed to load users:', err)
+    return []
+  }
 }
 
 export default async function UserTablePage() {
@@ -29,12 +23,12 @@ export default async function UserTablePage() {
         <thead>
           <tr>
             <th>#</th>
-            <th>Avatar</th>
             <th>Name</th>
             <th>Phone</th>
             <th>Email</th>
             <th>Address</th>
             <th>Role</th>
+            <th>Status</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -42,16 +36,12 @@ export default async function UserTablePage() {
           {users.map((item) => (
             <tr key={item.userId}>
               <th scope="row">{item.userId}</th>
-              <td>
-                <Image src={`/images/Users/${item.avatar}`} alt={item.fullname}
-                  width={50} height={50} className="user-img"
-                  style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: '50%' }} />
-              </td>
-              <td>{item.fullname}</td>
+              <td>{item.fullName}</td>
               <td>{item.phone}</td>
               <td>{item.email}</td>
               <td>{item.address}</td>
-              <td>{item.roleName}</td>
+              <td>{item.role?.roleName ?? item.roleId}</td>
+              <td>{item.status}</td>
               <td>
                 <div className="btn-group" role="group">
                   <Link href={`/admin/users/${item.userId}/edit`} className="btn btn-warning">View</Link>

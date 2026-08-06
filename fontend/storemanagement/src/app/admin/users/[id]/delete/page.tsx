@@ -3,21 +3,33 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import { userService } from '@/src/services/userService'
 
 export default function DeleteUserPage() {
   const router = useRouter()
   const params = useParams()
-  const id     = params.id as string
+  const id = Number(params.id)
   const [name, setName] = useState('')
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    // TODO: fetch(`/api/users/${id}`).then(r => r.json()).then(d => setName(d.fullname))
-    setName('User #' + id)
+    userService.getById(id)
+      .then((u) => setName(u.fullName))
+      .catch((err) => {
+        console.error('Failed to load user:', err)
+        setName(`User #${id}`)
+      })
   }, [id])
 
   const handleDelete = async () => {
-    // TODO: await fetch(`/api/users/${id}`, { method: 'DELETE' })
-    router.push('/admin/users')
+    setError(null)
+    try {
+      await userService.delete(id)
+      router.push('/admin/users')
+    } catch (err) {
+      console.error('Failed to delete user:', err)
+      setError('Failed to delete user.')
+    }
   }
 
   return (
@@ -28,6 +40,7 @@ export default function DeleteUserPage() {
             <i className="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
             <h4 className="mb-3">Delete User?</h4>
             <p className="mb-1"><strong>{name}</strong></p>
+            {error && <p className="text-danger">{error}</p>}
             <p className="text-danger mb-4">This action cannot be undone.</p>
             <div className="d-flex justify-content-center gap-3">
               <button className="btn btn-danger px-4" onClick={handleDelete}>Confirm Delete</button>
