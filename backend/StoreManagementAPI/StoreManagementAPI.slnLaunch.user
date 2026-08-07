@@ -4,11 +4,18 @@
     "Projects": [
       {
         "Path": "StoreManagementAPI\\CatalogService.API.csproj",
-        "Action": "Start"
+        "Action": "Start",
+        "DebugTarget": "IIS Express"
       },
       {
         "Path": "OrderServiceAPI\\OrderServiceAPI.csproj",
-        "Action": "Start"
+        "Action": "Start",
+        "DebugTarget": "IIS Express"
+      },
+      {
+        "Path": "UserService.API\\UserService.API.csproj",
+        "Action": "Start",
+        "DebugTarget": "IIS Express"
       }
     ]
   }

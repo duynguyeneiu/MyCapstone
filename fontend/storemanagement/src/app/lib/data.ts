@@ -1,6 +1,3 @@
-// // import { Product, Order, Review } from "./types";
-
-import { Order } from "./types";
 import { Review } from "./types";
 
 // export const PRODUCTS: Product[] = [
@@ -635,74 +632,6 @@ import { Review } from "./types";
 //     desc: "Resealable storage bags.",
 //   },
 // ];
-
-export const INITIAL_ORDERS: Order[] = [
-  {
-    id: "#AM72841",
-    date: "May 20, 2025",
-    status: "delivered",
-    payment: "VNPay",
-    items: [
-      { pid: 33, qty: 1 },
-      { pid: 35, qty: 2 },
-    ],
-  },
-  {
-    id: "#AM61023",
-    date: "May 14, 2025",
-    status: "shipping",
-    payment: "COD",
-    items: [{ pid: 38, qty: 1 }],
-  },
-  {
-    id: "#AM55890",
-    date: "May 5, 2025",
-    status: "processing",
-    payment: "VNPay",
-    items: [
-      { pid: 6, qty: 3 },
-      { pid: 14, qty: 2 },
-      { pid: 9, qty: 1 },
-    ],
-  },
-  {
-    id: "#AM48234",
-    date: "Apr 28, 2025",
-    status: "delivered",
-    payment: "COD",
-    items: [
-      { pid: 8, qty: 1 },
-      { pid: 7, qty: 2 },
-    ],
-  },
-  {
-    id: "#AM43100",
-    date: "Apr 15, 2025",
-    status: "cancelled",
-    payment: "VNPay",
-    items: [{ pid: 34, qty: 1 }],
-  },
-  {
-    id: "#AM39876",
-    date: "Apr 2, 2025",
-    status: "delivered",
-    payment: "COD",
-    items: [
-      { pid: 1, qty: 1 },
-      { pid: 36, qty: 1 },
-    ],
-  },
-  {
-    id: "#AM31456",
-    date: "Mar 20, 2025",
-    status: "delivered",
-    payment: "VNPay",
-    items: [
-      { pid: 10, qty: 2 },
-      { pid: 2, qty: 4 },
-    ],
-  },
-];
 
 export const MY_REVIEWS: Review[] = [
   {

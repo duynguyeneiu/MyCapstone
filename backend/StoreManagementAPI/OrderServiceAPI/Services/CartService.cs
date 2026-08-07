@@ -28,34 +28,37 @@ namespace OrderServiceAPI.Services
                 cart = await _repository.CreateCartAsync(userId);
             }
 
-            return MapToDto(cart);
+            return await MapToDto(cart);
         }
 
-        private static CartDto MapToDto(Cart cart)
+        private async Task<CartDto> MapToDto(Cart cart)
+{
+    var dto = new CartDto
+    {
+        CartId = cart.CartId,
+        UserId = cart.UserId,
+        TotalAmount = cart.CartDetails.Sum(x => x.Subtotal),
+        Items = new List<CartItemDto>()
+    };
+
+    foreach (var item in cart.CartDetails)
+    {
+        var product = await _catalogClient.GetProductAsync(item.ProductId);
+
+        dto.Items.Add(new CartItemDto
         {
-            return new CartDto
-            {
-                CartId = cart.CartId,
+            CartDetailId = item.CartDetailId,
+            ProductId = item.ProductId,
+            ProductName = product?.ProductName ?? "",
+            ImageUrl = product?.ImageUrl,
+            Quantity = item.Quantity,
+            UnitPrice = item.UnitPrice,
+            Subtotal = item.Subtotal
+        });
+    }
 
-                UserId = cart.UserId,
-
-                TotalAmount = cart.CartDetails.Sum(x => x.Subtotal),
-
-                Items = cart.CartDetails.Select(x => new CartItemDto
-                {
-                    CartDetailId = x.CartDetailId,
-
-                    ProductId = x.ProductId,
-
-                    Quantity = x.Quantity,
-
-                    UnitPrice = x.UnitPrice,
-
-                    Subtotal = x.Subtotal
-
-                }).ToList()
-            };
-        }
+    return dto;
+}
 
         public async Task<CartDto> AddItemAsync(AddCartItemRequest request)
         {
@@ -109,7 +112,7 @@ namespace OrderServiceAPI.Services
 
             cart = await _repository.GetCartByUserIdAsync(request.UserId);
 
-            return MapToDto(cart!);
+            return await  MapToDto(cart!);
         }
         public async Task<CartDto> UpdateItemAsync(int cartDetailId, UpdateCartItemRequest request)
         {
@@ -135,7 +138,7 @@ namespace OrderServiceAPI.Services
 
             var cart = await _repository.GetCartByUserIdAsync(cartItem.Cart.UserId);
 
-            return MapToDto(cart!);
+            return await  MapToDto(cart!);
         }
         public async Task<CartDto> RemoveItemAsync(int cartDetailId)
         {
@@ -151,7 +154,7 @@ namespace OrderServiceAPI.Services
 
             var cart = await _repository.GetCartByUserIdAsync(userId);
 
-            return MapToDto(cart!);
+            return await MapToDto(cart!);
         }
 
 

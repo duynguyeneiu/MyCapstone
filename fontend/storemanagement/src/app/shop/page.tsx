@@ -1,25 +1,17 @@
 import ShopContent from '../components/shop/ShopContent';
-import { Category, Subcategory } from '../lib/types';
 
 interface ShopPageProps {
   searchParams: Promise<{ category?: string; sub?: string }>;
 }
 
-const VALID_CATS: Category[]    = ['beverages', 'snacks', 'food', 'personal-care', 'household'];
-const VALID_SUBS: Subcategory[] = [
-  'water-soft-drinks', 'tea-coffee',
-  'chips-snacks', 'sweets',
-  'instant-foods', 'ready-canned',
-  'oral-hair-care', 'body-skin-care',
-  'laundry-cleaning', 'paper-storage',
-];
+// Categories are dynamic DB rows now (not a fixed slug set) — the URL just
+// carries their numeric id, so only validate that it looks like one.
+const isNumericId = (v?: string): v is string => !!v && /^\d+$/.test(v);
 
 export default async function ShopPage({ searchParams }: ShopPageProps) {
   const params = await searchParams;
-  const cat = params.category as Category | undefined;
-  const sub = params.sub as Subcategory | undefined;
-  const initCategory    = cat && VALID_CATS.includes(cat) ? cat : 'all';
-  const initSubcategory = sub && VALID_SUBS.includes(sub) ? sub : 'all';
+  const initCategory    = isNumericId(params.category) ? params.category : 'all';
+  const initSubcategory = isNumericId(params.sub) ? params.sub : 'all';
 
   return (
     <div className="aqua-page">

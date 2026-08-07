@@ -29,6 +29,7 @@ namespace OrderServiceAPI.Services
                 throw new Exception("Cart is empty.");
 
             decimal totalAmount = 0;
+            var productNames = new Dictionary<int, string>();
 
             // Kiểm tra tồn kho và cập nhật giá
             foreach (var item in cart.CartDetails)
@@ -43,6 +44,7 @@ namespace OrderServiceAPI.Services
 
                 item.UnitPrice = product.Price;
                 item.Subtotal = product.Price * item.Quantity;
+                productNames[item.ProductId] = product.ProductName;
 
                 totalAmount += item.Subtotal;
             }
@@ -76,6 +78,7 @@ namespace OrderServiceAPI.Services
             {
                 OrderId = order.OrderId,
                 ProductId = item.ProductId,
+                ProductName = productNames[item.ProductId],
                 Quantity = item.Quantity,
                 UnitPrice = item.UnitPrice,
                 Subtotal = item.Subtotal,
@@ -93,9 +96,13 @@ namespace OrderServiceAPI.Services
             return new OrderDto
             {
                 OrderId = order.OrderId,
+                OrderNumber = order.OrderNumber,
                 UserId = order.CustomerUserId ?? 0,
                 OrderDate = order.OrderDate,
                 TotalAmount = order.TotalAmount,
+                OrderType = order.OrderType,
+                ReceiverName = order.ReceiverName,
+                ReceiverPhone = order.ReceiverPhone,
                 PaymentMethod = order.PaymentMethod,
                 PaymentStatus = order.PaymentStatus,
                 OrderStatus = order.OrderStatus,
@@ -103,6 +110,7 @@ namespace OrderServiceAPI.Services
                 Items = orderDetails.Select(x => new OrderItemDto
                 {
                     ProductId = x.ProductId,
+                    ProductName = x.ProductName,
                     Quantity = x.Quantity,
                     UnitPrice = x.UnitPrice,
                     Subtotal = x.Subtotal
@@ -114,24 +122,14 @@ namespace OrderServiceAPI.Services
         {
             var orders = await _orderRepository.GetOrdersByUserIdAsync(userId);
 
-            return orders.Select(order => new OrderDto
-            {
-                OrderId = order.OrderId,
-                UserId = order.CustomerUserId ?? 0,
-                OrderDate = order.OrderDate,
-                TotalAmount = order.TotalAmount,
-                PaymentMethod = order.PaymentMethod,
-                PaymentStatus = order.PaymentStatus,
-                OrderStatus = order.OrderStatus,
-                ShippingAddress = order.ShippingAddress ?? string.Empty,
-                Items = order.OrderDetails.Select(item => new OrderItemDto
-                {
-                    ProductId = item.ProductId,
-                    Quantity = item.Quantity,
-                    UnitPrice = item.UnitPrice,
-                    Subtotal = item.Subtotal
-                }).ToList()
-            }).ToList();
+            return orders.Select(MapToDto).ToList();
+        }
+
+        public async Task<List<OrderDto>> GetAllOrdersAsync()
+        {
+            var orders = await _orderRepository.GetAllOrdersAsync();
+
+            return orders.Select(MapToDto).ToList();
         }
 
 
@@ -142,12 +140,21 @@ namespace OrderServiceAPI.Services
             if (order == null)
                 throw new Exception("Order not found.");
 
+            return MapToDto(order);
+        }
+
+        private static OrderDto MapToDto(Order order)
+        {
             return new OrderDto
             {
                 OrderId = order.OrderId,
+                OrderNumber = order.OrderNumber,
                 UserId = order.CustomerUserId ?? 0,
                 OrderDate = order.OrderDate,
                 TotalAmount = order.TotalAmount,
+                OrderType = order.OrderType,
+                ReceiverName = order.ReceiverName,
+                ReceiverPhone = order.ReceiverPhone,
                 PaymentMethod = order.PaymentMethod,
                 PaymentStatus = order.PaymentStatus,
                 OrderStatus = order.OrderStatus,
@@ -155,6 +162,7 @@ namespace OrderServiceAPI.Services
                 Items = order.OrderDetails.Select(item => new OrderItemDto
                 {
                     ProductId = item.ProductId,
+                    ProductName = item.ProductName,
                     Quantity = item.Quantity,
                     UnitPrice = item.UnitPrice,
                     Subtotal = item.Subtotal

@@ -1,11 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { PaymentMethod } from "../../lib/types";
 import { fmt } from "../../lib/utils";
-import { productService } from "@/src/services/productService";
-import { Product } from "@/src/lib/data";
 import { useCart } from "../../context/CartContext";
 import { useOrders } from "../../context/OrderContext";
 import { useAuth } from "../../context/AuthContext";
@@ -25,16 +23,13 @@ interface ShipForm {
 
 export default function CheckoutContent() {
   const router = useRouter();
-  const { cart, clearCart } = useCart();
+  const { cart, totalAmount, refreshCart } = useCart();
   const { placeOrder } = useOrders();
   const { user } = useAuth();
   const [payment, setPayment] = useState<PaymentMethod>("vnpay");
   const [showQR, setShowQR] = useState(false);
-  const [products, setProducts] = useState<Product[]>([]);
-
-  useEffect(() => {
-    productService.getAll().then(setProducts).catch((err) => console.error(err));
-  }, []);
+  const [placing, setPlacing] = useState(false);
+  const [placeError, setPlaceError] = useState<string | null>(null);
 
   const [ship, setShip] = useState<ShipForm>(() => {
     /* Try to read default saved address from profile */
@@ -63,7 +58,7 @@ export default function CheckoutContent() {
     Partial<Record<keyof ShipForm, string>>
   >({});
 
-  const sub = cart.reduce((s, item) => s + (products.find((p) => p.id === item.id)?.price ?? 0) * item.qty, 0);
+  const sub = totalAmount;
   const tax = sub * 0.1;
   const total = sub + tax;
 
@@ -157,9 +152,23 @@ export default function CheckoutContent() {
   };
 
   const handlePlaceOrder = () => {
-    const oid = placeOrder(cart, payment);
-    clearCart();
-    router.push(`/orders/success?id=${oid}`);
+    setPlaceError(null);
+    setPlacing(true);
+    placeOrder({
+      receiverName: `${ship.firstName} ${ship.lastName}`.trim(),
+      receiverPhone: ship.phone,
+      shippingAddress: `${ship.address}, ${ship.city}`,
+      paymentMethod: payment === "vnpay" ? "VNPay" : "COD",
+    })
+      .then((order) => {
+        refreshCart();
+        router.push(`/orders/success?id=${order.orderId}`);
+      })
+      .catch((err) => {
+        console.error(err);
+        setPlaceError("Could not place order. Please try again.");
+      })
+      .finally(() => setPlacing(false));
   };
 
   const handleSubmit = () => {
@@ -485,58 +494,54 @@ export default function CheckoutContent() {
                 marginBottom: "1rem",
               }}
             >
-              {cart.map((item) => {
-                const p = products.find((x) => x.id === item.id);
-                if (!p) return null;
-                return (
+              {cart.map((item) => (
+                <div
+                  key={item.cartDetailId}
+                  style={{ display: "flex", alignItems: "center", gap: 8 }}
+                >
                   <div
-                    key={item.id}
-                    style={{ display: "flex", alignItems: "center", gap: 8 }}
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: "0.4rem",
+                      background: "var(--teal-xs)",
+                      overflow: "hidden",
+                      flexShrink: 0,
+                    }}
                   >
-                    <div
+                    <img
+                      src={item.image}
+                      alt={item.productName}
                       style={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: "0.4rem",
-                        background: "var(--teal-xs)",
-                        overflow: "hidden",
-                        flexShrink: 0,
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "contain",
+                        padding: 3,
                       }}
-                    >
-                      <img
-                        src={p.image}
-                        alt={p.name}
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "contain",
-                          padding: 3,
-                        }}
-                      />
-                    </div>
-                    <span
-                      style={{
-                        flex: 1,
-                        fontSize: ".8rem",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {p.name} ×{item.qty}
-                    </span>
-                    <span
-                      style={{
-                        fontSize: ".8rem",
-                        fontWeight: 700,
-                        color: "var(--teal)",
-                      }}
-                    >
-                      {fmt(p.price * item.qty)}
-                    </span>
+                    />
                   </div>
-                );
-              })}
+                  <span
+                    style={{
+                      flex: 1,
+                      fontSize: ".8rem",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {item.productName} ×{item.quantity}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: ".8rem",
+                      fontWeight: 700,
+                      color: "var(--teal)",
+                    }}
+                  >
+                    {fmt(item.subtotal)}
+                  </span>
+                </div>
+              ))}
             </div>
             {[
               ["Subtotal", fmt(sub)],
@@ -577,15 +582,20 @@ export default function CheckoutContent() {
               <span>Total</span>
               <span style={{ color: "var(--teal)" }}>{fmt(total)}</span>
             </div>
+            {placeError && (
+              <p style={{ color: "#ef4444", fontSize: ".8rem", marginTop: "0.75rem" }}>{placeError}</p>
+            )}
             <BtnTeal
-              onClick={handleSubmit}
+              onClick={placing ? undefined : handleSubmit}
               style={{
                 width: "100%",
                 marginTop: "1.25rem",
                 padding: "0.75rem",
+                opacity: placing ? 0.7 : 1,
+                cursor: placing ? "default" : "pointer",
               }}
             >
-              Place Order ✓
+              {placing ? "Placing Order…" : "Place Order ✓"}
             </BtnTeal>
           </div>
         </div>

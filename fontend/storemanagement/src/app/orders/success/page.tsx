@@ -6,7 +6,7 @@ interface SuccessPageProps {
 
 export default async function SuccessPage({ searchParams }: SuccessPageProps) {
   const params = await searchParams;
-  const orderId = params.id ?? '#AM00000';
+  const orderId = params.id ?? '0';
   return (
     <div className="aqua-page" style={{ paddingTop: '2rem' }}>
       <SuccessContent orderId={orderId} />

@@ -1,7 +1,10 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
+import { orderService } from '@/src/services/orderService'
+import { productService } from '@/src/services/productService'
+import { userService } from '@/src/services/userService'
 
 // --- Types ---
 interface RecentOrder {
@@ -10,6 +13,7 @@ interface RecentOrder {
   date: string
   itemCount: number
   totalAmount: number
+  paymentMethod: string
   status: string
 }
 interface DashboardData {
@@ -20,8 +24,7 @@ interface DashboardData {
   recentOrders: RecentOrder[]
 }
 
-// TODO: fetch từ API
-const mockData: DashboardData = {
+const emptyData: DashboardData = {
   totalRevenue: 0,
   totalOrders: 0,
   totalCustomers: 0,
@@ -32,7 +35,31 @@ const mockData: DashboardData = {
 declare const $: any
 
 export default function DashboardPage() {
-  const data = mockData
+  const [data, setData] = useState<DashboardData>(emptyData)
+
+  useEffect(() => {
+    Promise.all([
+      orderService.getAll(),
+      productService.getAll(),
+      userService.getAll(),
+    ]).then(([orders, products, users]) => {
+      setData({
+        totalRevenue: orders.reduce((s, o) => s + o.totalAmount, 0),
+        totalOrders: orders.length,
+        totalCustomers: users.filter((u) => u.role?.roleName?.toLowerCase() === 'customer').length,
+        totalProducts: products.length,
+        recentOrders: orders.slice(0, 10).map((o) => ({
+          orderId: o.orderId,
+          customerName: o.receiverName,
+          date: o.orderDate,
+          itemCount: o.items.reduce((s, i) => s + i.quantity, 0),
+          totalAmount: o.totalAmount,
+          paymentMethod: o.paymentMethod,
+          status: o.orderStatus || 'Pending',
+        })),
+      })
+    }).catch((err) => console.error(err))
+  }, [])
 
   // Status buttons logic
   useEffect(() => {
@@ -58,10 +85,11 @@ export default function DashboardPage() {
       const $btn   = $(this)
       const status = $btn.data('status')
       const $row   = $btn.closest('tr[data-order-id]')
+      const orderId = Number($row.data('order-id'))
       setRowStatus($row, status)
-      // TODO: gọi API PATCH /api/orders/:id/status
+      orderService.updateStatus(orderId, status).catch((err: unknown) => console.error(err))
     })
-  }, [])
+  }, [data.recentOrders])
 
   const notifications = [
     { img: '/images/notification-01.jpg', text: <><b>Jessica Lee</b> has placed a new order.</>, time: '6h ago' },
@@ -166,7 +194,7 @@ export default function DashboardPage() {
                         <td>{new Date(o.date).toLocaleDateString('en-GB')}</td>
                         <td>{o.itemCount}</td>
                         <td>{o.totalAmount.toLocaleString()} VND</td>
-                        <td>COD</td>
+                        <td>{o.paymentMethod}</td>
                         <td className="tm-status-cell">
                           <div className="tm-status-actions js-status-actions">
                             {['Pending', 'Shipping', 'Delivered'].map((s) => (

@@ -1,4 +1,6 @@
+using CatalogService.API.ExceptionMiddleware;
 using CatalogService.API.Interfaces;
+using CatalogService.API.Repositories;
 using CatalogService.API.Services;
 using Microsoft.EntityFrameworkCore;
 using StoreManagementAPI.Data;
@@ -20,14 +22,26 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddControllers();
+
+builder.WebHost.UseUrls(
+    "http://localhost:5001"
+  );
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
 
+
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+
 var app = builder.Build();
+app.UseMiddleware<ExceptionMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

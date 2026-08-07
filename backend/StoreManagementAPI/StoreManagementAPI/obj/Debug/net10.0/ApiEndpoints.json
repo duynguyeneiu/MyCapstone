@@ -1,92 +1,78 @@
 [
   {
     "ContainingType": "CategoriesController",
-    "Method": "GetCategory",
+    "Method": "GetAll",
     "RelativePath": "api/Categories",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": [
+    "Parameters": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[StoreManagementAPI.Models.Category, CatalogService.API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
+        "Name": "Page",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "PageSize",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "Keyword",
+        "Type": "System.String",
+        "IsRequired": false
       }
-    ]
+    ],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "CategoriesController",
-    "Method": "PostCategory",
+    "Method": "Create",
     "RelativePath": "api/Categories",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "category",
-        "Type": "StoreManagementAPI.Models.Category",
+        "Name": "dto",
+        "Type": "CatalogService.API.DTOs.Category.CreateCategoryDto",
         "IsRequired": true
       }
     ],
-    "ReturnTypes": [
-      {
-        "Type": "StoreManagementAPI.Models.Category",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
+    "ReturnTypes": []
   },
   {
     "ContainingType": "CategoriesController",
-    "Method": "GetCategory",
-    "RelativePath": "api/Categories/{categoryid}",
+    "Method": "GetById",
+    "RelativePath": "api/Categories/{id}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "categoryid",
+        "Name": "id",
         "Type": "System.Int32",
         "IsRequired": true
       }
     ],
-    "ReturnTypes": [
-      {
-        "Type": "StoreManagementAPI.Models.Category",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
+    "ReturnTypes": []
   },
   {
     "ContainingType": "CategoriesController",
-    "Method": "PutCategory",
-    "RelativePath": "api/Categories/{categoryid}",
+    "Method": "Update",
+    "RelativePath": "api/Categories/{id}",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "categoryid",
-        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "Name": "id",
+        "Type": "System.Int32",
         "IsRequired": true
       },
       {
-        "Name": "category",
-        "Type": "StoreManagementAPI.Models.Category",
+        "Name": "dto",
+        "Type": "CatalogService.API.DTOs.Category.UpdateCategoryDto",
         "IsRequired": true
       }
     ],
@@ -94,131 +80,117 @@
   },
   {
     "ContainingType": "CategoriesController",
-    "Method": "DeleteCategory",
-    "RelativePath": "api/Categories/{categoryid}",
+    "Method": "Delete",
+    "RelativePath": "api/Categories/{id}",
     "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "categoryid",
-        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "Name": "id",
+        "Type": "System.Int32",
         "IsRequired": true
       }
     ],
     "ReturnTypes": []
   },
   {
-    "ContainingType": "ProductsController",
-    "Method": "GetProduct",
+    "ContainingType": "CatalogService.API.Controllers.ProductsController",
+    "Method": "GetAll",
     "RelativePath": "api/Products",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": [
+    "Parameters": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[StoreManagementAPI.Models.Product, CatalogService.API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
+        "Name": "Page",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "PageSize",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "Keyword",
+        "Type": "System.String",
+        "IsRequired": false
       }
-    ]
+    ],
+    "ReturnTypes": []
   },
   {
-    "ContainingType": "ProductsController",
-    "Method": "PostProduct",
+    "ContainingType": "CatalogService.API.Controllers.ProductsController",
+    "Method": "Create",
     "RelativePath": "api/Products",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "product",
-        "Type": "StoreManagementAPI.Models.Product",
+        "Name": "dto",
+        "Type": "CatalogService.API.DTOs.Product.CreateProductDto",
         "IsRequired": true
       }
     ],
-    "ReturnTypes": [
-      {
-        "Type": "StoreManagementAPI.Models.Product",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
+    "ReturnTypes": []
   },
   {
-    "ContainingType": "ProductsController",
-    "Method": "GetProduct",
-    "RelativePath": "api/Products/{productid}",
+    "ContainingType": "CatalogService.API.Controllers.ProductsController",
+    "Method": "GetById",
+    "RelativePath": "api/Products/{productId}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "productid",
+        "Name": "productId",
         "Type": "System.Int32",
         "IsRequired": true
       }
     ],
-    "ReturnTypes": [
-      {
-        "Type": "StoreManagementAPI.Models.Product",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
+    "ReturnTypes": []
   },
   {
-    "ContainingType": "ProductsController",
-    "Method": "PutProduct",
-    "RelativePath": "api/Products/{productid}",
+    "ContainingType": "CatalogService.API.Controllers.ProductsController",
+    "Method": "Update",
+    "RelativePath": "api/Products/{productId}",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "productid",
-        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "Name": "productId",
+        "Type": "System.Int32",
         "IsRequired": true
       },
       {
-        "Name": "product",
-        "Type": "StoreManagementAPI.Models.Product",
+        "Name": "dto",
+        "Type": "CatalogService.API.DTOs.Product.UpdateProductDto",
         "IsRequired": true
       }
     ],
     "ReturnTypes": []
   },
   {
-    "ContainingType": "ProductsController",
-    "Method": "DeleteProduct",
-    "RelativePath": "api/Products/{productid}",
+    "ContainingType": "CatalogService.API.Controllers.ProductsController",
+    "Method": "Delete",
+    "RelativePath": "api/Products/{productId}",
     "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "productid",
-        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "Name": "productId",
+        "Type": "System.Int32",
         "IsRequired": true
       }
     ],
     "ReturnTypes": []
   },
   {
-    "ContainingType": "ProductsController",
+    "ContainingType": "CatalogService.API.Controllers.ProductsController",
     "Method": "UpdateStock",
     "RelativePath": "api/Products/{productId}/stock",
     "HttpMethod": "PUT",
@@ -234,6 +206,37 @@
         "Name": "request",
         "Type": "CatalogService.API.DTOs.Product.UpdateStockRequest",
         "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CatalogService.API.Controllers.ProductsController",
+    "Method": "GetByCategory",
+    "RelativePath": "api/Products/category/{categoryId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "categoryId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "Page",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "PageSize",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "Keyword",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []

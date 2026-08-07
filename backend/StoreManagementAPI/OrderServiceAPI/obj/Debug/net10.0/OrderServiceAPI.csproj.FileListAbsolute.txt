@@ -154,7 +154,6 @@ D:\Tài liệu Đồ Án tốt nghiệp\StoreManagement\MyCapstone\backend\Store
 D:\Tài liệu Đồ Án tốt nghiệp\StoreManagement\MyCapstone\backend\StoreManagementAPI\OrderServiceAPI\obj\Debug\net10.0\staticwebassets.development.json
 D:\Tài liệu Đồ Án tốt nghiệp\StoreManagement\MyCapstone\backend\StoreManagementAPI\OrderServiceAPI\obj\Debug\net10.0\staticwebassets.build.endpoints.json
 D:\Tài liệu Đồ Án tốt nghiệp\StoreManagement\MyCapstone\backend\StoreManagementAPI\OrderServiceAPI\obj\Debug\net10.0\swae.build.ex.cache
-D:\Tài liệu Đồ Án tốt nghiệp\StoreManagement\MyCapstone\backend\StoreManagementAPI\OrderServiceAPI\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
 D:\Tài liệu Đồ Án tốt nghiệp\StoreManagement\MyCapstone\backend\StoreManagementAPI\OrderServiceAPI\obj\Debug\net10.0\OrderSer.5B3EC879.Up2Date
 D:\Tài liệu Đồ Án tốt nghiệp\StoreManagement\MyCapstone\backend\StoreManagementAPI\OrderServiceAPI\obj\Debug\net10.0\OrderServiceAPI.dll
 D:\Tài liệu Đồ Án tốt nghiệp\StoreManagement\MyCapstone\backend\StoreManagementAPI\OrderServiceAPI\obj\Debug\net10.0\refint\OrderServiceAPI.dll

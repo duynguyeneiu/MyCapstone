@@ -32,15 +32,6 @@ export const PRODUCTS_DATA = [
   { id: 8, name: "Green Tea Matcha Latte", sku: "BEV-008", category: "Beverages", price: 55000, stock: 20, barcode: "8934673500088", active: true },
 ];
 
-export const ORDERS_DATA = [
-  { id: "ORD-2584", customer: "Nguyen Van A", amount: 185000, status: "Completed", date: "2024-06-01", items: 3, payment: "Cash" },
-  { id: "ORD-2583", customer: "Tran Thi B", amount: 320000, status: "Completed", date: "2024-06-01", items: 5, payment: "Card" },
-  { id: "ORD-2582", customer: "Walk-in", amount: 75000, status: "Processing", date: "2024-06-01", items: 2, payment: "QR" },
-  { id: "ORD-2581", customer: "Duc Huy", amount: 450000, status: "Cancelled", date: "2024-05-31", items: 7, payment: "Card" },
-  { id: "ORD-2580", customer: "Le Van C", amount: 220000, status: "Completed", date: "2024-05-31", items: 4, payment: "Cash" },
-  { id: "ORD-2579", customer: "Pham Thi D", amount: 99000, status: "Completed", date: "2024-05-31", items: 1, payment: "QR" },
-];
-
 export const INVENTORY_DATA = [
   { id: 1, name: "Arabica Coffee Beans 1kg", sku: "BEV-001", category: "Beverages", stock: 2, minStock: 10, cost: 140000, lastUpdated: "2024-06-01" },
   { id: 2, name: "Eco-Friendly Straws (Pack 50)", sku: "SUP-004", category: "Supplies", stock: 0, minStock: 5, cost: 20000, lastUpdated: "2024-05-29" },

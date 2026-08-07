@@ -1,41 +1,24 @@
 import Link from 'next/link'
-
-// --- Types ---
-interface OrderDetail {
-  productId: number
-  quantity: number
-  unitPrice: number
-  product: { name: string }
-}
-interface Order {
-  orderId: number
-  date: string
-  status: string
-  totalAmount: number
-  phone: string
-  adress: string
-  user?: { fullname: string }
-  orderDetails: OrderDetail[]
-}
-
-// TODO: fetch order theo ID từ API
-async function getOrder(id: string): Promise<Order> {
-  return {
-    orderId: Number(id),
-    date: new Date().toISOString(),
-    status: 'Delivered',
-    totalAmount: 0,
-    phone: '',
-    adress: '',
-    user: { fullname: 'Nguyễn Văn A' },
-    orderDetails: [],
-  }
-}
+import { orderService } from '@/src/services/orderService'
 
 export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const order = await getOrder(id)
-  const subTotal = order.orderDetails.reduce((s, i) => s + i.unitPrice * i.quantity, 0)
+  const order = await orderService.getById(Number(id)).catch(() => null);
+
+  if (!order) {
+    return (
+      <section className="container py-5 od-wrap">
+        <div className="od-card">
+          <div className="od-section">
+            <h6>Order not found</h6>
+            <Link href="/orders" className="od-btn-back">← Back to Orders</Link>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  const subTotal = order.items.reduce((s, i) => s + i.subtotal, 0)
 
   return (
     <section className="container py-5 od-wrap">
@@ -44,25 +27,25 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         {/* Header */}
         <div className="od-header">
           <div>
-            <h5>Order #{order.orderId}</h5>
+            <h5>Order #{order.orderNumber}</h5>
             <small>
               Placed on{' '}
-              {new Date(order.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+              {new Date(order.orderDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
             </small>
-            <span className="od-status">{order.status}</span>
+            <span className="od-status">{order.orderStatus}</span>
           </div>
         </div>
 
         {/* Items */}
         <div className="od-section">
           <h6>Items</h6>
-          {order.orderDetails.map((item, idx) => (
+          {order.items.map((item, idx) => (
             <div key={idx} className="od-item">
               <span>
-                {item.product.name}{' '}
+                {item.productName}{' '}
                 <small className="text-muted">({item.quantity})</small>
               </span>
-              <strong>{(item.unitPrice * item.quantity).toFixed(2)} $</strong>
+              <strong>{item.subtotal.toFixed(2)} $</strong>
             </div>
           ))}
         </div>
@@ -87,8 +70,8 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         {/* Shipping */}
         <div className="od-section od-shipping">
           <h6>Shipping Information</h6>
-          <p>{order.user?.fullname} – {order.phone}</p>
-          <p>{order.adress}</p>
+          <p>{order.receiverName} – {order.receiverPhone}</p>
+          <p>{order.shippingAddress}</p>
         </div>
 
         {/* Action */}

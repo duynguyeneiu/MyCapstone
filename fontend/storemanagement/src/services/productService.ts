@@ -9,8 +9,17 @@ interface ApiProduct {
   quantityInStock: number;
   image: string | null;
   categoryId: number;
-  category?: { categoryName: string } | null;
+  categoryName?: string;
   barcode: string | null;
+  status: string;
+}
+
+interface PagedResult<T> {
+  items: T[];
+  totalItems: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
 }
 
 export interface ApiProductRaw {
@@ -25,6 +34,7 @@ export interface ApiProductRaw {
   image: string | null;
   description: string | null;
   categoryId: number;
+  categoryName?: string;
   status: string;
   createdAt?: string;
   updatedAt?: string | null;
@@ -38,20 +48,59 @@ const mapProduct = (p: ApiProduct): Product => ({
   quantity: p.quantityInStock,
   image: p.image ? `/image/${p.image}` : "",
   categoryId: p.categoryId,
-  category: p.category?.categoryName,
+  category: p.categoryName,
   brandId: 0,
   barcode: p.barcode ?? "",
+  status: p.status,
 });
+
+export interface PagedProducts {
+  items: Product[];
+  totalItems: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
 
 export const productService = {
   async getAll(): Promise<Product[]> {
-    const res = await api.get<ApiProduct[]>("/products");
-    return res.data.map(mapProduct);
+    const res = await api.get<PagedResult<ApiProduct>>("/products", {
+      params: { page: 1, pageSize: 1000 },
+    });
+    return res.data.items.map(mapProduct);
+  },
+
+  // Server-side pagination/search — use this over getAll() when the list
+  // can grow large and you don't need every row loaded client-side at once.
+  async getPaged(params: { page?: number; pageSize?: number; keyword?: string } = {}): Promise<PagedProducts> {
+    const res = await api.get<PagedResult<ApiProduct>>("/products", {
+      params: { page: 1, pageSize: 10, ...params },
+    });
+    return { ...res.data, items: res.data.items.map(mapProduct) };
+  },
+
+  // Server-side pagination scoped to one category — backend has no combined
+  // category+keyword filter, so this is keyword-less by design.
+  async getByCategory(categoryId: number, params: { page?: number; pageSize?: number } = {}): Promise<PagedProducts> {
+    const res = await api.get<PagedResult<ApiProduct>>(`/products/category/${categoryId}`, {
+      params: { page: 1, pageSize: 10, ...params },
+    });
+    return { ...res.data, items: res.data.items.map(mapProduct) };
   },
 
   async getById(id: number): Promise<Product> {
     const res = await api.get<ApiProduct>(`/products/${id}`);
     return mapProduct(res.data);
+  },
+
+  // Returns the full raw backend shape for every product (incl.
+  // productCode/unit/importPrice/status) — needed by admin listings that
+  // show cost data the customer-facing Product type doesn't carry.
+  async getAllRaw(): Promise<ApiProductRaw[]> {
+    const res = await api.get<PagedResult<ApiProductRaw>>("/products", {
+      params: { page: 1, pageSize: 1000 },
+    });
+    return res.data.items;
   },
 
   // Returns the raw backend shape (incl. productCode/unit/importPrice/status)

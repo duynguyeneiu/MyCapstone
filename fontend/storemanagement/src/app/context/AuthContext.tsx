@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
-import api from '@/src/lib/api';
+import userApi from '@/src/lib/userApi';
 
 export type UserRole = 'client' | 'admin' | 'staff';
 
@@ -62,7 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (phone: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
-      const res = await api.post('/Auth/login', { phone, password });
+      const res = await userApi.post('/Auth/login', { phone, password });
       const { token, userId, fullName, role } = res.data;
       const userData: User = { id: String(userId), name: fullName, phone, role: mapRole(role) };
       localStorage.setItem('hm-token', token);

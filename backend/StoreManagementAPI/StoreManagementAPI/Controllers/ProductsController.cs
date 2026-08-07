@@ -1,113 +1,95 @@
+using CatalogService.API.Common.Paging;
 using CatalogService.API.DTOs.Product;
 using CatalogService.API.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using StoreManagementAPI.Data;
-using StoreManagementAPI.Models;
+
+namespace CatalogService.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
 public class ProductsController : ControllerBase
 {
-    private readonly CatalogContext _context;
     private readonly IProductService _productService;
-    public ProductsController(CatalogContext context, IProductService productService)
+
+    public ProductsController(IProductService productService)
     {
-        _context = context;
         _productService = productService;
     }
 
-    // GET: api/Product
+    // GET: api/products?page=1&pageSize=10&keyword=coca
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Product>>> GetProduct()
+    public async Task<IActionResult> GetAll([FromQuery] PagingRequest request)
     {
-        return await _context.Products.ToListAsync();
+        var result = await _productService.GetPagedAsync(
+            request.Page,
+            request.PageSize,
+            request.Keyword);
+
+        return Ok(result);
     }
 
-    // GET: api/Product/5
-    [HttpGet("{productid}")]
-    public async Task<ActionResult<Product>> GetProduct(int productid)
+    // GET: api/products/1
+    [HttpGet("{productId:int}")]
+    public async Task<IActionResult> GetById(int productId)
     {
-        var product = await _context.Products.FindAsync(productid);
-
-        if (product == null)
-        {
-            return NotFound();
-        }
-
-        return product;
+        return Ok(await _productService.GetByIdAsync(productId));
     }
 
-    // PUT: api/Product/5
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-    [HttpPut("{productid}")]
-    public async Task<IActionResult> PutProduct(int? productid, Product product)
+    // GET: api/products/category/2?page=1&pageSize=10
+    [HttpGet("category/{categoryId:int}")]
+    public async Task<IActionResult> GetByCategory(
+        int categoryId,
+        [FromQuery] PagingRequest request)
     {
-        if (productid != product.ProductId)
-        {
-            return BadRequest();
-        }
+        var result = await _productService.GetByCategoryAsync(
+            categoryId,
+            request.Page,
+            request.PageSize);
 
-        _context.Entry(product).State = EntityState.Modified;
-
-        try
-        {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!ProductExists(productid))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
-        }
-
-        return NoContent();
+        return Ok(result);
     }
 
-    // POST: api/Product
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+    // POST: api/products
     [HttpPost]
-    public async Task<ActionResult<Product>> PostProduct(Product product)
+    public async Task<IActionResult> Create(CreateProductDto dto)
     {
-        _context.Products.Add(product);
-        await _context.SaveChangesAsync();
+        var product = await _productService.CreateAsync(dto);
 
-        return CreatedAtAction("GetProduct", new { productid = product.ProductId }, product);
+        return CreatedAtAction(
+            nameof(GetById),
+            new { productId = product.ProductId },
+            product);
     }
 
-    // DELETE: api/Product/5
-    [HttpDelete("{productid}")]
-    public async Task<IActionResult> DeleteProduct(int? productid)
+    // PUT: api/products/1
+    [HttpPut("{productId:int}")]
+    public async Task<IActionResult> Update(
+        int productId,
+        UpdateProductDto dto)
     {
-        var product = await _context.Products.FindAsync(productid);
-        if (product == null)
-        {
-            return NotFound();
-        }
-
-        _context.Products.Remove(product);
-        await _context.SaveChangesAsync();
+        await _productService.UpdateAsync(productId, dto);
 
         return NoContent();
     }
 
-    private bool ProductExists(int? productid)
+    // DELETE: api/products/1
+    [HttpDelete("{productId:int}")]
+    public async Task<IActionResult> Delete(int productId)
     {
-        return _context.Products.Any(e => e.ProductId == productid);
+        await _productService.DeleteAsync(productId);
+
+        return NoContent();
     }
 
-
+    // PUT: api/products/1/stock
     [HttpPut("{productId:int}/stock")]
     public async Task<IActionResult> UpdateStock(
-    int productId,
-    UpdateStockRequest request)
+        int productId,
+        UpdateStockRequest request)
     {
-        await _productService.UpdateStockAsync(productId, request.Quantity);
+        await _productService.UpdateStockAsync(
+            productId,
+            request.Quantity);
 
         return NoContent();
     }

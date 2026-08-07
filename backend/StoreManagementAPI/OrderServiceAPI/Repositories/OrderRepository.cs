@@ -38,6 +38,14 @@ namespace OrderServiceAPI.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<Order>> GetAllOrdersAsync()
+        {
+            return await _context.Orders
+                .Include(o => o.OrderDetails)
+                .OrderByDescending(o => o.OrderDate)
+                .ToListAsync();
+        }
+
         public async Task<Order?> GetOrderByIdAsync(int orderId)
         {
             return await _context.Orders

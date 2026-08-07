@@ -1,68 +1,6 @@
-export type Category =
-  | 'beverages'
-  | 'snacks'
-  | 'food'
-  | 'personal-care'
-  | 'household';
-
-export type Subcategory =
-  | 'water-soft-drinks'
-  | 'tea-coffee'
-  | 'chips-snacks'
-  | 'sweets'
-  | 'instant-foods'
-  | 'ready-canned'
-  | 'oral-hair-care'
-  | 'body-skin-care'
-  | 'laundry-cleaning'
-  | 'paper-storage';
-
-export type OrderStatus = "processing" | "shipping" | "delivered" | "cancelled";
 export type PaymentMethod = "vnpay" | "cod";
 export type ProfileTab = "info" | "address" | "security" | "notif";
 export type ReviewTab = "write" | "mine" | "pending";
-export type SortMode = "default" | "price-asc" | "price-desc" | "rating";
-
-export interface Product {
-  id: number;
-  name: string;
-  category: string;
-  subcategory?: string;
-  categoryId?: number;
-  price: number;
-  original: number | null;
-  rating: number;
-  reviews: number;
-  emoji: string;
-  image: string;
-  desc: string;
-}
-
-// Raw shapes returned by CatalogService.API (backend field names, camelCase JSON)
-export interface ApiProduct {
-  productId: number;
-  productName: string;
-  salePrice: number;
-  image: string | null;
-  description: string | null;
-  categoryId: number;
-}
-
-export interface ApiCategory {
-  categoryId: number;
-  categoryName: string;
-  parentCategoryId: number | null;
-}
-
-export interface CartItem { id: number; qty: number; }
-
-export interface Order {
-  id: string;
-  date: string;
-  status: OrderStatus;
-  payment: string;
-  items: { pid: number; qty: number }[];
-}
 
 export interface Review {
   pid: number;

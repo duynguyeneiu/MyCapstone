@@ -5,6 +5,7 @@ export interface Category {
   name: string;
   description: string;
   parentCategoryId: number | null;
+  status: string;
 }
 
 export interface Brand {
@@ -26,6 +27,7 @@ export interface Product {
   brandId: number;
   brand?: string;
   barcode: string;
+  status: string;
   rating?: number;
   reviews?: number;
 }
@@ -203,131 +205,6 @@ export const users: User[] = [
     role: "Customer",
     status: "Inactive",
     createdDate: "2024-05-05",
-  },
-];
-
-// ─── Orders ───────────────────────────────────────────────────────────────────
-
-export const orders: Order[] = [
-  {
-    id: 1001,
-    userId: 2,
-    customerName: "Jessica Lee",
-    date: "2025-05-10",
-    status: "Delivered",
-    address: "12 Rose Ave, Los Angeles, CA",
-    items: [
-      {
-        productId: 1,
-        productName: "Hydrating Rose Serum",
-        quantity: 2,
-        unitPrice: 45.99,
-      },
-      {
-        productId: 6,
-        productName: "Velvet Matte Lipstick",
-        quantity: 1,
-        unitPrice: 22.0,
-      },
-    ],
-    totalAmount: 113.98,
-  },
-  {
-    id: 1002,
-    userId: 3,
-    customerName: "Oliver Smith",
-    date: "2025-05-12",
-    status: "Cancelled",
-    address: "45 Oak Lane, Chicago, IL",
-    items: [
-      {
-        productId: 4,
-        productName: "Miss Dior Eau de Parfum",
-        quantity: 1,
-        unitPrice: 120.0,
-      },
-    ],
-    totalAmount: 120.0,
-  },
-  {
-    id: 1003,
-    userId: 4,
-    customerName: "Emily Brown",
-    date: "2025-05-14",
-    status: "Shipping",
-    address: "78 Maple Dr, Houston, TX",
-    items: [
-      {
-        productId: 2,
-        productName: "Vitamin C Brightening Cream",
-        quantity: 1,
-        unitPrice: 38.5,
-      },
-      {
-        productId: 9,
-        productName: "Keratin Repair Mask",
-        quantity: 2,
-        unitPrice: 28.0,
-      },
-    ],
-    totalAmount: 94.5,
-  },
-  {
-    id: 1004,
-    userId: 5,
-    customerName: "Laura Cute",
-    date: "2025-05-15",
-    status: "Cancelled",
-    address: "22 Pine St, Phoenix, AZ",
-    items: [
-      {
-        productId: 5,
-        productName: "Chanel No. 5 EDP",
-        quantity: 1,
-        unitPrice: 145.0,
-      },
-    ],
-    totalAmount: 145.0,
-  },
-  {
-    id: 1005,
-    userId: 2,
-    customerName: "Jessica Lee",
-    date: "2025-05-18",
-    status: "Pending",
-    address: "12 Rose Ave, Los Angeles, CA",
-    items: [
-      {
-        productId: 7,
-        productName: "HD Foundation SPF 30",
-        quantity: 1,
-        unitPrice: 34.99,
-      },
-      {
-        productId: 10,
-        productName: "Hyaluronic Acid Toner",
-        quantity: 1,
-        unitPrice: 29.99,
-      },
-    ],
-    totalAmount: 64.98,
-  },
-  {
-    id: 1006,
-    userId: 3,
-    customerName: "Oliver Smith",
-    date: "2025-05-20",
-    status: "Pending",
-    address: "45 Oak Lane, Chicago, IL",
-    items: [
-      {
-        productId: 8,
-        productName: "Smoothing Argan Oil Shampoo",
-        quantity: 2,
-        unitPrice: 18.99,
-      },
-    ],
-    totalAmount: 37.98,
   },
 ];
 

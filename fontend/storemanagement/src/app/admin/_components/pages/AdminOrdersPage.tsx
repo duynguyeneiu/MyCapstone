@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { orderService, Order as ApiOrder } from "@/src/services/orderService";
 
 interface Props {
   search: string;
@@ -35,6 +36,7 @@ interface Order {
   phone: string;
   address: string;
   date: string;
+  rawDate: string;
   channel: string;
   payment: string;
   amount: number;
@@ -43,142 +45,23 @@ interface Order {
   items: OrderItem[];
 }
 
-const initialOrders: Order[] = [
-  {
-    id: 1,
-    oid: "#ORD-2584",
-    customer: "Minh Hoang",
-    phone: "0901234567",
-    address: "123 Le Loi, Q1, TP.HCM",
-    date: "24 May 2024 09:32",
-    channel: "Online",
-    payment: "VNPay",
-    amount: 1250000,
+function mapApiOrder(o: ApiOrder): Order {
+  return {
+    id: o.orderId,
+    oid: `#${o.orderNumber}`,
+    customer: o.receiverName,
+    phone: o.receiverPhone,
+    address: o.shippingAddress,
+    date: new Date(o.orderDate).toLocaleString("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }),
+    rawDate: o.orderDate,
+    channel: o.orderType === "ONLINE" ? "Online" : "POS",
+    payment: o.paymentMethod,
+    amount: o.totalAmount,
     discount: 0,
-    status: "Delivered",
-    items: [
-      { name: "Wireless Earbuds Pro", qty: 1, price: 490000 },
-      { name: "USB-C Hub 7-in-1", qty: 1, price: 750000 },
-    ],
-  },
-  {
-    id: 2,
-    oid: "#ORD-2583",
-    customer: "Phuong Linh",
-    phone: "0912345678",
-    address: "45 Nguyen Hue, Q1, TP.HCM",
-    date: "24 May 2024 08:15",
-    channel: "Online",
-    payment: "COD",
-    amount: 850000,
-    discount: 50000,
-    status: "Processing",
-    items: [
-      { name: "Sunscreen SPF50+", qty: 2, price: 195000 },
-      { name: "Face Wash Foam", qty: 1, price: 110000 },
-      { name: "Green Tea 500ml", qty: 3, price: 15000 },
-    ],
-  },
-  {
-    id: 3,
-    oid: "#ORD-2582",
-    customer: "Tran Anh",
-    phone: "0923456789",
-    address: "78 Hai Ba Trung, Q3, TP.HCM",
-    date: "24 May 2024 07:50",
-    channel: "POS",
-    payment: "Cash",
-    amount: 2100000,
-    discount: 100000,
-    status: "Paid",
-    items: [
-      { name: "USB-C Hub 7-in-1", qty: 2, price: 750000 },
-      { name: "Wireless Earbuds Pro", qty: 1, price: 490000 },
-    ],
-  },
-  {
-    id: 4,
-    oid: "#ORD-2581",
-    customer: "Duc Huy",
-    phone: "0934567890",
-    address: "POS Counter",
-    date: "23 May 2024 17:20",
-    channel: "POS",
-    payment: "Cash",
-    amount: 450000,
-    discount: 0,
-    status: "Cancelled",
-    items: [
-      { name: "Dish Soap 750ml", qty: 3, price: 38000 },
-      { name: "Floor Cleaner 1L", qty: 2, price: 58000 },
-    ],
-  },
-  {
-    id: 5,
-    oid: "#ORD-2580",
-    customer: "Lan Anh",
-    phone: "0945678901",
-    address: "22 Vo Thi Sau, Q3, TP.HCM",
-    date: "23 May 2024 15:10",
-    channel: "Online",
-    payment: "VNPay",
-    amount: 980000,
-    discount: 0,
-    status: "Shipped",
-    items: [
-      { name: "Sunscreen SPF50+", qty: 3, price: 195000 },
-      { name: "Face Wash Foam", qty: 3, price: 110000 },
-    ],
-  },
-  {
-    id: 6,
-    oid: "#ORD-2579",
-    customer: "Bao Long",
-    phone: "0956789012",
-    address: "POS Counter",
-    date: "23 May 2024 12:30",
-    channel: "POS",
-    payment: "Cash",
-    amount: 320000,
-    discount: 20000,
-    status: "Paid",
-    items: [
-      { name: "Green Tea 500ml", qty: 10, price: 15000 },
-      { name: "Instant Noodles Pack", qty: 20, price: 7000 },
-    ],
-  },
-  {
-    id: 7,
-    oid: "#ORD-2578",
-    customer: "Thu Hang",
-    phone: "0967890123",
-    address: "55 Dien Bien Phu, Binh Thanh",
-    date: "23 May 2024 10:05",
-    channel: "Online",
-    payment: "COD",
-    amount: 1560000,
-    discount: 0,
-    status: "Pending",
-    items: [
-      { name: "Wireless Earbuds Pro", qty: 2, price: 490000 },
-      { name: "Floor Cleaner 1L", qty: 2, price: 58000 },
-    ],
-  },
-  {
-    id: 8,
-    oid: "#ORD-2577",
-    customer: "Quoc Viet",
-    phone: "0978901234",
-    address: "POS Counter",
-    date: "23 May 2024 09:00",
-    channel: "POS",
-    payment: "Cash",
-    amount: 760000,
-    discount: 0,
-    status: "Refunded",
-    items: [{ name: "USB-C Hub 7-in-1", qty: 1, price: 750000 }],
-  },
-];
+    status: o.orderStatus,
+    items: o.items.map((i) => ({ name: i.productName, qty: i.quantity, price: i.unitPrice })),
+  };
+}
 
 function getInitials(name: string) {
   return name
@@ -189,7 +72,7 @@ function getInitials(name: string) {
 }
 
 export default function AdminOrdersPage({ search }: Props) {
-  const [orders, setOrders] = useState<Order[]>(initialOrders);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [statusFilter, setStatusFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [payFilter, setPayFilter] = useState("");
@@ -199,6 +82,14 @@ export default function AdminOrdersPage({ search }: Props) {
   const [checkAll, setCheckAll] = useState(false);
   const [curPage, setCurPage] = useState(1);
   const PAGE_SIZE = 5;
+
+  const loadOrders = () => {
+    orderService.getAll().then((data) => setOrders(data.map(mapApiOrder))).catch((err) => console.error(err));
+  };
+
+  useEffect(() => {
+    loadOrders();
+  }, []);
 
   const filtered = () =>
     orders.filter(
@@ -220,12 +111,17 @@ export default function AdminOrdersPage({ search }: Props) {
   };
 
   const updateStatus = () => {
-    setOrders((prev) =>
-      prev.map((o) =>
-        o.id === currentOrderId ? { ...o, status: dStatus } : o,
-      ),
-    );
-    setDetailOpen(false);
+    if (currentOrderId == null) return;
+    orderService.updateStatus(currentOrderId, dStatus)
+      .then(() => {
+        setOrders((prev) =>
+          prev.map((o) =>
+            o.id === currentOrderId ? { ...o, status: dStatus } : o,
+          ),
+        );
+        setDetailOpen(false);
+      })
+      .catch((err) => console.error(err));
   };
 
   const data = filtered();
@@ -249,6 +145,12 @@ export default function AdminOrdersPage({ search }: Props) {
     : 0;
   const total = subtotal - (currentOrder?.discount || 0) + vat;
 
+  const today = new Date().toDateString();
+  const ordersToday = orders.filter((o) => new Date(o.rawDate).toDateString() === today).length;
+  const pendingCount = orders.filter((o) => o.status === "Pending" || o.status === "Processing").length;
+  const deliveredCount = orders.filter((o) => o.status === "Delivered" || o.status === "Paid").length;
+  const cancelledCount = orders.filter((o) => o.status === "Cancelled" || o.status === "Refunded").length;
+
   return (
     <>
       <div className="p-8 space-y-6">
@@ -267,7 +169,7 @@ export default function AdminOrdersPage({ search }: Props) {
                     Total Orders Today
                   </p>
                   <h3 className="font-bold" style={{ fontSize: "24px" }}>
-                    47
+                    {ordersToday}
                   </h3>
                 </div>
                 <span
@@ -279,16 +181,10 @@ export default function AdminOrdersPage({ search }: Props) {
               </div>
               <div className="mt-4 flex items-center gap-1">
                 <span
-                  className="material-symbols-outlined"
-                  style={{ color: "#00694c", fontSize: "18px" }}
-                >
-                  trending_up
-                </span>
-                <span
                   className="font-label-sm text-label-sm"
                   style={{ color: "#00694c" }}
                 >
-                  +12% from yesterday
+                  Today
                 </span>
               </div>
             </div>
@@ -305,7 +201,7 @@ export default function AdminOrdersPage({ search }: Props) {
                     Pending
                   </p>
                   <h3 className="font-bold" style={{ fontSize: "24px" }}>
-                    12
+                    {pendingCount}
                   </h3>
                 </div>
                 <span
@@ -337,7 +233,7 @@ export default function AdminOrdersPage({ search }: Props) {
                     Delivered
                   </p>
                   <h3 className="font-bold" style={{ fontSize: "24px" }}>
-                    28
+                    {deliveredCount}
                   </h3>
                 </div>
                 <span
@@ -352,7 +248,7 @@ export default function AdminOrdersPage({ search }: Props) {
                   className="font-label-sm text-label-sm"
                   style={{ color: "#00694c" }}
                 >
-                  Completed today
+                  All time
                 </span>
               </div>
             </div>
@@ -372,7 +268,7 @@ export default function AdminOrdersPage({ search }: Props) {
                     className="font-bold"
                     style={{ fontSize: "24px", color: "#dc2626" }}
                   >
-                    7
+                    {cancelledCount}
                   </h3>
                 </div>
                 <span
@@ -387,7 +283,7 @@ export default function AdminOrdersPage({ search }: Props) {
                   className="font-label-sm text-label-sm"
                   style={{ color: "#dc2626" }}
                 >
-                  Today
+                  All time
                 </span>
               </div>
             </div>

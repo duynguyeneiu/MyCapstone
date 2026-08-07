@@ -1,4 +1,4 @@
-import api from "../lib/api";
+import api from "../lib/userApi";
 
 export interface ApiUser {
   userId: number;

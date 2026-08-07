@@ -1,10 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useRouter } from 'next/navigation';
-import { productService } from '@/src/services/productService';
-import { categoryService } from '@/src/services/categoryService';
-import { Product, Category } from '@/src/lib/data';
 import { fmt } from '../../lib/utils';
 import { useCart } from '../../context/CartContext';
 import BtnTeal from '../ui/BtnTeal';
@@ -12,27 +9,9 @@ import BtnOutline from '../ui/BtnOutline';
 
 export default function CartContent() {
   const router = useRouter();
-  const { cart, updateQty, removeItem } = useCart();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const { cart, totalAmount, updateQty, removeItem } = useCart();
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [productsData, categoriesData] = await Promise.all([
-          productService.getAll(),
-          categoryService.getAll(),
-        ]);
-        setProducts(productsData);
-        setCategories(categoriesData);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-    loadData();
-  }, []);
-
-  const sub = cart.reduce((s, item) => s + (products.find(p => p.id === item.id)?.price ?? 0) * item.qty, 0);
+  const sub = totalAmount;
   const tax = sub * 0.1;
   const total = sub + tax;
 
@@ -52,36 +31,30 @@ export default function CartContent() {
       <h1 className="serif" style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '2rem' }}>Shopping Cart</h1>
       <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          {cart.map(item => {
-            const p = products.find(x => x.id === item.id);
-            if (!p) return null;
-            const categoryName = categories.find(c => c.id === p.categoryId)?.name ?? '';
-            return (
-              <div key={item.id} style={{ background: '#fff', borderRadius: '1.25rem', padding: '1rem', boxShadow: '0 2px 10px rgba(0,0,0,.05)', display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem' }}>
-                <div style={{ width: 64, height: 64, borderRadius: '0.75rem', background: 'var(--teal-xs)', overflow: 'hidden', flexShrink: 0 }}>
-                  <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '6px' }} />
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontWeight: 600, fontSize: '.9rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</p>
-                  <p style={{ fontSize: '.75rem', color: '#94a3b8', marginTop: 2 }}>{categoryName}</p>
-                  <p style={{ fontWeight: 700, fontSize: '.9rem', color: 'var(--teal)', marginTop: 4 }}>{fmt(p.price * item.qty)}</p>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  {([-1, 1] as const).map((d, i) => (
-                    <button key={i} onClick={() => updateQty(p.id, d)}
-                      style={{ width: 30, height: 30, borderRadius: '50%', border: '1.5px solid #cbd5e1', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      {d < 0 ? '−' : '+'}
-                    </button>
-                  ))}
-                  <span style={{ width: 24, textAlign: 'center', fontWeight: 700 }}>{item.qty}</span>
-                </div>
-                <button onClick={() => removeItem(p.id)}
-                  style={{ width: 32, height: 32, borderRadius: '50%', background: '#f1f5f9', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '.85rem' }}>
-                  ✕
-                </button>
+          {cart.map(item => (
+            <div key={item.cartDetailId} style={{ background: '#fff', borderRadius: '1.25rem', padding: '1rem', boxShadow: '0 2px 10px rgba(0,0,0,.05)', display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem' }}>
+              <div style={{ width: 64, height: 64, borderRadius: '0.75rem', background: 'var(--teal-xs)', overflow: 'hidden', flexShrink: 0 }}>
+                <img src={item.image} alt={item.productName} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '6px' }} />
               </div>
-            );
-          })}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontWeight: 600, fontSize: '.9rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.productName}</p>
+                <p style={{ fontWeight: 700, fontSize: '.9rem', color: 'var(--teal)', marginTop: 4 }}>{fmt(item.subtotal)}</p>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                {([-1, 1] as const).map((d, i) => (
+                  <button key={i} onClick={() => updateQty(item.cartDetailId, d)}
+                    style={{ width: 30, height: 30, borderRadius: '50%', border: '1.5px solid #cbd5e1', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {d < 0 ? '−' : '+'}
+                  </button>
+                ))}
+                <span style={{ width: 24, textAlign: 'center', fontWeight: 700 }}>{item.quantity}</span>
+              </div>
+              <button onClick={() => removeItem(item.cartDetailId)}
+                style={{ width: 32, height: 32, borderRadius: '50%', background: '#f1f5f9', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '.85rem' }}>
+                ✕
+              </button>
+            </div>
+          ))}
         </div>
 
         <div style={{ width: 280, flexShrink: 0 }}>
