@@ -14,6 +14,20 @@ var connectionString = builder.Configuration.GetConnectionString("UserServiceDbC
 builder.Services.AddDbContext<UserServiceDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+builder.WebHost.UseUrls(
+    "http://localhost:5002"
+  );
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 // Controllers
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -60,6 +74,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowFrontend");
 
 // Authentication phải đứng trước Authorization
 app.UseAuthentication();

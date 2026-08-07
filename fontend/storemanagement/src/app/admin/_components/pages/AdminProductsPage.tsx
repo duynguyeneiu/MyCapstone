@@ -1,8 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
-import { productService } from "@/src/services/productService";
+import { productService, ApiProductRaw } from "@/src/services/productService";
 import { categoryService } from "@/src/services/categoryService";
-import { Product, Category } from "@/src/lib/data";
+import { Category } from "@/src/lib/data";
+import { getApiErrorMessage } from "@/src/lib/apiError";
 
 interface Props {
   search: string;
@@ -12,6 +13,14 @@ const CAT_COLORS = ["#e0f5ed", "#fff3d6", "#fef3c7", "#ede9fe", "#e0f2fe"];
 const CAT_TEXT_COLORS = ["#004d38", "#7a5c00", "#92400e", "#4c1d95", "#075985"];
 
 const fmt = (n: number) => n.toLocaleString('vi-VN') + '₫';
+
+// Backend stores product.image as a bare filename; the app serves it from /image/.
+// External URLs / already-rooted paths are passed through untouched.
+const IMAGE_PREFIX = "/image/";
+const toDisplayImage = (filename: string | null) =>
+  !filename ? "" : /^https?:\/\//.test(filename) || filename.startsWith("/") ? filename : `${IMAGE_PREFIX}${filename}`;
+const toRawImage = (display: string): string | null =>
+  display.startsWith(IMAGE_PREFIX) ? display.slice(IMAGE_PREFIX.length) : display || null;
 
 interface AdminProduct {
   id: number;
@@ -25,21 +34,23 @@ interface AdminProduct {
   status: string;
   desc: string;
   rating: number;
+  raw: ApiProductRaw;
 }
 
-const toAdmin = (products: Product[]): AdminProduct[] =>
+const toAdmin = (products: ApiProductRaw[]): AdminProduct[] =>
   products.map((p) => ({
-    id: p.id,
-    name: p.name,
-    code: p.barcode || `P${String(p.id).padStart(3, "0")}`,
+    id: p.productId,
+    name: p.productName,
+    code: p.productCode,
     categoryId: p.categoryId,
-    image: p.image,
-    importPrice: Math.round(p.price * 0.72 * 100) / 100,
-    salePrice: p.price,
-    stock: p.quantity,
-    status: p.quantity <= 10 ? "Low Stock" : "Active",
-    desc: p.description,
-    rating: p.rating ?? 0,
+    image: toDisplayImage(p.image),
+    importPrice: p.importPrice,
+    salePrice: p.salePrice,
+    stock: p.quantityInStock,
+    status: p.status,
+    desc: p.description ?? "",
+    rating: 0,
+    raw: p,
   }));
 
 const emptyForm = {
@@ -65,20 +76,22 @@ export default function AdminProductsPage({ search }: Props) {
   const [editId, setEditId] = useState<number | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [saving, setSaving] = useState(false);
+
+  async function loadData() {
+    try {
+      const [productsData, categoriesData] = await Promise.all([
+        productService.getAllRaw(),
+        categoryService.getAll(),
+      ]);
+      setProducts(toAdmin(productsData));
+      setCategories(categoriesData);
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
   useEffect(() => {
-    async function loadData() {
-      try {
-        const [productsData, categoriesData] = await Promise.all([
-          productService.getAll(),
-          categoryService.getAll(),
-        ]);
-        setProducts(toAdmin(productsData));
-        setCategories(categoriesData);
-      } catch (err) {
-        console.error(err);
-      }
-    }
     loadData();
   }, []);
 
@@ -115,7 +128,6 @@ export default function AdminProductsPage({ search }: Props) {
     const map: Record<string, { bg: string; text: string }> = {
       Active: { bg: "#e0f5ed", text: "#004d38" },
       Inactive: { bg: "#e5e7eb", text: "#374151" },
-      "Low Stock": { bg: "#fff3d6", text: "#7a5c00" },
     };
     const c = map[s] ?? map["Inactive"];
     return (
@@ -150,66 +162,83 @@ export default function AdminProductsPage({ search }: Props) {
       importPrice: String(p.importPrice),
       salePrice: String(p.salePrice),
       desc: p.desc,
-      status: p.status === "Low Stock" ? "Active" : p.status,
+      status: p.status,
     });
     setFormOpen(true);
   };
-  const saveProduct = () => {
+  const saveProduct = async () => {
     if (!form.name.trim()) {
       alert("Product name is required");
       return;
     }
     const categoryId = Number(form.categoryId) || 0;
-    if (editId !== null) {
-      setProducts((prev) =>
-        prev.map((p) =>
-          p.id === editId
-            ? {
-                ...p,
-                name: form.name,
-                code: form.code,
-                categoryId: categoryId || p.categoryId,
-                image: form.image || p.image,
-                stock: parseInt(form.stock) || 0,
-                importPrice: parseFloat(form.importPrice) || 0,
-                salePrice: parseFloat(form.salePrice) || 0,
-                status: form.status,
-                desc: form.desc,
-              }
-            : p,
-        ),
-      );
-    } else {
-      const stock = parseInt(form.stock) || 0;
-      setProducts((prev) => [
-        ...prev,
-        {
-          id: Date.now(),
-          name: form.name,
-          code: form.code,
-          categoryId,
-          image: form.image,
-          importPrice: parseFloat(form.importPrice) || 0,
-          salePrice: parseFloat(form.salePrice) || 0,
-          stock,
-          status: stock <= 10 ? "Low Stock" : form.status,
-          desc: form.desc,
-          rating: 0,
-        },
-      ]);
+    if (!categoryId) {
+      alert("Category is required");
+      return;
     }
-    setFormOpen(false);
+    const salePrice = parseFloat(form.salePrice) || 0;
+    if (salePrice <= 0) {
+      alert("Sale price must be greater than 0");
+      return;
+    }
+    setSaving(true);
+    try {
+      if (editId !== null) {
+        const current = products.find((p) => p.id === editId);
+        if (!current) return;
+        await productService.update(editId, {
+          ...current.raw,
+          productName: form.name,
+          categoryId,
+          image: toRawImage(form.image),
+          quantityInStock: parseInt(form.stock) || 0,
+          importPrice: parseFloat(form.importPrice) || 0,
+          salePrice,
+          status: form.status,
+          description: form.desc,
+        });
+      } else {
+        await productService.create({
+          productId: 0,
+          productCode: form.code || `PRD-${Date.now()}`,
+          barcode: null,
+          productName: form.name,
+          unit: "pcs",
+          importPrice: parseFloat(form.importPrice) || 0,
+          salePrice,
+          quantityInStock: parseInt(form.stock) || 0,
+          image: toRawImage(form.image),
+          description: form.desc,
+          categoryId,
+          status: form.status,
+        } as ApiProductRaw);
+      }
+      setFormOpen(false);
+      await loadData();
+    } catch (err) {
+      console.error(err);
+      alert(getApiErrorMessage(err));
+    } finally {
+      setSaving(false);
+    }
   };
   const openDelete = (id: number) => {
     setDeleteId(id);
     setDelOpen(true);
   };
-  const confirmDelete = () => {
-    setProducts((prev) => prev.filter((p) => p.id !== deleteId));
-    setDelOpen(false);
+  const confirmDelete = async () => {
+    if (deleteId === null) return;
+    try {
+      await productService.delete(deleteId);
+      setDelOpen(false);
+      await loadData();
+    } catch (err) {
+      console.error(err);
+      alert(getApiErrorMessage(err));
+    }
   };
 
-  const lowStockCount = products.filter((p) => p.status === "Low Stock").length;
+  const lowStockCount = products.filter((p) => p.stock <= 10).length;
   const activeCount = products.filter((p) => p.status === "Active").length;
 
   return (
@@ -396,7 +425,6 @@ export default function AdminProductsPage({ search }: Props) {
                   <option value="">All Status</option>
                   <option>Active</option>
                   <option>Inactive</option>
-                  <option>Low Stock</option>
                 </select>
               </div>
               <button
@@ -984,10 +1012,11 @@ export default function AdminProductsPage({ search }: Props) {
               </button>
               <button
                 onClick={saveProduct}
+                disabled={saving}
                 className="btn-primary px-4 py-2 rounded-lg text-white font-bold"
-                style={{ fontSize: "14px" }}
+                style={{ fontSize: "14px", opacity: saving ? 0.6 : 1 }}
               >
-                Save Product
+                {saving ? "Saving…" : "Save Product"}
               </button>
             </div>
           </div>

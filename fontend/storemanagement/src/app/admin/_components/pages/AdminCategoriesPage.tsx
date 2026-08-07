@@ -1,8 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
 import { productService } from "@/src/services/productService";
-import { categoryService } from "@/src/services/categoryService";
+import { categoryService, ApiCategoryRaw } from "@/src/services/categoryService";
 import { Product, Category as ApiCategory } from "@/src/lib/data";
+import { getApiErrorMessage } from "@/src/lib/apiError";
 
 interface Props {
   search: string;
@@ -59,7 +60,7 @@ const buildCategories = (apiCategories: ApiCategory[], products: Product[]): Cat
     parent: apiCategories.find((p) => p.id === c.parentCategoryId)?.name ?? "",
     products: products.filter((p) => p.categoryId === c.id).length,
     desc: c.description,
-    status: "Active",
+    status: c.status,
   }));
 
 const emptyForm = { name: "", parent: "", desc: "", status: "Active" };
@@ -76,20 +77,22 @@ export default function AdminCategoriesPage({ search }: Props) {
   const [form, setForm] = useState(emptyForm);
   const [checkAll, setCheckAll] = useState(false);
   const [curPage, setCurPage] = useState(1);
+  const [saving, setSaving] = useState(false);
+
+  async function loadData() {
+    try {
+      const [productsData, categoriesData] = await Promise.all([
+        productService.getAll(),
+        categoryService.getAll(),
+      ]);
+      setProducts(productsData);
+      setCategories(buildCategories(categoriesData, productsData));
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
   useEffect(() => {
-    async function loadData() {
-      try {
-        const [productsData, categoriesData] = await Promise.all([
-          productService.getAll(),
-          categoryService.getAll(),
-        ]);
-        setProducts(productsData);
-        setCategories(buildCategories(categoriesData, productsData));
-      } catch (err) {
-        console.error(err);
-      }
-    }
     loadData();
   }, []);
 
@@ -114,48 +117,59 @@ export default function AdminCategoriesPage({ search }: Props) {
     setFormOpen(true);
   };
 
-  const saveCategory = () => {
+  const saveCategory = async () => {
     if (!form.name.trim()) {
       alert("Category name is required");
       return;
     }
-    if (editId !== null) {
-      setCategories((prev) =>
-        prev.map((c) =>
-          c.id === editId
-            ? {
-                ...c,
-                name: form.name,
-                parent: form.parent,
-                desc: form.desc,
-                status: form.status,
-              }
-            : c,
-        ),
-      );
-    } else {
-      setCategories((prev) => [
-        ...prev,
-        {
-          id: Date.now(),
-          name: form.name,
-          parent: form.parent,
-          products: 0,
-          desc: form.desc,
+    setSaving(true);
+    try {
+      // The "Parent Category" select stores the parent's name (not id) — look
+      // the id up from the currently loaded categories before sending to the API.
+      const parentCategoryId = form.parent
+        ? (categories.find((c) => c.name === form.parent)?.id ?? null)
+        : null;
+      if (editId !== null) {
+        await categoryService.update(editId, {
+          categoryId: editId,
+          categoryName: form.name,
+          description: form.desc,
+          parentCategoryId,
           status: form.status,
-        },
-      ]);
+        } as ApiCategoryRaw);
+      } else {
+        await categoryService.create({
+          categoryId: 0,
+          categoryName: form.name,
+          description: form.desc,
+          parentCategoryId,
+          status: form.status,
+        } as ApiCategoryRaw);
+      }
+      setFormOpen(false);
+      await loadData();
+    } catch (err) {
+      console.error(err);
+      alert(getApiErrorMessage(err));
+    } finally {
+      setSaving(false);
     }
-    setFormOpen(false);
   };
 
   const openDelete = (id: number) => {
     setDeleteId(id);
     setDelOpen(true);
   };
-  const confirmDelete = () => {
-    setCategories((prev) => prev.filter((c) => c.id !== deleteId));
-    setDelOpen(false);
+  const confirmDelete = async () => {
+    if (deleteId === null) return;
+    try {
+      await categoryService.delete(deleteId);
+      setDelOpen(false);
+      await loadData();
+    } catch (err) {
+      console.error(err);
+      alert(getApiErrorMessage(err));
+    }
   };
 
   const data = filtered();
@@ -887,10 +901,11 @@ export default function AdminCategoriesPage({ search }: Props) {
               </button>
               <button
                 onClick={saveCategory}
+                disabled={saving}
                 className="btn-primary px-4 py-2 rounded-lg text-white font-bold"
-                style={{ fontSize: "14px" }}
+                style={{ fontSize: "14px", opacity: saving ? 0.6 : 1 }}
               >
-                Save Category
+                {saving ? "Saving…" : "Save Category"}
               </button>
             </div>
           </div>

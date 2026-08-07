@@ -1,41 +1,51 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { Order, CartItem, PaymentMethod } from '../lib/types';
-import { INITIAL_ORDERS } from '../lib/data';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { orderService, Order } from '@/src/services/orderService';
+import { useAuth } from './AuthContext';
+
+export type { Order };
+
+interface PlaceOrderInput {
+  receiverName: string;
+  receiverPhone: string;
+  shippingAddress: string;
+  paymentMethod: string;
+}
 
 interface OrderContextValue {
   orders: Order[];
-  lastOrderId: string;
-  prevCart: CartItem[];
-  placeOrder: (cart: CartItem[], method: PaymentMethod) => string;
+  lastOrder: Order | null;
+  placeOrder: (input: PlaceOrderInput) => Promise<Order>;
+  refreshOrders: () => void;
 }
 
 const OrderContext = createContext<OrderContextValue | null>(null);
 
 export function OrderProvider({ children }: { children: React.ReactNode }) {
-  const [orders, setOrders] = useState<Order[]>(INITIAL_ORDERS);
-  const [lastOrderId, setLastOrderId] = useState('#AM00000');
-  const [prevCart, setPrevCart] = useState<CartItem[]>([]);
+  const { user } = useAuth();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [lastOrder, setLastOrder] = useState<Order | null>(null);
 
-  const placeOrder = useCallback((cart: CartItem[], method: PaymentMethod): string => {
-    const oid = '#AM' + Math.floor(10000 + Math.random() * 90000);
-    const methodLabel = { vnpay: 'VNPay', cod: 'COD' }[method];
-    const newOrder: Order = {
-      id: oid,
-      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-      status: 'processing',
-      payment: methodLabel,
-      items: cart.map(i => ({ pid: i.id, qty: i.qty })),
-    };
-    setOrders(o => [newOrder, ...o]);
-    setPrevCart([...cart]);
-    setLastOrderId(oid);
-    return oid;
-  }, []);
+  const refreshOrders = useCallback(() => {
+    const request = user ? orderService.getByUser(Number(user.id)) : Promise.resolve<Order[]>([]);
+    request.then(setOrders).catch(err => console.error(err));
+  }, [user]);
+
+  useEffect(() => {
+    refreshOrders();
+  }, [refreshOrders]);
+
+  const placeOrder = useCallback(async (input: PlaceOrderInput): Promise<Order> => {
+    if (!user) throw new Error('Not authenticated');
+    const order = await orderService.checkout({ userId: Number(user.id), ...input });
+    setLastOrder(order);
+    setOrders(o => [order, ...o]);
+    return order;
+  }, [user]);
 
   return (
-    <OrderContext.Provider value={{ orders, lastOrderId, prevCart, placeOrder }}>
+    <OrderContext.Provider value={{ orders, lastOrder, placeOrder, refreshOrders }}>
       {children}
     </OrderContext.Provider>
   );

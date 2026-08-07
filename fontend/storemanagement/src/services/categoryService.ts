@@ -6,6 +6,15 @@ interface ApiCategory {
   categoryName: string;
   description: string | null;
   parentCategoryId: number | null;
+  status: string;
+}
+
+interface PagedResult<T> {
+  items: T[];
+  totalItems: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
 }
 
 export interface ApiCategoryRaw extends ApiCategory {
@@ -19,12 +28,32 @@ const mapCategory = (c: ApiCategory): Category => ({
   name: c.categoryName,
   description: c.description ?? "",
   parentCategoryId: c.parentCategoryId,
+  status: c.status,
 });
+
+export interface PagedCategories {
+  items: Category[];
+  totalItems: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
 
 export const categoryService = {
   async getAll(): Promise<Category[]> {
-    const res = await api.get<ApiCategory[]>("/categories");
-    return res.data.map(mapCategory);
+    const res = await api.get<PagedResult<ApiCategory>>("/categories", {
+      params: { page: 1, pageSize: 1000 },
+    });
+    return res.data.items.map(mapCategory);
+  },
+
+  // Server-side pagination/search — use this over getAll() when the list
+  // can grow large and you don't need every row loaded client-side at once.
+  async getPaged(params: { page?: number; pageSize?: number; keyword?: string } = {}): Promise<PagedCategories> {
+    const res = await api.get<PagedResult<ApiCategory>>("/categories", {
+      params: { page: 1, pageSize: 10, ...params },
+    });
+    return { ...res.data, items: res.data.items.map(mapCategory) };
   },
 
   async getById(id: number): Promise<Category> {

@@ -1,55 +1,61 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { productService } from '@/src/services/productService';
-import { categoryService } from '@/src/services/categoryService';
-import { Product, Category } from '@/src/lib/data';
+import { getPageNums } from '../../lib/utils';
 import ProductCard from '../ui/ProductCard';
 import BtnTeal from '../ui/BtnTeal';
 import Badge from '../ui/Badge';
+import { productService } from '@/src/services/productService';
+import { Product } from '@/src/lib/data';
 
 interface SearchContentProps {
   initialTerm: string;
 }
 
-function matchesTerm(text: string, term: string): boolean {
-  // Escape regex special chars, then require word-boundary at start of match
-  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return new RegExp(`\\b${escaped}`, 'i').test(text);
-}
+const PAGE_SIZE = 12;
 
 export default function SearchContent({ initialTerm }: SearchContentProps) {
   const router = useRouter();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [page, setPage] = useState(1);
+  const [results, setResults] = useState<Product[]>([]);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
+
+  // Reset to page 1 whenever the search term changes — adjusting state
+  // during render avoids an extra cascading effect render.
+  const [prevTerm, setPrevTerm] = useState(initialTerm);
+  if (prevTerm !== initialTerm) {
+    setPrevTerm(initialTerm);
+    setPage(1);
+  }
 
   useEffect(() => {
-    async function loadData() {
-      try {
-        const [productsData, categoriesData] = await Promise.all([
-          productService.getAll(),
-          categoryService.getAll(),
-        ]);
-        setProducts(productsData);
-        setCategories(categoriesData);
-      } catch (err) {
-        console.error(err);
-      }
+    if (!initialTerm) {
+      setResults([]);
+      setTotalItems(0);
+      setTotalPages(1);
+      return;
     }
-    loadData();
-  }, []);
-
-  const results = initialTerm
-    ? products.filter(p => {
-        const categoryName = categories.find(c => c.id === p.categoryId)?.name ?? '';
-        return (
-          matchesTerm(p.name, initialTerm) ||
-          matchesTerm(p.description, initialTerm) ||
-          matchesTerm(categoryName, initialTerm)
-        );
+    let cancelled = false;
+    setLoading(true);
+    productService
+      .getPaged({ keyword: initialTerm, page, pageSize: PAGE_SIZE })
+      .then((res) => {
+        if (cancelled) return;
+        setResults(res.items);
+        setTotalItems(res.totalItems);
+        setTotalPages(Math.max(1, res.totalPages));
       })
-    : [];
+      .catch((err) => console.error(err))
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [initialTerm, page]);
 
   return (
     <div style={{ maxWidth: 1280, margin: '0 auto', padding: '2rem 1.5rem' }}>
@@ -58,7 +64,7 @@ export default function SearchContent({ initialTerm }: SearchContentProps) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
           <h2 className="serif" style={{ fontSize: '1.75rem', fontWeight: 700 }}>Search Results</h2>
           {initialTerm && (
-            <Badge>{results.length} result{results.length !== 1 ? 's' : ''}</Badge>
+            <Badge>{totalItems} result{totalItems !== 1 ? 's' : ''}</Badge>
           )}
         </div>
         {initialTerm && (
@@ -81,7 +87,7 @@ export default function SearchContent({ initialTerm }: SearchContentProps) {
       )}
 
       {/* No results */}
-      {initialTerm && results.length === 0 && (
+      {initialTerm && !loading && results.length === 0 && (
         <div style={{ textAlign: 'center', padding: '5rem 1rem' }}>
           <span style={{ fontSize: '4rem' }}>🔍</span>
           <p className="serif" style={{ fontSize: '1.5rem', fontWeight: 700, marginTop: '1rem', marginBottom: '0.5rem' }}>
@@ -96,15 +102,72 @@ export default function SearchContent({ initialTerm }: SearchContentProps) {
 
       {/* Results grid */}
       {results.length > 0 && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(180px,1fr))', gap: '1.25rem' }}>
-          {results.map(p => (
-            <ProductCard
-              key={p.id}
-              p={p}
-              categoryName={categories.find(c => c.id === p.categoryId)?.name ?? ''}
-            />
-          ))}
-        </div>
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(180px,1fr))', gap: '1.25rem' }}>
+            {results.map(p => (
+              <ProductCard key={p.id} p={p} categoryName={p.category ?? ''} />
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '2rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  style={{
+                    width: 34, height: 34, borderRadius: '0.5rem', border: '1.5px solid',
+                    borderColor: page === 1 ? '#e2e8f0' : 'var(--amber-border)',
+                    background: page === 1 ? '#f8fafc' : 'var(--amber-xs)',
+                    color: page === 1 ? '#cbd5e1' : 'var(--amber-dk)',
+                    cursor: page === 1 ? 'default' : 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>chevron_left</span>
+                </button>
+
+                {getPageNums(page, totalPages).map((n, i) =>
+                  n === '…' ? (
+                    <span key={`e${i}`} style={{ width: 34, textAlign: 'center', color: '#94a3b8', fontSize: '.875rem' }}>…</span>
+                  ) : (
+                    <button
+                      key={n}
+                      onClick={() => setPage(n as number)}
+                      style={{
+                        width: 34, height: 34, borderRadius: '0.5rem', border: '1.5px solid',
+                        borderColor: page === n ? 'var(--teal)' : 'var(--amber-border)',
+                        background: page === n ? 'var(--teal)' : 'var(--amber-xs)',
+                        color: page === n ? '#fff' : 'var(--amber-dk)',
+                        fontWeight: page === n ? 700 : 500,
+                        fontSize: '.875rem',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {n}
+                    </button>
+                  ),
+                )}
+
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  style={{
+                    width: 34, height: 34, borderRadius: '0.5rem', border: '1.5px solid',
+                    borderColor: page === totalPages ? '#e2e8f0' : 'var(--amber-border)',
+                    background: page === totalPages ? '#f8fafc' : 'var(--amber-xs)',
+                    color: page === totalPages ? '#cbd5e1' : 'var(--amber-dk)',
+                    cursor: page === totalPages ? 'default' : 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>chevron_right</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

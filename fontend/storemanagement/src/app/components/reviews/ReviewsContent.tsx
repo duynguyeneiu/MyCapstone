@@ -102,8 +102,8 @@ export default function ReviewsContent() {
   // 1. Tất cả sản phẩm từ đơn hàng ĐÃ GIAO (status = delivered)
   const deliveredPids = [...new Set(
     orders
-      .filter(o => o.status === 'delivered')
-      .flatMap(o => o.items.map(i => i.pid))
+      .filter(o => ['delivered', 'paid'].includes(o.orderStatus.toLowerCase()))
+      .flatMap(o => o.items.map(i => i.productId))
   )];
 
   // 2. Sản phẩm đã được review (không được review lại)

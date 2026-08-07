@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { fmt } from "../../lib/utils";
-import {  SortMode } from "../../lib/types";
+import { getPageNums } from "../../lib/utils";
 import ProductCard from "../ui/ProductCard";
 import { productService } from "@/src/services/productService";
 import { categoryService } from "@/src/services/categoryService";
@@ -13,90 +12,95 @@ interface ShopContentProps {
   initCategory?: string | "all";
   initSubcategory?: string | "all";
 }
-function getPageNums(current: number, total: number): (number | "…")[] {
-  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
-  if (current <= 4) return [1, 2, 3, 4, 5, "…", total];
-  if (current >= total - 3)
-    return [1, "…", total - 4, total - 3, total - 2, total - 1, total];
-  return [1, "…", current - 1, current, current + 1, "…", total];
-}
+
+const ITEMS_PER_PAGE = 12;
 
 export default function ShopContent({
   initCategory = "all",
   initSubcategory = "all",
 }: ShopContentProps) {
   const router = useRouter();
-  const [maxPrice, setMaxPrice] = useState(200000);
-  const [minRating, setMinRating] = useState(0);
-  const [sort, setSort] = useState<SortMode>("default");
   const [page, setPage] = useState(1);
   const [products, setProducts] = useState<Product[]>([]);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<Category[]>([]);
-
-  async function loadProducts() {
-    try {
-      const data = await productService.getAll();
-      setProducts(data);
-    } catch (err) {
-      console.error(err);
-    }
-  }
-  async function loadCategories() {
-    try {
-      const data = await categoryService.getAll();
-      setCategories(data);
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  const ITEMS_PER_PAGE = 12;
-
-  // Reset to page 1 whenever URL-driven filters change
-  useEffect(() => {
-    const fetchData = async () => {
-      await loadProducts();
-      await loadCategories();
-    };
-
-    fetchData();
-  }, []);
+  const [categoriesLoaded, setCategoriesLoaded] = useState(false);
 
   // category and subcategory are URL-driven — read directly from props
   const category = initCategory;
   const subcategory = initSubcategory;
 
-  const subs =
-    category !== "all"
-      ? categories.filter((c) => c.parentCategoryId === Number(category))
-      : [];
+  useEffect(() => {
+    categoryService
+      .getAll()
+      .then(setCategories)
+      .catch((err) => console.error(err))
+      .finally(() => setCategoriesLoaded(true));
+  }, []);
 
-  const childCategoryIds = subs.map((c) => c.id);
+  // Reset to page 1 whenever the URL-driven category/subcategory changes.
+  // Adjusting state during render (rather than in an effect) avoids an
+  // extra cascading render — see https://react.dev/learn/you-might-not-need-an-effect
+  const [prevFilters, setPrevFilters] = useState({ category, subcategory });
+  if (prevFilters.category !== category || prevFilters.subcategory !== subcategory) {
+    setPrevFilters({ category, subcategory });
+    setPage(1);
+  }
 
-  const filtered = products
-    .filter(
-      (p) =>
-        (category === "all" || childCategoryIds.includes(p.categoryId)) &&
-        (subcategory === "all" || p.categoryId === Number(subcategory)) &&
-        p.price <= maxPrice &&
-        (p.rating ?? 0) >= minRating,
-    )
-    .sort((a, b) =>
-      sort === "price-asc"
-        ? a.price - b.price
-        : sort === "price-desc"
-          ? b.price - a.price
-          : sort === "rating"
-            ? (b.rating ?? 0) - (a.rating ?? 0)
-            : 0,
-    );
+  useEffect(() => {
+    if (!categoriesLoaded) return;
+    let cancelled = false;
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
-  const safePage = Math.min(page, totalPages);
-  const paginated = filtered.slice(
-    (safePage - 1) * ITEMS_PER_PAGE,
-    safePage * ITEMS_PER_PAGE,
-  );
+    async function loadProducts() {
+      setLoading(true);
+      try {
+        if (subcategory !== "all") {
+          const result = await productService.getByCategory(Number(subcategory), {
+            page,
+            pageSize: ITEMS_PER_PAGE,
+          });
+          if (cancelled) return;
+          setProducts(result.items);
+          setTotalItems(result.totalItems);
+          setTotalPages(Math.max(1, result.totalPages));
+        } else if (category !== "all") {
+          // Backend only scopes by a single category id — a top-level category
+          // groups several leaf categories that products are actually assigned
+          // to, so roll the parent + its children up client-side.
+          const childIds = categories
+            .filter((c) => c.parentCategoryId === Number(category))
+            .map((c) => c.id);
+          const ids = [Number(category), ...childIds];
+          const pages = await Promise.all(
+            ids.map((id) => productService.getByCategory(id, { page: 1, pageSize: 1000 })),
+          );
+          if (cancelled) return;
+          const merged = pages.flatMap((r) => r.items).sort((a, b) => a.name.localeCompare(b.name));
+          const start = (page - 1) * ITEMS_PER_PAGE;
+          setProducts(merged.slice(start, start + ITEMS_PER_PAGE));
+          setTotalItems(merged.length);
+          setTotalPages(Math.max(1, Math.ceil(merged.length / ITEMS_PER_PAGE)));
+        } else {
+          const result = await productService.getPaged({ page, pageSize: ITEMS_PER_PAGE });
+          if (cancelled) return;
+          setProducts(result.items);
+          setTotalItems(result.totalItems);
+          setTotalPages(Math.max(1, result.totalPages));
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    loadProducts();
+    return () => {
+      cancelled = true;
+    };
+  }, [category, subcategory, page, categories, categoriesLoaded]);
 
   const currentCategory = categories.find((c) => c.id === Number(category));
 
@@ -138,7 +142,7 @@ export default function ShopContent({
             </h3>
 
             {/* Category + Subcategory — hierarchical */}
-            <div style={{ marginBottom: "1.5rem" }}>
+            <div>
               <p
                 style={{
                   fontWeight: 600,
@@ -255,99 +259,6 @@ export default function ShopContent({
                   );
                 })}
             </div>
-
-            {/* Max Price */}
-            <div style={{ marginBottom: "1.5rem" }}>
-              <p
-                style={{
-                  fontWeight: 600,
-                  fontSize: ".875rem",
-                  color: "#374151",
-                  marginBottom: "0.5rem",
-                }}
-              >
-                Max Price:{" "}
-                <span style={{ color: "var(--teal)", fontWeight: 700 }}>
-                  {fmt(maxPrice)}
-                </span>
-              </p>
-              <input
-                type="range"
-                min={5000}
-                max={200000}
-                step={5000}
-                value={maxPrice}
-                onChange={(e) => {
-                  setMaxPrice(+e.target.value);
-                  setPage(1);
-                }}
-              />
-            </div>
-
-            {/* Min Rating */}
-            <div style={{ marginBottom: "1.25rem" }}>
-              <p
-                style={{
-                  fontWeight: 600,
-                  fontSize: ".875rem",
-                  color: "#374151",
-                  marginBottom: "0.5rem",
-                }}
-              >
-                Min Rating
-              </p>
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                {([0, 4, 4.5] as const).map((r) => (
-                  <button
-                    key={r}
-                    onClick={() => {
-                      setMinRating(r);
-                      setPage(1);
-                    }}
-                    style={{
-                      padding: ".3rem .75rem",
-                      borderRadius: 9999,
-                      border: "1.5px solid",
-                      borderColor: minRating === r ? "var(--teal)" : "#e2e8f0",
-                      background: minRating === r ? "var(--teal-xs)" : "#fff",
-                      color: minRating === r ? "var(--teal-dk)" : "#64748b",
-                      fontSize: ".75rem",
-                      fontWeight: 500,
-                      cursor: "pointer",
-                    }}
-                  >
-                    {r === 0 ? "All" : `${r}+ ★`}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Sort By */}
-            <div>
-              <p
-                style={{
-                  fontWeight: 600,
-                  fontSize: ".875rem",
-                  color: "#374151",
-                  marginBottom: "0.5rem",
-                }}
-              >
-                Sort By
-              </p>
-              <select
-                value={sort}
-                onChange={(e) => {
-                  setSort(e.target.value as SortMode);
-                  setPage(1);
-                }}
-                style={{ fontSize: ".875rem" }}
-              >
-                <option value="default">Default</option>
-                <option value="price-asc">Price: Low → High</option>
-                <option value="price-desc">Price: High → Low</option>
-                <option value="rating">Best Rated</option>
-              </select>
-            </div>
           </div>
         </aside>
 
@@ -368,10 +279,10 @@ export default function ShopContent({
               {heading}
             </h2>
             <span style={{ color: "#64748b", fontSize: ".875rem" }}>
-              {filtered.length} product{filtered.length !== 1 ? "s" : ""}
+              {totalItems} product{totalItems !== 1 ? "s" : ""}
             </span>
           </div>
-          {filtered.length === 0 ? (
+          {!loading && products.length === 0 ? (
             <p
               style={{ color: "#94a3b8", textAlign: "center", padding: "4rem" }}
             >
@@ -386,15 +297,8 @@ export default function ShopContent({
                   gap: "1.25rem",
                 }}
               >
-                {paginated.map((p) => (
-                  <ProductCard
-                    key={p.id}
-                    p={p}
-                    categoryName={
-                      categories.find((c) => c.id === p.categoryId)
-                        ?.name ?? ""
-                    }
-                  />
+                {products.map((p) => (
+                  <ProductCard key={p.id} p={p} categoryName={p.category ?? ""} />
                 ))}
               </div>
 
@@ -418,18 +322,18 @@ export default function ShopContent({
                     {/* Prev */}
                     <button
                       onClick={() => setPage((p) => Math.max(1, p - 1))}
-                      disabled={safePage === 1}
+                      disabled={page === 1}
                       style={{
                         width: 34,
                         height: 34,
                         borderRadius: "0.5rem",
                         border: "1.5px solid",
                         borderColor:
-                          safePage === 1 ? "#e2e8f0" : "var(--amber-border)",
+                          page === 1 ? "#e2e8f0" : "var(--amber-border)",
                         background:
-                          safePage === 1 ? "#f8fafc" : "var(--amber-xs)",
-                        color: safePage === 1 ? "#cbd5e1" : "var(--amber-dk)",
-                        cursor: safePage === 1 ? "default" : "pointer",
+                          page === 1 ? "#f8fafc" : "var(--amber-xs)",
+                        color: page === 1 ? "#cbd5e1" : "var(--amber-dk)",
+                        cursor: page === 1 ? "default" : "pointer",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -444,7 +348,7 @@ export default function ShopContent({
                     </button>
 
                     {/* Page numbers */}
-                    {getPageNums(safePage, totalPages).map((n, i) =>
+                    {getPageNums(page, totalPages).map((n, i) =>
                       n === "…" ? (
                         <span
                           key={`e${i}`}
@@ -467,15 +371,15 @@ export default function ShopContent({
                             borderRadius: "0.5rem",
                             border: "1.5px solid",
                             borderColor:
-                              safePage === n
+                              page === n
                                 ? "var(--teal)"
                                 : "var(--amber-border)",
                             background:
-                              safePage === n
+                              page === n
                                 ? "var(--teal)"
                                 : "var(--amber-xs)",
-                            color: safePage === n ? "#fff" : "var(--amber-dk)",
-                            fontWeight: safePage === n ? 700 : 500,
+                            color: page === n ? "#fff" : "var(--amber-dk)",
+                            fontWeight: page === n ? 700 : 500,
                             fontSize: ".875rem",
                             cursor: "pointer",
                           }}
@@ -490,25 +394,25 @@ export default function ShopContent({
                       onClick={() =>
                         setPage((p) => Math.min(totalPages, p + 1))
                       }
-                      disabled={safePage === totalPages}
+                      disabled={page === totalPages}
                       style={{
                         width: 34,
                         height: 34,
                         borderRadius: "0.5rem",
                         border: "1.5px solid",
                         borderColor:
-                          safePage === totalPages
+                          page === totalPages
                             ? "#e2e8f0"
                             : "var(--amber-border)",
                         background:
-                          safePage === totalPages
+                          page === totalPages
                             ? "#f8fafc"
                             : "var(--amber-xs)",
                         color:
-                          safePage === totalPages
+                          page === totalPages
                             ? "#cbd5e1"
                             : "var(--amber-dk)",
-                        cursor: safePage === totalPages ? "default" : "pointer",
+                        cursor: page === totalPages ? "default" : "pointer",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",

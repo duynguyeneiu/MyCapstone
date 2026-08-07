@@ -2,10 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { productService } from '@/src/services/productService';
-import { Product } from '@/src/lib/data';
 import { fmt } from '../../lib/utils';
-import { useOrders } from '../../context/OrderContext';
+import { orderService, Order } from '@/src/services/orderService';
 import BtnTeal from '../ui/BtnTeal';
 
 interface SuccessContentProps {
@@ -14,15 +12,16 @@ interface SuccessContentProps {
 
 export default function SuccessContent({ orderId }: SuccessContentProps) {
   const router = useRouter();
-  const { prevCart } = useOrders();
-  const [products, setProducts] = useState<Product[]>([]);
+  const [order, setOrder] = useState<Order | null>(null);
 
   useEffect(() => {
-    productService.getAll().then(setProducts).catch(err => console.error(err));
-  }, []);
+    const id = Number(orderId);
+    if (!id) return;
+    orderService.getById(id).then(setOrder).catch(err => console.error(err));
+  }, [orderId]);
 
-  const sub = prevCart.reduce((s, item) => s + (products.find(p => p.id === item.id)?.price ?? 0) * item.qty, 0);
-  const total = sub * 1.1;
+  const sub = order?.items.reduce((s, item) => s + item.subtotal, 0) ?? 0;
+  const total = order?.totalAmount ?? sub * 1.1;
 
   return (
     <div style={{ maxWidth: 520, margin: '0 auto', padding: '5rem 1.5rem', textAlign: 'center' }}>
@@ -32,27 +31,18 @@ export default function SuccessContent({ orderId }: SuccessContentProps) {
       <h1 className="serif" style={{ fontSize: '2.5rem', fontWeight: 700, marginBottom: '0.75rem' }}>Order Placed!</h1>
       <p style={{ color: '#64748b', marginBottom: '0.5rem' }}>Thank you for your purchase.</p>
       <p style={{ color: '#64748b', marginBottom: '2rem' }}>
-        Your order <strong style={{ color: '#1e293b' }}>{orderId}</strong> is being processed and will be delivered within 24 hours.
+        Your order <strong style={{ color: '#1e293b' }}>{order ? `#${order.orderNumber}` : `#${orderId}`}</strong> is being processed and will be delivered within 24 hours.
       </p>
 
-      {prevCart.length > 0 && (
+      {order && order.items.length > 0 && (
         <div style={{ background: '#fff', borderRadius: '1.25rem', padding: '1.5rem', boxShadow: '0 2px 12px rgba(0,0,0,.06)', textAlign: 'left', marginBottom: '2rem' }}>
           <p style={{ fontWeight: 600, fontSize: '.9rem', marginBottom: '0.75rem' }}>Order Details</p>
-          {prevCart.map(item => {
-            const p = products.find(x => x.id === item.id);
-            if (!p) return null;
-            return (
-              <div key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '.875rem', marginBottom: '0.4rem', gap: 8 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
-                  <div style={{ width: 32, height: 32, borderRadius: '0.4rem', background: 'var(--teal-xs)', overflow: 'hidden', flexShrink: 0 }}>
-                    <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 3 }} />
-                  </div>
-                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name} ×{item.qty}</span>
-                </div>
-                <span style={{ fontWeight: 600 }}>{fmt(p.price * item.qty)}</span>
-              </div>
-            );
-          })}
+          {order.items.map(item => (
+            <div key={item.productId} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '.875rem', marginBottom: '0.4rem', gap: 8 }}>
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.productName} ×{item.quantity}</span>
+              <span style={{ fontWeight: 600 }}>{fmt(item.subtotal)}</span>
+            </div>
+          ))}
           <div style={{ borderTop: '1px solid #f1f5f9', marginTop: '0.75rem', paddingTop: '0.75rem', display: 'flex', justifyContent: 'space-between', fontWeight: 700 }}>
             <span>Total Paid</span>
             <span style={{ color: 'var(--teal)' }}>{fmt(total)}</span>

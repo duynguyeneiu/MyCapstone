@@ -1,42 +1,31 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { CartItem } from '../lib/types';
-import { productService } from '@/src/services/productService';
-import { Product } from '@/src/lib/data';
+import { cartService, CartItem } from '@/src/services/cartService';
+import { useAuth } from './AuthContext';
+
+export type { CartItem };
 
 interface CartContextValue {
   cart: CartItem[];
   cartCount: number;
+  totalAmount: number;
   toast: string | null;
-  addToCart: (id: number) => void;
-  updateQty: (id: number, delta: number) => void;
-  removeItem: (id: number) => void;
+  addToCart: (productId: number, quantity?: number) => void;
+  updateQty: (cartDetailId: number, delta: number) => void;
+  removeItem: (cartDetailId: number) => void;
   clearCart: () => void;
+  refreshCart: () => void;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [totalAmount, setTotalAmount] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
   const toastRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [products, setProducts] = useState<Product[]>([]);
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('aq-cart');
-      if (saved) setCart(JSON.parse(saved));
-    } catch {}
-  }, []);
-
-  useEffect(() => {
-    productService.getAll().then(setProducts).catch(err => console.error(err));
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('aq-cart', JSON.stringify(cart));
-  }, [cart]);
 
   const showToast = useCallback((msg: string) => {
     setToast(msg);
@@ -44,29 +33,64 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     toastRef.current = setTimeout(() => setToast(null), 2400);
   }, []);
 
-  const addToCart = useCallback((id: number) => {
-    setCart(c => {
-      const existing = c.find(i => i.id === id);
-      if (existing) return c.map(i => i.id === id ? { ...i, qty: i.qty + 1 } : i);
-      return [...c, { id, qty: 1 }];
-    });
-    showToast(`${products.find(p => p.id === id)?.name} added!`);
-  }, [showToast, products]);
-
-  const updateQty = useCallback((id: number, delta: number) => {
-    setCart(c => c.map(i => i.id === id ? { ...i, qty: i.qty + delta } : i).filter(i => i.qty > 0));
+  const applyCart = useCallback((data: { items: CartItem[]; totalAmount: number }) => {
+    setCart(data.items);
+    setTotalAmount(data.totalAmount);
   }, []);
 
-  const removeItem = useCallback((id: number) => {
-    setCart(c => c.filter(i => i.id !== id));
-  }, []);
+  const refreshCart = useCallback(() => {
+    const request = user
+      ? cartService.getCart(Number(user.id))
+      : Promise.resolve({ items: [] as CartItem[], totalAmount: 0 });
+    request.then(applyCart).catch(err => console.error(err));
+  }, [user, applyCart]);
 
-  const clearCart = useCallback(() => setCart([]), []);
+  useEffect(() => {
+    refreshCart();
+  }, [refreshCart]);
 
-  const cartCount = cart.reduce((s, i) => s + i.qty, 0);
+  const addToCart = useCallback((productId: number, quantity: number = 1) => {
+    if (!user) {
+      showToast('Please sign in to add items to your cart');
+      return;
+    }
+    cartService.addItem(Number(user.id), productId, quantity)
+      .then(data => {
+        applyCart(data);
+        const item = data.items.find(i => i.productId === productId);
+        showToast(`${item?.productName ?? 'Item'} added!`);
+      })
+      .catch(err => {
+        console.error(err);
+        showToast('Could not add item to cart');
+      });
+  }, [user, applyCart, showToast]);
+
+  const updateQty = useCallback((cartDetailId: number, delta: number) => {
+    const item = cart.find(i => i.cartDetailId === cartDetailId);
+    if (!item) return;
+    const newQty = item.quantity + delta;
+    const request = newQty <= 0
+      ? cartService.removeItem(cartDetailId)
+      : cartService.updateItem(cartDetailId, newQty);
+    request.then(applyCart).catch(err => console.error(err));
+  }, [cart, applyCart]);
+
+  const removeItem = useCallback((cartDetailId: number) => {
+    cartService.removeItem(cartDetailId).then(applyCart).catch(err => console.error(err));
+  }, [applyCart]);
+
+  const clearCart = useCallback(() => {
+    if (!user) return;
+    cartService.clearCart(Number(user.id))
+      .then(() => { setCart([]); setTotalAmount(0); })
+      .catch(err => console.error(err));
+  }, [user]);
+
+  const cartCount = cart.reduce((s, i) => s + i.quantity, 0);
 
   return (
-    <CartContext.Provider value={{ cart, cartCount, toast, addToCart, updateQty, removeItem, clearCart }}>
+    <CartContext.Provider value={{ cart, cartCount, totalAmount, toast, addToCart, updateQty, removeItem, clearCart, refreshCart }}>
       {children}
     </CartContext.Provider>
   );
