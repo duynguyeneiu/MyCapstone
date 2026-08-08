@@ -7,10 +7,6 @@ namespace CatalogService.API.Interfaces
     {
 
 
-        Task<PagedResult<ProductDto>> GetPagedAsync(
-    int page,
-    int pageSize,
-    string? keyword);
 
         Task<ProductDto> GetByIdAsync(int productId);
 
@@ -26,5 +22,21 @@ namespace CatalogService.API.Interfaces
         Task DeleteAsync(int productId);
 
         Task UpdateStockAsync(int productId, int quantity);
+        Task<object> GetPagedAsync(
+    int page,
+    int pageSize,
+    string? keyword = null,
+    string? status = null,
+    int? categoryId = null,
+    decimal? minPrice = null,
+    decimal? maxPrice = null,
+    string? sortBy = null);
+
+
+        Task<IEnumerable<ProductDto>> GetRelatedProductsAsync(
+    int productId);
+
+
+
     }
 }
