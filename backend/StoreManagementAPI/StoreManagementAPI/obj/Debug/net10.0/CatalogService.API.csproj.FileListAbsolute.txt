@@ -324,3 +324,4 @@ D:\Tài liệu Đồ Án tốt nghiệp\StoreManagement\MyCapstone\backend\Store
 D:\Tài liệu Đồ Án tốt nghiệp\StoreManagement\MyCapstone\backend\StoreManagementAPI\StoreManagementAPI\obj\Debug\net10.0\CatalogService.API.pdb
 D:\Tài liệu Đồ Án tốt nghiệp\StoreManagement\MyCapstone\backend\StoreManagementAPI\StoreManagementAPI\obj\Debug\net10.0\CatalogService.API.genruntimeconfig.cache
 D:\Tài liệu Đồ Án tốt nghiệp\StoreManagement\MyCapstone\backend\StoreManagementAPI\StoreManagementAPI\obj\Debug\net10.0\ref\CatalogService.API.dll
+D:\Tài liệu Đồ Án tốt nghiệp\StoreManagement\MyCapstone\backend\StoreManagementAPI\StoreManagementAPI\bin\Debug\net10.0\CatalogService.API.staticwebassets.runtime.json
