@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using UserService.API.Data;
 using UserService.API.Helpers;
+using UserService.API.Interfaces;
 using UserService.API.Services;
-using LoginRequest = UserService.API.Models.DTOs.LoginRequest;
+using LoginRequest = UserService.API.DTOs.LoginRequest;
 
 namespace UserService.API.Controllers
 {
@@ -14,56 +16,28 @@ namespace UserService.API.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly UserServiceDbContext _context;
-        private readonly IConfiguration _configuration;
-        private readonly JwtService _jwtService;
+        private readonly IAuthService _authService;
 
-        public AuthController(UserServiceDbContext context, IConfiguration configuration, JwtService jwtService)
+        public AuthController(IAuthService authService)
         {
-            _context = context;
-            _configuration = configuration;
-            _jwtService = jwtService;
+            _authService = authService;
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginRequest request)
+        public async Task<IActionResult> Login(
+            [FromBody] LoginRequest request)
         {
-            var user = await _context.Users
-     .Include(u => u.Role)
-     .FirstOrDefaultAsync(u => u.Phone == request.Phone);
+            var result = await _authService.LoginAsync(request);
 
-            if (user == null)
+            if (result == null)
             {
-                return Unauthorized("Sai số điện thoại hoặc mật khẩu.");
+                return Unauthorized(
+                    "Sai số điện thoại hoặc mật khẩu."
+                );
             }
 
-            if (!PasswordHelper.VerifyPassword(request.Password, user.Password))
-            {
-                return Unauthorized("Sai số điện thoại hoặc mật khẩu.");
-            }
-
-            var token = _jwtService.GenerateToken(user);
-
-            return Ok(new
-            {
-                token,
-                userId = user.UserId,
-                fullName = user.FullName,
-                role = user.Role.RoleName
-            });
+            return Ok(result);
         }
-
-        //[HttpPost("register")]
-        //public async Task<IActionResult> Register(RegisterRequest request)
-        //{
-        //    // Kiểm tra Email/SĐT
-
-        //    // Hash Password
-
-        //    // Lưu User
-
-        //    // Trả kết quả
-        //}
 
         [Authorize]
         [HttpGet("me")]
@@ -71,9 +45,15 @@ namespace UserService.API.Controllers
         {
             return Ok(new
             {
-                UserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value,
+                UserId = User.FindFirst(
+                    ClaimTypes.NameIdentifier
+                )?.Value,
+
                 FullName = User.Identity?.Name,
-                Role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value
+
+                Role = User.FindFirst(
+                    ClaimTypes.Role
+                )?.Value
             });
         }
     }

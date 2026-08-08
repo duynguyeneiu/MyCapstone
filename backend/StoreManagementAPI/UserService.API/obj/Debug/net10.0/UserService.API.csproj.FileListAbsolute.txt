@@ -162,3 +162,4 @@ D:\Tài liệu Đồ Án tốt nghiệp\StoreManagement\MyCapstone\backend\Store
 D:\Tài liệu Đồ Án tốt nghiệp\StoreManagement\MyCapstone\backend\StoreManagementAPI\UserService.API\obj\Debug\net10.0\ref\UserService.API.dll
 D:\Tài liệu Đồ Án tốt nghiệp\StoreManagement\MyCapstone\backend\StoreManagementAPI\UserService.API\bin\Debug\net10.0\BCrypt-Net-Next.dll
 D:\Tài liệu Đồ Án tốt nghiệp\StoreManagement\MyCapstone\backend\StoreManagementAPI\UserService.API\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+D:\Tài liệu Đồ Án tốt nghiệp\StoreManagement\MyCapstone\backend\StoreManagementAPI\UserService.API\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt

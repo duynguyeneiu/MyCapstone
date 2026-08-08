@@ -1,100 +1,137 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using UserService.API.Models;
-using UserService.API.Data;
+using UserService.API.DTOs.User;
+using UserService.API.Interfaces;
+
+namespace UserService.API.Controllers { 
 
 [Route("api/[controller]")]
 [ApiController]
-public class UsersController : ControllerBase
+[Authorize]
+public class UserController : ControllerBase
 {
-    private readonly UserServiceDbContext _context;
-    public UsersController(UserServiceDbContext context)
+    private readonly IUserService _userService;
+
+    public UserController(IUserService userService)
     {
-        _context = context;
+        _userService = userService;
     }
 
-    // GET: api/User
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<User>>> GetUser()
+    public async Task<IActionResult> GetAll()
     {
-        return await _context.Users.Include(u => u.Role).ToListAsync();
+        var users = await _userService.GetAllAsync();
+
+        return Ok(users);
     }
 
-    // GET: api/User/5
-    [HttpGet("{userid}")]
-    public async Task<ActionResult<User>> GetUser(int userid)
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetById(int id)
     {
-        var user = await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.UserId == userid);
+        var user = await _userService.GetByIdAsync(id);
 
         if (user == null)
-        {
             return NotFound();
-        }
 
-        return user;
+        return Ok(user);
     }
 
-    // PUT: api/User/5
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-    [HttpPut("{userid}")]
-    public async Task<IActionResult> PutUser(int? userid, User user)
-    {
-        if (userid != user.UserId)
-        {
-            return BadRequest();
-        }
-
-        _context.Entry(user).State = EntityState.Modified;
-
-        try
-        {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!UserExists(userid))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
-        }
-
-        return NoContent();
-    }
-
-    // POST: api/User
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
-    public async Task<ActionResult<User>> PostUser(User user)
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Create(
+        [FromBody] CreateUserDto dto)
     {
-        user.CreatedAt = DateTime.UtcNow;
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
+        var user = await _userService.CreateAsync(dto);
 
-        return CreatedAtAction("GetUser", new { userid = user.UserId }, user);
-    }
-
-    // DELETE: api/User/5
-    [HttpDelete("{userid}")]
-    public async Task<IActionResult> DeleteUser(int? userid)
-    {
-        var user = await _context.Users.FindAsync(userid);
         if (user == null)
         {
-            return NotFound();
+            return Conflict(new
+            {
+                message = "Username, email hoặc số điện thoại đã tồn tại."
+            });
         }
 
-        _context.Users.Remove(user);
-        await _context.SaveChangesAsync();
+        return CreatedAtAction(
+            nameof(GetById),
+            new { id = user.UserId },
+            user
+        );
+    }
+
+    [HttpPut("{id:int}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Update(
+        int id,
+        [FromBody] UpdateUserDto dto)
+    {
+        var result = await _userService.UpdateAsync(id, dto);
+
+        if (!result)
+            return NotFound();
 
         return NoContent();
     }
 
-    private bool UserExists(int? userid)
+    [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Delete(int id)
     {
-        return _context.Users.Any(e => e.UserId == userid);
+        var result = await _userService.DeleteAsync(id);
+
+        if (!result)
+            return NotFound();
+
+        return NoContent();
     }
+
+
+
+
+
+
+
+    [HttpPut("{id:int}/password")]
+    public async Task<IActionResult> ChangePassword(
+     int id,
+     [FromBody] ChangePasswordDto dto)
+    {
+        var currentUserIdString =
+            User.FindFirst(
+                System.Security.Claims.ClaimTypes.NameIdentifier
+            )?.Value;
+
+        if (!int.TryParse(
+                currentUserIdString,
+                out var currentUserId))
+        {
+            return Unauthorized();
+        }
+
+        var isAdmin = User.IsInRole("Admin");
+
+        if (!isAdmin && currentUserId != id)
+        {
+            return Forbid();
+        }
+
+        var result = await _userService.ChangePasswordAsync(
+            id,
+            dto
+        );
+
+        if (!result)
+        {
+            return BadRequest(
+                "Mật khẩu hiện tại không đúng hoặc user không tồn tại."
+            );
+        }
+
+        return NoContent();
+    }
+
+
+
+
+
+}
 }

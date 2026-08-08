@@ -160,3 +160,4 @@ D:\Tài liệu Đồ Án tốt nghiệp\StoreManagement\MyCapstone\backend\Store
 D:\Tài liệu Đồ Án tốt nghiệp\StoreManagement\MyCapstone\backend\StoreManagementAPI\OrderServiceAPI\obj\Debug\net10.0\OrderServiceAPI.pdb
 D:\Tài liệu Đồ Án tốt nghiệp\StoreManagement\MyCapstone\backend\StoreManagementAPI\OrderServiceAPI\obj\Debug\net10.0\OrderServiceAPI.genruntimeconfig.cache
 D:\Tài liệu Đồ Án tốt nghiệp\StoreManagement\MyCapstone\backend\StoreManagementAPI\OrderServiceAPI\obj\Debug\net10.0\ref\OrderServiceAPI.dll
+D:\Tài liệu Đồ Án tốt nghiệp\StoreManagement\MyCapstone\backend\StoreManagementAPI\OrderServiceAPI\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt

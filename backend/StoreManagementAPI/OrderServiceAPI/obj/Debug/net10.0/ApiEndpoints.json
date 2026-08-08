@@ -107,6 +107,16 @@
   },
   {
     "ContainingType": "OrderServiceAPI.Controllers.OrderController",
+    "Method": "GetAllOrders",
+    "RelativePath": "api/Order",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "OrderServiceAPI.Controllers.OrderController",
     "Method": "GetOrderById",
     "RelativePath": "api/Order/{orderId}",
     "HttpMethod": "GET",
