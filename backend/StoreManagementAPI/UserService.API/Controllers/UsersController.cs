@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using UserService.API.Models;
 using UserService.API.Data;
+using UserService.API.Helpers;
+using UserService.API.Models;
+using UserService.API.Models.DTOs;
+using UserService.API.Helpers;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -68,13 +71,52 @@ public class UsersController : ControllerBase
     // POST: api/User
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
-    public async Task<ActionResult<User>> PostUser(User user)
+    public async Task<ActionResult<User>> PostUser(
+      CreateUserRequest request)
     {
-        user.CreatedAt = DateTime.UtcNow;
+        var role = await _context.Roles
+            .FindAsync(request.RoleId);
+
+        if (role == null)
+        {
+            return BadRequest("Role not found.");
+        }
+
+        var user = new User
+        {
+            FullName = request.FullName,
+            Gender = request.Gender,
+            Phone = request.Phone,
+            Email = request.Email,
+            Address = request.Address,
+            Username = request.Username,
+
+            Password =
+                PasswordHelper.HashPassword(
+                    request.Password),
+
+            RoleId = request.RoleId,
+            Role = role,
+
+            LoyaltyPoint = 0,
+            Status = "Active",
+
+            RegisterDate =
+                DateOnly.FromDateTime(
+                    DateTime.UtcNow),
+
+            CreatedAt = DateTime.UtcNow
+        };
+
         _context.Users.Add(user);
+
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction("GetUser", new { userid = user.UserId }, user);
+        return CreatedAtAction(
+            "GetUser",
+            new { userid = user.UserId },
+            user
+        );
     }
 
     // DELETE: api/User/5
