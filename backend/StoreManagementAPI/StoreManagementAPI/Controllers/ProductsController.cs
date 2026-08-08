@@ -16,14 +16,21 @@ public class ProductsController : ControllerBase
         _productService = productService;
     }
 
-    // GET: api/products?page=1&pageSize=10&keyword=coca
+   
+   
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] PagingRequest request)
+    public async Task<IActionResult> GetAll(
+       [FromQuery] PagingRequest request)
     {
         var result = await _productService.GetPagedAsync(
             request.Page,
             request.PageSize,
-            request.Keyword);
+            request.Keyword,
+            request.Status,
+            request.CategoryId,
+            request.MinPrice,
+            request.MaxPrice,
+            request.SortBy);
 
         return Ok(result);
     }
@@ -92,5 +99,29 @@ public class ProductsController : ControllerBase
             request.Quantity);
 
         return NoContent();
+    }
+
+
+    // GET: api/products/1/related
+    [HttpGet("{productId:int}/related")]
+    public async Task<IActionResult> GetRelatedProducts(
+        int productId)
+    {
+        var product =
+            await _productService.GetByIdAsync(productId);
+
+        if (product == null)
+        {
+            return NotFound(new
+            {
+                message =
+                    $"Product with ID {productId} was not found."
+            });
+        }
+
+        var products =
+            await _productService.GetRelatedProductsAsync(productId);
+
+        return Ok(products);
     }
 }

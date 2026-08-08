@@ -5,10 +5,7 @@ namespace CatalogService.API.Interfaces
     public interface IProductRepository
     {
 
-        Task<(IEnumerable<Product>, int)> GetPagedAsync(
-    int page,
-    int pageSize,
-    string? keyword);
+    
         Task<Product?> GetByIdAsync(int productId);
 
         Task<Product?> GetByCodeAsync(string productCode);
@@ -32,5 +29,19 @@ namespace CatalogService.API.Interfaces
     int categoryId,
     int page,
     int pageSize);
+
+        Task<(IEnumerable<Product> Items, int TotalCount)> GetPagedAsync(
+    int page,
+    int pageSize,
+    string? keyword = null,
+    string? status = null,
+    int? categoryId = null,
+    decimal? minPrice = null,
+    decimal? maxPrice = null,
+    string? sortBy = null);
+
+
+        Task<IEnumerable<Product>> GetRelatedProductsAsync(int productId);
+
     }
 }

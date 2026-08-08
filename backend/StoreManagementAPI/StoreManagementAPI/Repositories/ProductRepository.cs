@@ -84,33 +84,7 @@ namespace CatalogService.API.Repositories
                 .AnyAsync(p => p.CategoryId == categoryId);
         }
 
-        public async Task<(IEnumerable<Product>, int)> GetPagedAsync(
-    int page,
-    int pageSize,
-    string? keyword)
-        {
-            var query = _context.Products
-                .Include(p => p.Category)
-                .AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(keyword))
-            {
-                query = query.Where(p =>
-                    p.ProductName.Contains(keyword) ||
-                    p.ProductCode.Contains(keyword) ||
-                    (p.Barcode != null && p.Barcode.Contains(keyword)));
-            }
-
-            var totalItems = await query.CountAsync();
-
-            var products = await query
-                .OrderBy(p => p.ProductName)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            return (products, totalItems);
-        }
+      
         public async Task<(IEnumerable<Product>, int)> GetByCategoryPagedAsync(
     int categoryId,
     int page,
@@ -130,6 +104,130 @@ namespace CatalogService.API.Repositories
 
             return (products, totalItems);
         }
+
+        public async Task<(IEnumerable<Product> Items, int TotalCount)> GetPagedAsync(
+    int page,
+    int pageSize,
+    string? keyword = null,
+    string? status = null,
+    int? categoryId = null,
+    decimal? minPrice = null,
+    decimal? maxPrice = null,
+    string? sortBy = null)
+        {
+            var query = _context.Products
+                .AsNoTracking()
+                .AsQueryable();
+
+            // Filter status
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                var normalizedStatus = status.Trim().ToLower();
+
+                query = query.Where(p =>
+                    p.Status != null &&
+                    p.Status.ToLower() == normalizedStatus);
+            }
+
+            // Search keyword
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                var normalizedKeyword = keyword.Trim().ToLower();
+
+                query = query.Where(p =>
+                    p.ProductName.ToLower().Contains(normalizedKeyword) ||
+                    p.ProductCode.ToLower().Contains(normalizedKeyword) ||
+                    (p.Barcode != null &&
+                     p.Barcode.ToLower().Contains(normalizedKeyword)));
+            }
+
+            // Filter category
+            if (categoryId.HasValue)
+            {
+                var selectedCategoryId = categoryId.Value;
+
+                var categoryIds = await _context.Categories
+                    .AsNoTracking()
+                    .Where(c =>
+                        c.CategoryId == selectedCategoryId ||
+                        c.ParentCategoryId == selectedCategoryId)
+                    .Select(c => c.CategoryId)
+                    .ToListAsync();
+
+                query = query.Where(p =>
+                    categoryIds.Contains(p.CategoryId));
+            }
+
+            // Filter minimum price
+            if (minPrice.HasValue)
+            {
+                query = query.Where(p =>
+                    p.SalePrice >= minPrice.Value);
+            }
+
+            // Filter maximum price
+            if (maxPrice.HasValue)
+            {
+                query = query.Where(p =>
+                    p.SalePrice <= maxPrice.Value);
+            }
+
+            // Sort
+            var normalizedSort = sortBy?.Trim().ToLower();
+
+            query = normalizedSort switch
+            {
+                "pricelowhigh" =>
+                    query.OrderBy(p => p.SalePrice),
+
+                "pricehighlow" =>
+                    query.OrderByDescending(p => p.SalePrice),
+
+                "newest" =>
+                    query.OrderByDescending(p => p.CreatedAt),
+
+                _ =>
+                    query.OrderBy(p => p.ProductName)
+            };
+
+            // Total records before pagination
+            var totalCount = await query.CountAsync();
+
+            // Pagination
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
+
+        public async Task<IEnumerable<Product>> GetRelatedProductsAsync(
+    int productId)
+        {
+            var currentProduct = await _context.Products
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p =>
+                    p.ProductId == productId);
+
+            if (currentProduct == null)
+            {
+                return Enumerable.Empty<Product>();
+            }
+
+            var relatedProducts = await _context.Products
+                .AsNoTracking()
+                .Where(p =>
+                    p.CategoryId == currentProduct.CategoryId &&
+                    p.ProductId != currentProduct.ProductId &&
+                    p.Status == "Active")
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(10)
+                .ToListAsync();
+
+            return relatedProducts;
+        }
+
 
     }
 }

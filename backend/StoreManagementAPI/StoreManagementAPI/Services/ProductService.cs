@@ -112,22 +112,7 @@ namespace CatalogService.API.Services
 
             await _productRepository.SaveChangesAsync();
         }
-        public async Task<PagedResult<ProductDto>> GetPagedAsync(
-    int page,
-    int pageSize,
-    string? keyword)
-        {
-            var (products, totalItems) =
-                await _productRepository.GetPagedAsync(page, pageSize, keyword);
-
-            return new PagedResult<ProductDto>
-            {
-                Items = products.Select(ProductMapper.ToDto),
-                TotalItems = totalItems,
-                Page = page,
-                PageSize = pageSize
-            };
-        }
+      
 
             public async Task<PagedResult<ProductDto>> GetByCategoryAsync(
         int categoryId,
@@ -148,6 +133,78 @@ namespace CatalogService.API.Services
                 PageSize = pageSize
             };
         }
+
+        public async Task<object> GetPagedAsync(
+    int page,
+    int pageSize,
+    string? keyword = null,
+    string? status = null,
+    int? categoryId = null,
+    decimal? minPrice = null,
+    decimal? maxPrice = null,
+    string? sortBy = null)
+        {
+            var result = await _productRepository.GetPagedAsync(
+                page,
+                pageSize,
+                keyword,
+                status,
+                categoryId,
+                minPrice,
+                maxPrice,
+                sortBy);
+
+            var products = result.Items.Select(p => new ProductDto
+            {
+                ProductId = p.ProductId,
+                ProductCode = p.ProductCode,
+                ProductName = p.ProductName,
+                Barcode = p.Barcode,
+                CategoryId = p.CategoryId,
+                CategoryName = p.Category?.CategoryName,
+                Unit = p.Unit,
+                SalePrice = p.SalePrice,
+                QuantityInStock = p.QuantityInStock,
+                Status = p.Status,
+                Image = p.Image,
+                
+            });
+
+            return new
+            {
+                items = products,
+                totalCount = result.TotalCount,
+                page,
+                pageSize,
+                totalPages = (int)Math.Ceiling(
+                    result.TotalCount / (double)pageSize)
+            };
+        }
+        public async Task<IEnumerable<ProductDto>> GetRelatedProductsAsync(
+    int productId)
+        {
+            var products =
+                await _productRepository.GetRelatedProductsAsync(productId);
+
+            return products.Select(p => new ProductDto
+            {
+                ProductId = p.ProductId,
+                ProductCode = p.ProductCode,
+                ProductName = p.ProductName,
+                Barcode = p.Barcode,
+                CategoryId = p.CategoryId,
+                CategoryName = p.Category?.CategoryName,
+                Unit = p.Unit,
+                SalePrice = p.SalePrice,
+                QuantityInStock = p.QuantityInStock,
+                Status = p.Status,
+                Image = p.Image,
+                
+            });
+        }
+
+
+
 
     }
 }
