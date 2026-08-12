@@ -5,22 +5,27 @@
       {
         "Path": "UserService.API\\UserService.API.csproj",
         "Action": "Start",
-        "DebugTarget": "IIS Express"
+        "DebugTarget": "http"
       },
       {
         "Path": "ReviewService.API\\ReviewService.API.csproj",
         "Action": "Start",
-        "DebugTarget": "IIS Express"
+        "DebugTarget": "http"
       },
       {
         "Path": "OrderServiceAPI\\OrderServiceAPI.csproj",
         "Action": "Start",
-        "DebugTarget": "IIS Express"
+        "DebugTarget": "http"
       },
       {
         "Path": "StoreManagementAPI\\CatalogService.API.csproj",
         "Action": "Start",
-        "DebugTarget": "IIS Express"
+        "DebugTarget": "http"
+      },
+      {
+        "Path": "PaymentService.API\\PaymentService.API.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
       }
     ]
   }
