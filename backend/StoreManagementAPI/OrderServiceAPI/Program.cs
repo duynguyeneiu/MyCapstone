@@ -44,11 +44,6 @@ builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 
-builder.WebHost.UseUrls(
-    "http://localhost:5003"
-  );
-
-
 
 var app = builder.Build();
 

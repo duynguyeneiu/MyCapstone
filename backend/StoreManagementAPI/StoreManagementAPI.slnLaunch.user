@@ -3,12 +3,17 @@
     "Name": "New Profile",
     "Projects": [
       {
-        "Path": "StoreManagementAPI\\CatalogService.API.csproj",
+        "Path": "OrderServiceAPI\\OrderServiceAPI.csproj",
         "Action": "Start",
         "DebugTarget": "IIS Express"
       },
       {
-        "Path": "OrderServiceAPI\\OrderServiceAPI.csproj",
+        "Path": "PaymentService.API\\PaymentService.API.csproj",
+        "Action": "Start",
+        "DebugTarget": "IIS Express"
+      },
+      {
+        "Path": "StoreManagementAPI\\CatalogService.API.csproj",
         "Action": "Start",
         "DebugTarget": "IIS Express"
       },

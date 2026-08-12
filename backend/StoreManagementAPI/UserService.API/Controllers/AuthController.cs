@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using UserService.API.Data;
+using UserService.API.DTOs;
 using UserService.API.Helpers;
 using UserService.API.Interfaces;
 using UserService.API.Services;
@@ -55,6 +56,24 @@ namespace UserService.API.Controllers
                     ClaimTypes.Role
                 )?.Value
             });
+        }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register(
+    [FromBody] RegisterRequestDto request)
+        {
+            var result =
+                await _authService.RegisterAsync(request);
+
+            if (result == null)
+            {
+                return Conflict(new
+                {
+                    message = "Số điện thoại đã được đăng ký."
+                });
+            }
+
+            return Ok(result);
         }
     }
 }

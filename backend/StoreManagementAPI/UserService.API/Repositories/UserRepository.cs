@@ -91,6 +91,12 @@ namespace UserService.API.Repositories
         {
             await _context.SaveChangesAsync();
         }
-       
+
+        public async Task<Role?> GetRoleByNameAsync(string roleName)
+        {
+            return await _context.Roles
+                .FirstOrDefaultAsync(r => r.RoleName == roleName);
+        }
+
     }
 }

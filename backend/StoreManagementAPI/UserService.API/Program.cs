@@ -25,13 +25,6 @@ builder.Services.AddDbContext<UserServiceDbContext>(options =>
     options.UseSqlServer(connectionString)
 );
 
-// =====================================================
-// URL
-// =====================================================
-
-builder.WebHost.UseUrls(
-    "http://localhost:5002"
-);
 
 // =====================================================
 // CORS

@@ -49,6 +49,10 @@ namespace OrderServiceAPI.Services
                 totalAmount += item.Subtotal;
             }
 
+            const decimal shippingFee = 30000;
+
+            var finalAmount = totalAmount + shippingFee;
+
             // Tạo Order
             var order = new Order
             {
@@ -64,8 +68,8 @@ namespace OrderServiceAPI.Services
                 TotalAmount = totalAmount,
                 Discount = 0,
                 Vat = 0,
-                ShippingFee = 0,
-                FinalAmount = totalAmount,
+                ShippingFee = shippingFee,
+                FinalAmount = finalAmount,
                 CreatedAt = DateTime.Now,
                 OrderDate = DateTime.Now
             };
@@ -107,6 +111,8 @@ namespace OrderServiceAPI.Services
                 PaymentStatus = order.PaymentStatus,
                 OrderStatus = order.OrderStatus,
                 ShippingAddress = order.ShippingAddress ?? string.Empty,
+                ShippingFee = order.ShippingFee,
+                FinalAmount = order.FinalAmount,
                 Items = orderDetails.Select(x => new OrderItemDto
                 {
                     ProductId = x.ProductId,
@@ -159,6 +165,8 @@ namespace OrderServiceAPI.Services
                 PaymentStatus = order.PaymentStatus,
                 OrderStatus = order.OrderStatus,
                 ShippingAddress = order.ShippingAddress ?? string.Empty,
+                ShippingFee = order.ShippingFee,
+                FinalAmount = order.FinalAmount,
                 Items = order.OrderDetails.Select(item => new OrderItemDto
                 {
                     ProductId = item.ProductId,
