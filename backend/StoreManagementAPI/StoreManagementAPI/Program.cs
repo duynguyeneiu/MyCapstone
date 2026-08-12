@@ -23,9 +23,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddControllers();
 
-builder.WebHost.UseUrls(
-    "http://localhost:5001"
-  );
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();

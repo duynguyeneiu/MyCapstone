@@ -4,7 +4,7 @@
     {
         public int UserId { get; set; }
 
-        public string FullName { get; set; } = null!;
+        public string? FullName { get; set; } = null!;
 
         public string? Gender { get; set; }
 
@@ -14,7 +14,7 @@
 
         public string? Address { get; set; }
 
-        public string Username { get; set; } = null!;
+        public string? Username { get; set; } = null!;
 
         public int RoleId { get; set; }
 

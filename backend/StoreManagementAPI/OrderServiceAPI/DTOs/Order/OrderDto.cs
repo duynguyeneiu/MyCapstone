@@ -26,6 +26,8 @@
 
         public string ShippingAddress { get; set; } = string.Empty;
 
+        public decimal ShippingFee { get; set; }
+        public decimal FinalAmount { get; set; }
         public List<OrderItemDto> Items { get; set; } = [];
     }
 }

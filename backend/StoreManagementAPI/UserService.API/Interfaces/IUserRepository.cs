@@ -29,5 +29,6 @@ namespace UserService.API.Interfaces
         void Delete(User user);
 
         Task SaveChangesAsync();
+        Task<Role?> GetRoleByNameAsync(string roleName);
     }
 }
