@@ -124,4 +124,39 @@ public class ProductsController : ControllerBase
 
         return Ok(products);
     }
+
+    [HttpPost("{id:int}/rating")]
+    public async Task<IActionResult> UpdateRating(
+    int id,
+    [FromBody] RatingUpdateRequest request)
+    {
+        try
+        {
+            var updated =
+                await _productService.UpdateRatingAsync(
+                    id,
+                    request.RatingDelta,
+                    request.CountDelta);
+
+            if (!updated)
+            {
+                return NotFound(new
+                {
+                    message = $"Product with ID {id} not found."
+                });
+            }
+
+            return Ok(new
+            {
+                message = "Product rating updated successfully."
+            });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new
+            {
+                message = ex.Message
+            });
+        }
+    }
 }

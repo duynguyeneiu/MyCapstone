@@ -218,6 +218,16 @@ namespace OrderServiceAPI.Services
             await _orderRepository.SaveChangesAsync();
         }
 
+        public async Task<int?> GetPurchasedOrderIdAsync(
+    int userId,
+    int productId)
+        {
+            var order = await _orderRepository
+                .GetPurchasedOrderIdAsync(userId, productId);
+
+            return order;
+        }
+
 
     }
 }

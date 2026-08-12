@@ -12,5 +12,9 @@ namespace OrderServiceAPI.Interfaces
         Task<OrderDto> GetOrderByIdAsync(int orderId);
         Task CancelOrderAsync(int orderId);
         Task UpdateStatusAsync(int orderId, UpdateOrderStatusRequest request);
+
+        Task<int?> GetPurchasedOrderIdAsync(
+    int userId,
+    int productId);
     }
 }

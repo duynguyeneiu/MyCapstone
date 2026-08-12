@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
-namespace StoreManagementAPI.Models;
+namespace CatalogService.API.Models;
 
 public partial class Category
 {
@@ -19,10 +18,10 @@ public partial class Category
     public DateTime CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
-    [JsonIgnore]
+
     public virtual ICollection<Category> InverseParentCategory { get; set; } = new List<Category>();
 
     public virtual Category? ParentCategory { get; set; }
-    [JsonIgnore]
+
     public virtual ICollection<Product> Products { get; set; } = new List<Product>();
 }

@@ -69,6 +69,29 @@ namespace OrderServiceAPI.Controllers
             return NoContent();
         }
 
+        [HttpGet("user/{userId:int}/product/{productId:int}/purchased")]
+        public async Task<IActionResult> GetPurchasedOrder(
+    int userId,
+    int productId)
+        {
+            var orderId =
+                await _orderService
+                    .GetPurchasedOrderIdAsync(
+                        userId,
+                        productId);
 
+            if (orderId == null)
+            {
+                return NotFound(new
+                {
+                    message = "User has not purchased this product. --OrderCon"
+                });
+            }
+
+            return Ok(new
+            {
+                orderId = orderId.Value
+            });
+        }
     }
 }

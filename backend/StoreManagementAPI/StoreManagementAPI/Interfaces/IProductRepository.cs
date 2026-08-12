@@ -1,4 +1,6 @@
-﻿using StoreManagementAPI.Models;
+﻿
+
+using CatalogService.API.Models;
 
 namespace CatalogService.API.Interfaces
 {
@@ -42,6 +44,13 @@ namespace CatalogService.API.Interfaces
 
 
         Task<IEnumerable<Product>> GetRelatedProductsAsync(int productId);
+        Task<bool> UpdateRatingAsync(
+    int productId,
+    int rating);
 
+        Task<bool> UpdateRatingAsync(
+    int productId,
+    int ratingDelta,
+    int countDelta);
     }
 }

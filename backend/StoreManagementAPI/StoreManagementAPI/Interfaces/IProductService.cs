@@ -37,6 +37,9 @@ namespace CatalogService.API.Interfaces
     int productId);
 
 
-
+        Task<bool> UpdateRatingAsync(
+      int productId,
+      int ratingDelta,
+      int countDelta);
     }
 }
