@@ -1,4 +1,5 @@
-﻿using StoreManagementAPI.Models;
+﻿using CatalogService.API.Models;
+
 
 namespace CatalogService.API.Interfaces
 {

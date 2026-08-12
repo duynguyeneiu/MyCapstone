@@ -52,5 +52,22 @@ namespace OrderServiceAPI.Repositories
                .Include(o => o.OrderDetails)
                .FirstOrDefaultAsync(o => o.OrderId == orderId);
         }
+
+
+        public async Task<int?> GetPurchasedOrderIdAsync(
+     int userId,
+     int productId)
+        {
+            return await _context.Orders
+                .Where(o =>
+                    o.CustomerUserId == userId &&
+                    o.OrderDetails.Any(od =>
+                        od.ProductId == productId) &&
+                    o.OrderStatus == "Completed")
+                .Select(o => (int?)o.OrderId)
+                .FirstOrDefaultAsync();
+        }
+
+
     }
 }

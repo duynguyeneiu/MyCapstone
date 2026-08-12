@@ -1,5 +1,5 @@
 ﻿using CatalogService.API.DTOs.Product;
-using StoreManagementAPI.Models;
+using CatalogService.API.Models;
 
 namespace CatalogService.API.Mappers
 {

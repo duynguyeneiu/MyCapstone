@@ -3,7 +3,8 @@ using CatalogService.API.Interfaces;
 using CatalogService.API.Repositories;
 using CatalogService.API.Services;
 using Microsoft.EntityFrameworkCore;
-using StoreManagementAPI.Data;
+using CatalogService.API.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("CatalogContext") ?? throw new InvalidOperationException("Connection string 'CatalogContext' not found.");
 
@@ -54,6 +55,7 @@ app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
 
 app.UseAuthorization();
+app.UseStaticFiles();
 
 app.MapControllers();
 

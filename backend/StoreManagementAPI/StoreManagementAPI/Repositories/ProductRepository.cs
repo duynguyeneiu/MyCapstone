@@ -1,7 +1,8 @@
 ﻿using CatalogService.API.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using StoreManagementAPI.Data;
-using StoreManagementAPI.Models;
+using CatalogService.API.Data;
+using CatalogService.API.Models;
+
 
 namespace CatalogService.API.Repositories
 {
@@ -228,6 +229,61 @@ namespace CatalogService.API.Repositories
             return relatedProducts;
         }
 
+        public async Task<bool> UpdateRatingAsync(
+    int productId,
+    int rating)
+        {
+            var product = await _context.Products
+                .FirstOrDefaultAsync(p =>
+                    p.ProductId == productId);
 
+            if (product == null)
+            {
+                return false;
+            }
+
+            product.RatingCount += 1;
+            product.RatingSum += rating;
+
+            product.RatingAverage =
+                (decimal)product.RatingSum / product.RatingCount;
+
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> UpdateRatingAsync(
+    int productId,
+    int ratingDelta,
+    int countDelta)
+        {
+            var product = await _context.Products
+                .FirstOrDefaultAsync(p =>
+                    p.ProductId == productId);
+
+            if (product == null)
+            {
+                return false;
+            }
+
+            product.RatingSum += ratingDelta;
+            product.RatingCount += countDelta;
+
+            if (product.RatingCount > 0)
+            {
+                product.RatingAverage =
+                    (decimal)product.RatingSum /
+                    product.RatingCount;
+            }
+            else
+            {
+                product.RatingAverage = 0;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
     }
 }

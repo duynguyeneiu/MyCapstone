@@ -3,8 +3,8 @@ using CatalogService.API.DTOs.Category;
 using CatalogService.API.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using StoreManagementAPI.Data;
-using StoreManagementAPI.Models;
+using CatalogService.API.Data;
+using CatalogService.API.Models;
 
 [Route("api/[controller]")]
 [ApiController]

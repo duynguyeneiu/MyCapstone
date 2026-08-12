@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace StoreManagementAPI.Models;
+namespace CatalogService.API.Models;
 
 public partial class Product
 {
@@ -32,6 +32,12 @@ public partial class Product
     public DateTime CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
+
+    public int RatingSum { get; set; }
+
+    public int RatingCount { get; set; }
+
+    public decimal RatingAverage { get; set; }
 
     public virtual Category Category { get; set; } = null!;
 

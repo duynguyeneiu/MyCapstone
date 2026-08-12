@@ -203,6 +203,17 @@ namespace CatalogService.API.Services
             });
         }
 
+        public async Task<bool> UpdateRatingAsync(
+     int productId,
+     int ratingDelta,
+     int countDelta)
+        {
+            return await _productRepository
+                .UpdateRatingAsync(
+                    ratingDelta,
+                    productId,
+                    countDelta);
+        }
 
 
 

@@ -199,5 +199,26 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "OrderServiceAPI.Controllers.OrderController",
+    "Method": "GetPurchasedOrder",
+    "RelativePath": "api/Order/user/{userId}/product/{productId}/purchased",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "productId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
   }
 ]

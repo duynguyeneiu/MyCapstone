@@ -188,6 +188,27 @@
   },
   {
     "ContainingType": "CatalogService.API.Controllers.ProductsController",
+    "Method": "UpdateRating",
+    "RelativePath": "api/Products/{id}/rating",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "CatalogService.API.DTOs.Product.RatingUpdateRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CatalogService.API.Controllers.ProductsController",
     "Method": "GetById",
     "RelativePath": "api/Products/{productId}",
     "HttpMethod": "GET",

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace StoreManagementAPI.Models;
+namespace CatalogService.API.Models;
 
 public partial class ProductImage
 {

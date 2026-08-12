@@ -14,7 +14,9 @@ namespace OrderServiceAPI.Interfaces
         Task<List<Order>> GetAllOrdersAsync();
         Task<Order?> GetOrderByIdAsync(int orderId);
 
-
+        Task<int?> GetPurchasedOrderIdAsync(
+    int userId,
+    int productId);
 
     }
 }

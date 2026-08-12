@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using CatalogService.API.Models;
 using Microsoft.EntityFrameworkCore;
-using StoreManagementAPI.Models;
 
-namespace StoreManagementAPI.Data;
+namespace CatalogService.API.Data;
 
 public partial class CatalogContext : DbContext
 {
+    public CatalogContext()
+    {
+    }
+
     public CatalogContext(DbContextOptions<CatalogContext> options)
         : base(options)
     {
@@ -18,6 +22,7 @@ public partial class CatalogContext : DbContext
 
     public virtual DbSet<ProductImage> ProductImages { get; set; }
 
+ 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Category>(entity =>
@@ -71,6 +76,7 @@ public partial class CatalogContext : DbContext
             entity.Property(e => e.ProductName)
                 .HasMaxLength(200)
                 .IsUnicode(false);
+            entity.Property(e => e.RatingAverage).HasColumnType("decimal(5, 2)");
             entity.Property(e => e.SalePrice).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)

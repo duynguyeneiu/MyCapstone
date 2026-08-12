@@ -1,7 +1,7 @@
 ﻿using CatalogService.API.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using StoreManagementAPI.Data;
-using StoreManagementAPI.Models;
+using CatalogService.API.Data;
+using CatalogService.API.Models;
 
 namespace CatalogService.API.Repositories
 {
