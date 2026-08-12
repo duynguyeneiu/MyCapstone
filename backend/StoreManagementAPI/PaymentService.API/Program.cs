@@ -34,9 +34,7 @@ builder.Services.AddHttpClient<
             builder.Configuration[
                 "Services:OrderService"]);
     });
-builder.WebHost.UseUrls(
-    "http://localhost:5004"
-  );
+
 
 var app = builder.Build();
 

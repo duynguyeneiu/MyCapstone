@@ -11,13 +11,25 @@ namespace CatalogService.API.Services
     {
         private readonly IProductRepository _productRepository;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IConfiguration _configuration;
 
         public ProductService(
-     IProductRepository productRepository,
-     ICategoryRepository categoryRepository)
+            IProductRepository productRepository,
+            ICategoryRepository categoryRepository,
+            IConfiguration configuration)
         {
             _productRepository = productRepository;
             _categoryRepository = categoryRepository;
+            _configuration = configuration;
+        }
+        private string? GetImageUrl(string? image)
+        {
+            if (string.IsNullOrWhiteSpace(image))
+                return null;
+
+            var baseUrl = _configuration["AppSettings:BaseUrl"];
+
+            return $"{baseUrl}/images/{image}";
         }
 
         public async Task UpdateStockAsync(int productId, int quantity)
@@ -45,27 +57,28 @@ namespace CatalogService.API.Services
             if (product == null)
                 throw new NotFoundException("Product not found.");
 
-            return ProductMapper.ToDto(product);
+            var dto = ProductMapper.ToDto(product);
+
+            dto.Image = GetImageUrl(product.Image);
+
+            return dto;
         }
-        
-       
-        
-       
+
+
+
+
 
         public async Task<ProductDto> CreateAsync(CreateProductDto dto)
         {
-            // Kiểm tra ProductCode
             if (await _productRepository.GetByCodeAsync(dto.ProductCode) != null)
                 throw new ConflictException("Product code already exists.");
 
-            // Kiểm tra Barcode
             if (!string.IsNullOrWhiteSpace(dto.Barcode) &&
                 await _productRepository.GetByBarcodeAsync(dto.Barcode) != null)
             {
                 throw new ConflictException("Barcode already exists.");
             }
 
-            // Kiểm tra Category
             if (!await _categoryRepository.ExistsAsync(dto.CategoryId))
                 throw new BadRequestException("Category does not exist.");
 
@@ -74,8 +87,13 @@ namespace CatalogService.API.Services
             await _productRepository.AddAsync(product);
             await _productRepository.SaveChangesAsync();
 
-            return ProductMapper.ToDto(product);
+            var result = ProductMapper.ToDto(product);
+
+            result.Image = GetImageUrl(product.Image);
+
+            return result;
         }
+
         public async Task UpdateAsync(int productId, UpdateProductDto dto)
         {
             var product = await _productRepository.GetByIdAsync(productId);
@@ -166,7 +184,7 @@ namespace CatalogService.API.Services
                 SalePrice = p.SalePrice,
                 QuantityInStock = p.QuantityInStock,
                 Status = p.Status,
-                Image = p.Image,
+                Image = GetImageUrl(p.Image),
                 
             });
 
@@ -198,8 +216,8 @@ namespace CatalogService.API.Services
                 SalePrice = p.SalePrice,
                 QuantityInStock = p.QuantityInStock,
                 Status = p.Status,
-                Image = p.Image,
-                
+                Image = GetImageUrl(p.Image),
+
             });
         }
 
