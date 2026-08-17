@@ -207,7 +207,36 @@ namespace UserService.API.Services
             return true;
         }
 
+        public async Task<bool> UpdateUserInforAsync(
+    int userId,
+    UpdateUserInforDto dto)
+        {
+            var user = await _repository.GetByIdAsync(userId);
 
+            if (user == null)
+                return false;
+
+            // Email mới đã thuộc user khác
+            if (!string.IsNullOrWhiteSpace(dto.Email) &&
+                dto.Email != user.Email &&
+                await _repository.EmailExistsAsync(dto.Email))
+            {
+                return false;
+            }
+
+            user.FullName = dto.FullName;
+            user.Gender = dto.Gender;
+            user.Email = dto.Email;
+            user.Address = dto.Address;
+
+            user.UpdatedAt = DateTime.Now;
+
+            _repository.Update(user);
+
+            await _repository.SaveChangesAsync();
+
+            return true;
+        }
 
 
 

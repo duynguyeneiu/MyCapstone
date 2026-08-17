@@ -23,5 +23,9 @@ namespace UserService.API.Interfaces
         Task<bool> ChangePasswordAsync(
     int userId,
     ChangePasswordDto dto);
+
+        Task<bool> UpdateUserInforAsync(
+    int userId,
+    UpdateUserInforDto dto);
     }
 }

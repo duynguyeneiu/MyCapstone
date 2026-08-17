@@ -140,5 +140,21 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "UserService.API.Controllers.UserController",
+    "Method": "UpdateUserInfor",
+    "RelativePath": "api/User/me/infor",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "UserService.API.DTOs.User.UpdateUserInforDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
   }
 ]
