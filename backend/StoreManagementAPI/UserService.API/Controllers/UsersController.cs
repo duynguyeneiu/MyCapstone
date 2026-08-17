@@ -72,7 +72,38 @@ public class UserController : ControllerBase
         return NoContent();
     }
 
-    [HttpDelete("{id:int}")]
+        [HttpPut("me/infor")]
+        public async Task<IActionResult> UpdateUserInfor(
+    [FromBody] UpdateUserInforDto dto)
+        {
+            var currentUserIdString =
+                User.FindFirst(
+                    System.Security.Claims.ClaimTypes.NameIdentifier
+                )?.Value;
+
+            if (!int.TryParse(
+                    currentUserIdString,
+                    out var currentUserId))
+            {
+                return Unauthorized();
+            }
+
+            var result = await _userService.UpdateUserInforAsync(
+                currentUserId,
+                dto
+            );
+
+            if (!result)
+            {
+                return BadRequest(
+                    "Email đã tồn tại hoặc user không tồn tại."
+                );
+            }
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id:int}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
