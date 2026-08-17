@@ -160,9 +160,23 @@ public class UserController : ControllerBase
         return NoContent();
     }
 
+        [HttpGet("public/{id:int}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetPublicUser(int id)
+        {
+            var user = await _userService.GetByIdAsync(id);
+
+            if (user == null)
+                return NotFound();
+
+            return Ok(new
+            {
+                user.UserId,
+                user.FullName
+            });
+        }
 
 
 
-
-}
+    }
 }

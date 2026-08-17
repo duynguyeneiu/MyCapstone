@@ -156,5 +156,21 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "UserService.API.Controllers.UserController",
+    "Method": "GetPublicUser",
+    "RelativePath": "api/User/public/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
   }
 ]

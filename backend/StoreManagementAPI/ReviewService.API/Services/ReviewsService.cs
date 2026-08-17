@@ -10,15 +10,17 @@ namespace ReviewService.API.Services
         private readonly IReviewRepository _reviewRepository;
         private readonly IOrderServiceClient _orderServiceClient;
         private readonly ICatalogServiceClient _catalogServiceClient;
-
+        private readonly IUserServiceClient _userServiceClient;
         public ReviewsService(
-      IReviewRepository reviewRepository,
-      IOrderServiceClient orderServiceClient,
-      ICatalogServiceClient catalogServiceClient)
+    IReviewRepository reviewRepository,
+    IOrderServiceClient orderServiceClient,
+    ICatalogServiceClient catalogServiceClient,
+    IUserServiceClient userServiceClient)
         {
             _reviewRepository = reviewRepository;
             _orderServiceClient = orderServiceClient;
             _catalogServiceClient = catalogServiceClient;
+            _userServiceClient = userServiceClient;
         }
         public async Task<IEnumerable<ReviewResponseDto>> GetAllAsync()
         {
@@ -28,13 +30,35 @@ namespace ReviewService.API.Services
         }
 
         public async Task<IEnumerable<ReviewResponseDto>>
-            GetByProductIdAsync(int productId)
+    GetByProductIdAsync(int productId)
         {
             var reviews =
                 await _reviewRepository
                     .GetByProductIdAsync(productId);
 
-            return reviews.Select(MapToDto);
+            var result = new List<ReviewResponseDto>();
+
+            foreach (var review in reviews)
+            {
+                var fullName =
+                    await _userServiceClient
+                        .GetUserFullNameAsync(review.UserId);
+
+                result.Add(new ReviewResponseDto
+                {
+                    ReviewId = review.ReviewId,
+                    ProductId = review.ProductId,
+                    UserId = review.UserId,
+                    UserName = fullName,
+                    OrderId = review.OrderId,
+                    Rating = review.Rating,
+                    Comment = review.Comment,
+                    CreatedAt = review.CreatedAt,
+                    UpdatedAt = review.UpdatedAt
+                });
+            }
+
+            return result;
         }
 
         public async Task<ReviewResponseDto?> GetByIdAsync(
