@@ -8,6 +8,7 @@
         public int ProductId { get; set; }
 
         public int UserId { get; set; }
+        public string? UserName { get; set; }
 
         public int OrderId { get; set; }
 

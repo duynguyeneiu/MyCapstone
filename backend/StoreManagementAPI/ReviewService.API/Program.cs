@@ -55,7 +55,6 @@ builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 
 builder.Services.AddScoped<IReviewService, ReviewsService>();
 
-
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(options =>
@@ -90,7 +89,11 @@ builder.Services.AddHttpClient<ICatalogServiceClient, CatalogServiceClient>(
     });
 
 
-
+builder.Services.AddHttpClient<IUserServiceClient, UserServiceClient>(client =>
+{
+    client.BaseAddress = new Uri(
+            builder.Configuration["Services:UserService"]!);
+});
 
 
 

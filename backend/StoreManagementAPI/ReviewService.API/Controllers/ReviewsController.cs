@@ -28,9 +28,10 @@ namespace ReviewService.API.Controllers
             return Ok(reviews);
         }
 
+        [AllowAnonymous]
         [HttpGet("product/{productId:int}")]
         public async Task<IActionResult> GetByProduct(
-            int productId)
+     int productId)
         {
             var reviews =
                 await _reviewService
@@ -207,5 +208,7 @@ namespace ReviewService.API.Controllers
                     });
             }
         }
+
+       
     }
 }
