@@ -2,77 +2,126 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-// import { Product } from '../../lib/types';
 import { Product } from "@/src/lib/data";
 import { fmt, disc } from "../../lib/utils";
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
 import Badge from "./Badge";
-import Image from "next/image";
-// import StarRow from "./StarRow";
 
 interface ProductCardProps {
   p: Product;
   categoryName: string;
 }
 
-export default function ProductCard({ p, categoryName }: ProductCardProps) {
+export default function ProductCard({
+  p,
+  categoryName,
+}: ProductCardProps) {
   const router = useRouter();
-  const { addToCart } = useCart();
-  const { user } = useAuth();
+
+  const {
+    addToCart,
+  } = useCart();
+
+  const {
+    user,
+  } = useAuth();
+
   const d = disc(p);
 
   return (
     <div
-      onClick={() => router.push(`/product/${p.id}`)}
+      onClick={() =>
+        router.push(
+          `/product/${p.id}`,
+        )
+      }
       style={{
         background: "#fff",
         borderRadius: "1.25rem",
         overflow: "hidden",
-        boxShadow: "0 4px 24px rgba(0,0,0,.10)",
+        boxShadow:
+          "0 4px 24px rgba(0,0,0,.10)",
         cursor: "pointer",
         transition: "all .25s",
       }}
       onMouseEnter={(e) => {
-        (e.currentTarget as HTMLDivElement).style.transform =
+        (
+          e.currentTarget as HTMLDivElement
+        ).style.transform =
           "translateY(-4px)";
-        (e.currentTarget as HTMLDivElement).style.boxShadow =
+
+        (
+          e.currentTarget as HTMLDivElement
+        ).style.boxShadow =
           "0 12px 36px rgba(0,105,76,.22)";
       }}
       onMouseLeave={(e) => {
-        (e.currentTarget as HTMLDivElement).style.transform = "";
-        (e.currentTarget as HTMLDivElement).style.boxShadow =
+        (
+          e.currentTarget as HTMLDivElement
+        ).style.transform = "";
+
+        (
+          e.currentTarget as HTMLDivElement
+        ).style.boxShadow =
           "0 4px 24px rgba(0,0,0,.10)";
       }}
     >
+      {/* IMAGE */}
       <div
         style={{
-          background: "var(--teal-xs)",
+          background:
+            "var(--teal-xs)",
           height: 160,
           position: "relative",
           overflow: "hidden",
         }}
       >
-        <Image
-          src={p.image}
-          alt={p.name}
-          fill
-          style={{
-            objectFit: "contain",
-            padding: "0.5rem",
-          }}
-        />
+        {p.image ? (
+          <img
+            src={p.image}
+            alt={p.name}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+              padding: "0.5rem",
+              display: "block",
+            }}
+          />
+        ) : (
+          <div
+            style={{
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent:
+                "center",
+              color: "#94a3b8",
+              fontSize: ".8rem",
+            }}
+          >
+            No image
+          </div>
+        )}
+
         {d > 0 && (
           <span
             style={{
-              position: "absolute",
+              position:
+                "absolute",
               top: 8,
               right: 8,
-              background: "#fef9c3",
+              background:
+                "#fef9c3",
               color: "#854d0e",
-              borderRadius: 9999,
-              padding: ".15rem .6rem",
-              fontSize: ".72rem",
+              borderRadius:
+                9999,
+              padding:
+                ".15rem .6rem",
+              fontSize:
+                ".72rem",
               fontWeight: 600,
             }}
           >
@@ -80,93 +129,104 @@ export default function ProductCard({ p, categoryName }: ProductCardProps) {
           </span>
         )}
       </div>
-      <div style={{ padding: "1rem" }}>
+
+      {/* PRODUCT INFO */}
+      <div
+        style={{
+          padding: "1rem",
+        }}
+      >
         <Badge>
           {categoryName
             .split("-")
-            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+            .map(
+              (w) =>
+                w
+                  .charAt(0)
+                  .toUpperCase() +
+                w.slice(1),
+            )
             .join(" ")}
         </Badge>
+
         <p
           style={{
             fontWeight: 600,
-            fontSize: ".875rem",
+            fontSize:
+              ".875rem",
             lineHeight: 1.4,
-            margin: ".3rem 0 .25rem",
-            display: "-webkit-box",
+            margin:
+              ".3rem 0 .25rem",
+
+            display:
+              "-webkit-box",
+
             WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
+
+            WebkitBoxOrient:
+              "vertical",
+
             overflow: "hidden",
           }}
         >
           {p.name}
         </p>
-        {/* {p.rating > 0 && (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 4,
-              marginBottom: 8,
-            }}
-          >
-            <StarRow rating={p.rating} size="text-xs" />
-            <span style={{ fontSize: ".75rem", color: "#94a3b8" }}>
-              ({p.reviews})
-            </span>
-          </div>
-        )} */}
+
         <div
           style={{
             display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
+            alignItems:
+              "center",
+            justifyContent:
+              "space-between",
           }}
         >
           <div>
             <span
               style={{
                 fontWeight: 700,
-                fontSize: ".875rem",
-                color: "var(--teal)",
+                fontSize:
+                  ".875rem",
+                color:
+                  "var(--teal)",
               }}
             >
               {fmt(p.price)}
             </span>
-            {/* {p.original && (
-              <span
-                style={{
-                  textDecoration: "line-through",
-                  fontSize: ".75rem",
-                  color: "#94a3b8",
-                  marginLeft: 4,
-                }}
-              >
-                {fmt(p.original)}
-              </span>
-            )} */}
           </div>
+
+          {/* ADD TO CART */}
           <button
             onClick={(e) => {
               e.stopPropagation();
+
               if (!user) {
-                router.push("/login");
+                router.push(
+                  "/login",
+                );
                 return;
               }
+
               addToCart(p.id);
             }}
             style={{
               width: 32,
               height: 32,
-              borderRadius: "50%",
-              background: "var(--teal)",
+              borderRadius:
+                "50%",
+              background:
+                "var(--teal)",
               color: "#fff",
               border: "none",
-              cursor: "pointer",
-              fontSize: "1.1rem",
+              cursor:
+                "pointer",
+              fontSize:
+                "1.1rem",
               display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              alignItems:
+                "center",
+              justifyContent:
+                "center",
             }}
           >
             +
