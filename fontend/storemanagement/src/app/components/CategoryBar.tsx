@@ -1,30 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-
-type CatKey = 'all' | 'beverages' | 'snacks' | 'food' | 'personal-care' | 'household';
-
-const CATS: { key: CatKey; label: string; icon: string }[] = [
-  { key: 'all',           label: 'All Products',           icon: 'apps'             },
-  { key: 'beverages',     label: 'Beverages',              icon: 'local_drink'      },
-  { key: 'snacks',        label: 'Snacks & Confectionery', icon: 'cookie'           },
-  { key: 'food',          label: 'Food',                   icon: 'lunch_dining'     },
-  { key: 'personal-care', label: 'Personal Care',          icon: 'self_care'        },
-  { key: 'household',     label: 'Household Essentials',   icon: 'cleaning_services'},
-];
-
-const SUBCATS: Partial<Record<CatKey, { key: string; label: string }[]>> = {
-  beverages:       [{ key: 'water-soft-drinks', label: 'Water & Soft Drinks' }, { key: 'tea-coffee',     label: 'Tea & Coffee'         }],
-  snacks:          [{ key: 'chips-snacks',      label: 'Chips & Snacks'      }, { key: 'sweets',         label: 'Sweets'               }],
-  food:            [{ key: 'instant-foods',     label: 'Instant Foods'       }, { key: 'ready-canned',   label: 'Ready & Canned Foods' }],
-  'personal-care': [{ key: 'oral-hair-care',    label: 'Oral & Hair Care'    }, { key: 'body-skin-care', label: 'Body & Skin Care'     }],
-  household:       [{ key: 'laundry-cleaning',  label: 'Laundry & Cleaning'  }, { key: 'paper-storage',  label: 'Paper & Storage'      }],
-};
+import { categoryService } from '@/src/services/categoryService';
+import { Category } from '@/src/lib/data';
+import { CATEGORY_META, DEFAULT_CATEGORY_META } from '@/src/lib/categoryMeta';
 
 export default function CategoryBar() {
   const router = useRouter();
-  const [hoveredCat, setHoveredCat] = useState<CatKey | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [hoveredCat, setHoveredCat] = useState<number | null>(null);
+
+  useEffect(() => {
+    categoryService.getAll().then(setCategories).catch(err => console.error(err));
+  }, []);
+
+  const topCategories = categories.filter(c => c.parentCategoryId == null);
 
   return (
     <div style={{
@@ -35,19 +26,39 @@ export default function CategoryBar() {
       zIndex: 40,
     }}>
       <div style={{ display: 'flex', gap: '0.5rem', maxWidth: 1280, margin: '0 auto' }}>
-        {CATS.map(({ key, label, icon }) => {
-          const subs = SUBCATS[key] ?? [];
-          const isHovered = hoveredCat === key;
+        {/* All Products — always present, not tied to any category id */}
+        <div style={{ position: 'relative' }}>
+          <button
+            onClick={() => router.push('/shop')}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '.3rem .85rem', borderRadius: 9999,
+              border: '1.5px solid var(--amber-border)',
+              fontSize: '.8rem', fontWeight: 500,
+              background: 'var(--amber-xs)',
+              color: 'var(--amber-dk)',
+              cursor: 'pointer', whiteSpace: 'nowrap', transition: '.2s',
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>apps</span>
+            All Products
+          </button>
+        </div>
+
+        {topCategories.map(c => {
+          const meta = CATEGORY_META[c.name] ?? DEFAULT_CATEGORY_META;
+          const subs = categories.filter(s => s.parentCategoryId === c.id);
+          const isHovered = hoveredCat === c.id;
 
           return (
             <div
-              key={key}
+              key={c.id}
               style={{ position: 'relative' }}
-              onMouseEnter={() => { if (subs.length > 0) setHoveredCat(key); }}
+              onMouseEnter={() => { if (subs.length > 0) setHoveredCat(c.id); }}
               onMouseLeave={() => setHoveredCat(null)}
             >
               <button
-                onClick={() => router.push(key === 'all' ? '/shop' : `/shop?category=${key}`)}
+                onClick={() => router.push(`/shop?category=${c.id}`)}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 6,
                   padding: '.3rem .85rem', borderRadius: 9999,
@@ -58,8 +69,8 @@ export default function CategoryBar() {
                   cursor: 'pointer', whiteSpace: 'nowrap', transition: '.2s',
                 }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>{icon}</span>
-                {label}
+                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>{meta.icon}</span>
+                {c.name}
                 {subs.length > 0 && (
                   <span className="material-symbols-outlined" style={{ fontSize: '14px', marginLeft: -2, transition: '.2s' }}>
                     {isHovered ? 'expand_less' : 'expand_more'}
@@ -81,10 +92,10 @@ export default function CategoryBar() {
                   }}>
                     {subs.map(s => (
                       <button
-                        key={s.key}
+                        key={s.id}
                         onClick={() => {
                           setHoveredCat(null);
-                          router.push(`/shop?category=${key}&sub=${s.key}`);
+                          router.push(`/shop?category=${c.id}&sub=${s.id}`);
                         }}
                         style={{
                           display: 'flex', alignItems: 'center', gap: 8,
@@ -105,7 +116,7 @@ export default function CategoryBar() {
                         }}
                       >
                         <span className="material-symbols-outlined" style={{ fontSize: '14px', color: 'var(--teal)' }}>chevron_right</span>
-                        {s.label}
+                        {s.name}
                       </button>
                     ))}
                   </div>

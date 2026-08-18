@@ -41,7 +41,7 @@ export default function CreateUserPage() {
         roleId: Number(form.roleId),
         status: 'Active',
       })
-      router.push('/admin/users')
+      router.push('/admin')
     } catch (err) {
       console.error('Failed to create user:', err)
       setError('Failed to create user. Please check the fields and try again.')

@@ -51,8 +51,8 @@ export default function VerifyPage() {
     const otp = digits.join('');
     if (otp.length < 5) { setError('Please enter the 5-digit code'); return; }
     setLoading(true);
-    setTimeout(() => {
-      const result = completeRegister(otp);
+    setTimeout(async () => {
+      const result = await completeRegister(otp);
       setLoading(false);
       if (!result.success) { setError(result.error ?? 'Verification failed'); return; }
       router.push('/');

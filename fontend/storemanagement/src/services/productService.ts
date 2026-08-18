@@ -64,64 +64,62 @@ export interface PagedProducts {
 
 export const productService = {
   async getAll(): Promise<Product[]> {
-    const res = await api.get<PagedResult<ApiProduct>>("/products", {
+    const res = await api.get<PagedResult<ApiProduct>>("/Products", {
       params: { page: 1, pageSize: 1000 },
     });
     return res.data.items.map(mapProduct);
   },
 
-  // Server-side pagination/search — use this over getAll() when the list
-  // can grow large and you don't need every row loaded client-side at once.
-  async getPaged(params: { page?: number; pageSize?: number; keyword?: string } = {}): Promise<PagedProducts> {
-    const res = await api.get<PagedResult<ApiProduct>>("/products", {
+  async getPaged(
+    params: { page?: number; pageSize?: number; keyword?: string } = {},
+  ): Promise<PagedProducts> {
+    const res = await api.get<PagedResult<ApiProduct>>("/Products", {
       params: { page: 1, pageSize: 10, ...params },
     });
     return { ...res.data, items: res.data.items.map(mapProduct) };
   },
 
-  // Server-side pagination scoped to one category — backend has no combined
-  // category+keyword filter, so this is keyword-less by design.
-  async getByCategory(categoryId: number, params: { page?: number; pageSize?: number } = {}): Promise<PagedProducts> {
-    const res = await api.get<PagedResult<ApiProduct>>(`/products/category/${categoryId}`, {
-      params: { page: 1, pageSize: 10, ...params },
-    });
+  async getByCategory(
+    categoryId: number,
+    params: { page?: number; pageSize?: number } = {},
+  ): Promise<PagedProducts> {
+    const res = await api.get<PagedResult<ApiProduct>>(
+      `/Products/category/${categoryId}`,
+      {
+        params: { page: 1, pageSize: 10, ...params },
+      },
+    );
     return { ...res.data, items: res.data.items.map(mapProduct) };
   },
 
   async getById(id: number): Promise<Product> {
-    const res = await api.get<ApiProduct>(`/products/${id}`);
+    const res = await api.get<ApiProduct>(`/Products/${id}`);
     return mapProduct(res.data);
   },
 
-  // Returns the full raw backend shape for every product (incl.
-  // productCode/unit/importPrice/status) — needed by admin listings that
-  // show cost data the customer-facing Product type doesn't carry.
   async getAllRaw(): Promise<ApiProductRaw[]> {
-    const res = await api.get<PagedResult<ApiProductRaw>>("/products", {
+    const res = await api.get<PagedResult<ApiProductRaw>>("/Products", {
       params: { page: 1, pageSize: 1000 },
     });
     return res.data.items;
   },
 
-  // Returns the raw backend shape (incl. productCode/unit/importPrice/status)
-  // — needed so edit forms can round-trip a full entity to the PUT endpoint,
-  // which replaces the whole row rather than patching individual fields.
   async getRawById(id: number): Promise<ApiProductRaw> {
-    const res = await api.get<ApiProductRaw>(`/products/${id}`);
+    const res = await api.get<ApiProductRaw>(`/Products/${id}`);
     return res.data;
   },
 
   async create(data: ApiProductRaw) {
-    const res = await api.post("/products", data);
+    const res = await api.post("/Products", data);
     return res.data;
   },
 
   async update(id: number, data: ApiProductRaw) {
-    const res = await api.put(`/products/${id}`, data);
+    const res = await api.put(`/Products/${id}`, data);
     return res.data;
   },
 
   async delete(id: number) {
-    await api.delete(`/products/${id}`);
+    await api.delete(`/Products/${id}`);
   },
 };

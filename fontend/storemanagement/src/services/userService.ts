@@ -21,27 +21,43 @@ export type ApiUserWrite = Omit<ApiUser, "role">;
 
 export const userService = {
   async getAll(): Promise<ApiUser[]> {
-    const res = await api.get<ApiUser[]>("/Users");
+    const res = await api.get<ApiUser[]>("/User");
     return res.data;
   },
 
   async getById(id: number): Promise<ApiUser> {
-    const res = await api.get<ApiUser>(`/Users/${id}`);
+    const res = await api.get<ApiUser>(`/User/${id}`);
     return res.data;
   },
 
-  async create(data: Partial<ApiUserWrite> & { username: string; password: string }) {
-    const res = await api.post("/Users", data);
+  async create(
+    data: Partial<ApiUserWrite> & { username: string; password: string },
+  ) {
+    const res = await api.post("/User", data);
     return res.data;
   },
 
-  // PUT replaces the whole row — pass the full entity (minus the Role nav
-  // property) so fields you don't touch aren't wiped out.
   async update(id: number, data: ApiUserWrite) {
-    await api.put(`/Users/${id}`, data);
+    await api.put(`/User/${id}`, data);
   },
 
   async delete(id: number) {
-    await api.delete(`/Users/${id}`);
+    await api.delete(`/User/${id}`);
+  },
+
+  async changePassword(
+    id: number,
+    data: { currentPassword: string; newPassword: string },
+  ) {
+    await api.put(`/User/${id}/password`, data);
+  },
+
+  async updateMyInfo(data: {
+    fullName?: string;
+    gender?: string;
+    email?: string;
+    address?: string;
+  }) {
+    await api.put("/User/me/infor", data);
   },
 };

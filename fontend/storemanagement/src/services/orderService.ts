@@ -34,30 +34,30 @@ export interface CheckoutRequest {
 
 export const orderService = {
   async checkout(data: CheckoutRequest): Promise<Order> {
-    const res = await orderApi.post<Order>("/order/checkout", data);
+    const res = await orderApi.post<Order>("/Order/checkout", data);
     return res.data;
   },
 
   async getByUser(userId: number): Promise<Order[]> {
-    const res = await orderApi.get<Order[]>(`/order/user/${userId}`);
+    const res = await orderApi.get<Order[]>(`/Order/user/${userId}`);
     return res.data;
   },
 
   async getAll(): Promise<Order[]> {
-    const res = await orderApi.get<Order[]>("/order");
+    const res = await orderApi.get<Order[]>("/Order");
     return res.data;
   },
 
   async getById(orderId: number): Promise<Order> {
-    const res = await orderApi.get<Order>(`/order/${orderId}`);
+    const res = await orderApi.get<Order>(`/Order/${orderId}`);
     return res.data;
   },
 
   async cancel(orderId: number): Promise<void> {
-    await orderApi.put(`/order/${orderId}/cancel`);
+    await orderApi.put(`/Order/${orderId}/cancel`);
   },
 
   async updateStatus(orderId: number, status: string): Promise<void> {
-    await orderApi.put(`/order/${orderId}/status`, { status });
+    await orderApi.put(`/Order/${orderId}/status`, { status });
   },
 };

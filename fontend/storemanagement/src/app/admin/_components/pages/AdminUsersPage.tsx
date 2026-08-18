@@ -1,514 +1,326 @@
 'use client';
-import { useState } from 'react';
+
+import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
+import { userService, ApiUser } from '@/src/services/userService';
 
 interface Props { search: string; }
 
 const pageCSS = `
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Hanken+Grotesk:wght@600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
-.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+.font-hanken { font-family: 'Hanken Grotesk', sans-serif; }
 .usr-tab { padding: 8px 22px; font-size: 14px; font-weight: 500; border-radius: 999px; border: 2px solid #00a86b; color: #00694c; cursor: pointer; transition: all .18s; background: #fff; }
 .usr-tab:hover { background: #e0f5ed; }
 .usr-tab.tab-active { background: linear-gradient(135deg,#00694c,#00a86b); color: #fff; border-color: transparent; box-shadow: 0 2px 8px #00694c44; }
 .filter-select { background: #fff8e6; border: 1.5px solid #fcd97a; border-radius: 8px; padding: 8px 12px; font-size: 13px; color: #3d4943; outline: none; }
-.filter-select:focus { border-color: #f59e0b; }
-.modal-input { border: 1.5px solid #c8e4d8; background: #f4fbf7; border-radius: 8px; padding: 8px 12px; font-size: 14px; width: 100%; outline: none; }
-.modal-input:focus { border-color: #00694c; }
 `;
 
-const avatarColors = ['#00694c','#b47b10','#00694c','#b47b10','#004d38','#854f0b','#00a86b','#f59e0b'];
+const AVATAR_COLORS = ['#00694c', '#b47b10', '#1d6fb8', '#7c3aed', '#004d38', '#854f0b', '#00a86b', '#f59e0b'];
+const PAGE_SIZE = 6;
 
-function initials(name: string) { return name.split(' ').map((w: string) => w[0]).slice(-2).join('').toUpperCase(); }
+function initials(name: string) {
+  return name.split(' ').map((w) => w[0]).slice(-2).join('').toUpperCase();
+}
 
-interface Customer { id: number; name: string; gender: string; phone: string; email: string; address: string; username: string; points: number; registered: string; status: string; }
-interface Staff { id: number; name: string; phone: string; email: string; username: string; role: string; address: string; status: string; }
+function isStaffRole(u: ApiUser) {
+  const name = u.role?.roleName?.toLowerCase();
+  if (name) return name === 'admin' || name === 'staff';
+  return u.roleId === 1 || u.roleId === 2;
+}
 
-const initialCustomers: Customer[] = [
-  { id:1,  name:'Minh Hoang',  gender:'Male',   phone:'0901234567', email:'minh@gmail.com',     address:'123 Le Loi, Q1',       username:'minhhoang',  points:1250, registered:'12 Jan 2024', status:'Active' },
-  { id:2,  name:'Phuong Linh', gender:'Female', phone:'0912345678', email:'phuong@gmail.com',   address:'45 Nguyen Hue, Q1',    username:'phuonglinh', points:890,  registered:'20 Jan 2024', status:'Active' },
-  { id:3,  name:'Tran Anh',    gender:'Male',   phone:'0923456789', email:'trananh@gmail.com',  address:'78 Hai Ba Trung, Q3',  username:'trananh',    points:2100, registered:'05 Feb 2024', status:'Active' },
-  { id:4,  name:'Duc Huy',     gender:'Male',   phone:'0934567890', email:'duchuy@gmail.com',   address:'12 Vo Van Tan, Q3',    username:'duchuy',     points:450,  registered:'14 Feb 2024', status:'Locked' },
-  { id:5,  name:'Lan Anh',     gender:'Female', phone:'0945678901', email:'lananh@gmail.com',   address:'22 Vo Thi Sau, Q3',    username:'lananh',     points:980,  registered:'01 Mar 2024', status:'Active' },
-  { id:6,  name:'Bao Long',    gender:'Male',   phone:'0956789012', email:'baolong@gmail.com',  address:'55 CMT8, Q10',         username:'baolong',    points:320,  registered:'10 Mar 2024', status:'Active' },
-  { id:7,  name:'Thu Hang',    gender:'Female', phone:'0967890123', email:'thuhang@gmail.com',  address:'33 Le Van Sy, Q3',     username:'thuhang',    points:1560, registered:'22 Mar 2024', status:'Active' },
-  { id:8,  name:'Quoc Viet',   gender:'Male',   phone:'0978901234', email:'quocviet@gmail.com', address:'88 Nguyen Dinh Chieu', username:'quocviet',   points:760,  registered:'05 Apr 2024', status:'Locked' },
-  { id:9,  name:'My Linh',     gender:'Female', phone:'0989012345', email:'mylinh@gmail.com',   address:'17 Tran Hung Dao, Q1', username:'mylinh',     points:430,  registered:'18 Apr 2024', status:'Active' },
-  { id:10, name:'Thanh Tung',  gender:'Male',   phone:'0990123456', email:'thanhtung@gmail.com',address:'9 Dinh Tien Hoang, Q1',username:'thanhtung',  points:95,   registered:'02 May 2024', status:'Locked' },
-];
-
-const initialStaff: Staff[] = [
-  { id:1, name:'Alex Nguyen', phone:'0901111111', email:'alex@retailpro.vn',  username:'alex.nguyen', role:'Admin', address:'HCM City', status:'Active' },
-  { id:2, name:'Minh Tran',   phone:'0902222222', email:'minh@retailpro.vn',  username:'minh.tran',   role:'Staff', address:'HCM City', status:'Active' },
-  { id:3, name:'Lan Pham',    phone:'0903333333', email:'lan@retailpro.vn',   username:'lan.pham',    role:'Staff', address:'HCM City', status:'Active' },
-  { id:4, name:'Hung Le',     phone:'0904444444', email:'hung@retailpro.vn',  username:'hung.le',     role:'Staff', address:'HCM City', status:'Active' },
-  { id:5, name:'Thao Nguyen', phone:'0905555555', email:'thao@retailpro.vn',  username:'thao.nguyen', role:'Staff', address:'HCM City', status:'Locked' },
-];
-
-const emptyCust = { name: '', gender: 'Male', phone: '', email: '', address: '', username: '', status: 'Active' };
-const emptyStaff = { name: '', phone: '', email: '', username: '', password: '', address: '', role: 'Staff', status: 'Active' };
+function isActive(u: ApiUser) {
+  return (u.status ?? '').toLowerCase() === 'active';
+}
 
 export default function AdminUsersPage({ search }: Props) {
-  const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
-  const [staff, setStaff] = useState<Staff[]>(initialStaff);
-  const [activeTab, setActiveTab] = useState<'customers' | 'staff'>('customers');
-  const [custStatusFilter, setCustStatusFilter] = useState('');
+  const [users, setUsers] = useState<ApiUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [tab, setTab] = useState<'customers' | 'staff'>('customers');
+  const [statusFilter, setStatusFilter] = useState('');
   const [genderFilter, setGenderFilter] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
+  const [page, setPage] = useState(1);
+  const [lockTarget, setLockTarget] = useState<ApiUser | null>(null);
+  const [lockBusy, setLockBusy] = useState(false);
 
-  // Customer modal
-  const [custOpen, setCustOpen] = useState(false);
-  const [editCustId, setEditCustId] = useState<number | null>(null);
-  const [custForm, setCustForm] = useState(emptyCust);
+  const load = () => {
+    setLoading(true);
+    userService
+      .getAll()
+      .then(setUsers)
+      .catch((err) => {
+        console.error(err);
+        setError('Failed to load users.');
+      })
+      .finally(() => setLoading(false));
+  };
 
-  // Staff modal
-  const [staffOpen, setStaffOpen] = useState(false);
-  const [editStaffId, setEditStaffId] = useState<number | null>(null);
-  const [staffForm, setStaffForm] = useState(emptyStaff);
+  useEffect(load, []);
 
-  // Lock modal
-  const [lockOpen, setLockOpen] = useState(false);
-  const [lockTarget, setLockTarget] = useState<number | null>(null);
-  const [lockType, setLockType] = useState<'customer' | 'staff'>('customer');
+  const customers = useMemo(() => users.filter((u) => !isStaffRole(u)), [users]);
+  const staff = useMemo(() => users.filter(isStaffRole), [users]);
 
-  const filteredCustomers = () => customers.filter(c =>
-    (!search || c.name.toLowerCase().includes(search.toLowerCase()) || c.phone.includes(search) || c.email.toLowerCase().includes(search.toLowerCase())) &&
-    (!custStatusFilter || c.status === custStatusFilter) &&
-    (!genderFilter || c.gender === genderFilter)
+  // Status values are derived from real data rather than assumed, since the
+  // backend doesn't document a fixed enum for User.status.
+  const statusOptions = useMemo(
+    () => [...new Set(users.map((u) => u.status).filter(Boolean))],
+    [users]
   );
 
-  const filteredStaff = () => staff.filter(s =>
-    (!search || s.name.toLowerCase().includes(search.toLowerCase()) || s.phone.includes(search) || s.email.toLowerCase().includes(search.toLowerCase())) &&
-    (!roleFilter || s.role === roleFilter)
+  const now = new Date();
+  const newThisMonth = users.filter((u) => {
+    const raw = u.registerDate ?? u.createdAt;
+    if (!raw) return false;
+    const d = new Date(raw);
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  }).length;
+  const inactiveCount = users.filter((u) => !isActive(u)).length;
+
+  const q = search.trim().toLowerCase();
+  const filteredCustomers = useMemo(
+    () =>
+      customers.filter(
+        (u) =>
+          (!q ||
+            u.fullName.toLowerCase().includes(q) ||
+            (u.phone ?? '').includes(q) ||
+            (u.email ?? '').toLowerCase().includes(q)) &&
+          (!statusFilter || u.status === statusFilter) &&
+          (!genderFilter || (u.gender ?? '').toLowerCase() === genderFilter.toLowerCase())
+      ),
+    [customers, q, statusFilter, genderFilter]
+  );
+  const filteredStaff = useMemo(
+    () =>
+      staff.filter(
+        (u) =>
+          (!q ||
+            u.fullName.toLowerCase().includes(q) ||
+            (u.phone ?? '').includes(q) ||
+            (u.email ?? '').toLowerCase().includes(q)) &&
+          (!roleFilter || (u.role?.roleName ?? '').toLowerCase() === roleFilter.toLowerCase())
+      ),
+    [staff, q, roleFilter]
   );
 
-  const openAddCust = () => { setEditCustId(null); setCustForm(emptyCust); setCustOpen(true); };
-  const openEditCust = (id: number) => {
-    const c = customers.find(x => x.id === id);
-    if (!c) return;
-    setEditCustId(id);
-    setCustForm({ name: c.name, gender: c.gender, phone: c.phone, email: c.email, address: c.address, username: c.username, status: c.status });
-    setCustOpen(true);
+  const activeList = tab === 'customers' ? filteredCustomers : filteredStaff;
+  const totalPages = Math.max(1, Math.ceil(activeList.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const pagedList = activeList.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
+  const switchTab = (t: 'customers' | 'staff') => {
+    setTab(t);
+    setPage(1);
   };
-  const saveCust = () => {
-    if (!custForm.name.trim()) { alert('Name is required'); return; }
-    if (editCustId) {
-      setCustomers(prev => prev.map(c => c.id === editCustId ? { ...c, ...custForm } : c));
-    } else {
-      setCustomers(prev => [...prev, { id: Date.now(), ...custForm, points: 0, registered: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) }]);
+
+  const confirmLockToggle = async () => {
+    if (!lockTarget) return;
+    setLockBusy(true);
+    try {
+      const { role, ...rest } = lockTarget;
+      const nextStatus = isActive(lockTarget) ? 'Inactive' : 'Active';
+      await userService.update(lockTarget.userId, { ...rest, status: nextStatus });
+      setUsers((prev) =>
+        prev.map((u) => (u.userId === lockTarget.userId ? { ...u, status: nextStatus } : u))
+      );
+      setLockTarget(null);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLockBusy(false);
     }
-    setCustOpen(false);
   };
-
-  const openAddStaff = () => { setEditStaffId(null); setStaffForm(emptyStaff); setStaffOpen(true); };
-  const openEditStaff = (id: number) => {
-    const s = staff.find(x => x.id === id);
-    if (!s) return;
-    setEditStaffId(id);
-    setStaffForm({ name: s.name, phone: s.phone, email: s.email, username: s.username, password: '', address: s.address, role: s.role, status: s.status });
-    setStaffOpen(true);
-  };
-  const saveStaff = () => {
-    if (!staffForm.name.trim()) { alert('Name is required'); return; }
-    if (editStaffId) {
-      setStaff(prev => prev.map(s => s.id === editStaffId ? { ...s, ...staffForm } : s));
-    } else {
-      setStaff(prev => [...prev, { id: Date.now(), name: staffForm.name, phone: staffForm.phone, email: staffForm.email, username: staffForm.username, address: staffForm.address, role: staffForm.role, status: staffForm.status }]);
-    }
-    setStaffOpen(false);
-  };
-
-  const openLock = (id: number, type: 'customer' | 'staff') => { setLockTarget(id); setLockType(type); setLockOpen(true); };
-  const confirmLock = () => {
-    if (lockType === 'customer') {
-      setCustomers(prev => prev.map(c => c.id === lockTarget ? { ...c, status: c.status === 'Active' ? 'Locked' : 'Active' } : c));
-    } else {
-      setStaff(prev => prev.map(s => s.id === lockTarget ? { ...s, status: s.status === 'Active' ? 'Locked' : 'Active' } : s));
-    }
-    setLockOpen(false);
-  };
-
-  const lockUser = lockType === 'customer'
-    ? customers.find(c => c.id === lockTarget)
-    : staff.find(s => s.id === lockTarget);
-  const isLocking = lockUser?.status === 'Active';
-
-  const PAGE_SIZE = 6;
-  const [curPage, setCurPage] = useState(1);
-  const custData = filteredCustomers();
-  const staffData = filteredStaff();
-  const totalPages = Math.max(1, Math.ceil(custData.length / PAGE_SIZE));
-  const pagedCustData = custData.slice((curPage - 1) * PAGE_SIZE, curPage * PAGE_SIZE);
-  const goTo = (p: number) => setCurPage(Math.max(1, Math.min(p, totalPages)));
 
   return (
     <>
       <style>{pageCSS}</style>
-      <div className="p-8 space-y-6">
-          {/* Stats */}
-          <div className="grid grid-cols-4 gap-5">
-            <div className="stat-card bg-surface-container-lowest border rounded-xl p-6 flex flex-col justify-between" style={{ borderColor: '#b8e0cc', boxShadow: '0 0 0 1px #00694c1a,0 4px 20px #00694c14' }}>
-              <div className="flex justify-between items-start">
-                <div><p className="text-on-surface-variant font-label-md text-label-md mb-1">Total Customers</p><h3 className="font-bold" style={{ fontSize: '24px' }}>1,284</h3></div>
-                <span className="material-symbols-outlined p-2 rounded-lg" style={{ color: '#00694c', background: '#e0f5ed' }}>group</span>
-              </div>
-              <div className="mt-4 flex items-center gap-1"><span className="material-symbols-outlined" style={{ color: '#00694c', fontSize: '18px' }}>trending_up</span><span className="font-label-sm text-label-sm" style={{ color: '#00694c' }}>+28 this month</span></div>
-            </div>
-            <div className="stat-card bg-surface-container-lowest border rounded-xl p-6 flex flex-col justify-between" style={{ borderColor: '#fcd97a', boxShadow: '0 0 0 1px #f59e0b1a,0 4px 20px #f59e0b14' }}>
-              <div className="flex justify-between items-start">
-                <div><p className="text-on-surface-variant font-label-md text-label-md mb-1">Staff Accounts</p><h3 className="font-bold" style={{ fontSize: '24px' }}>8</h3></div>
-                <span className="material-symbols-outlined p-2 rounded-lg" style={{ color: '#b47b10', background: '#fff3d6' }}>badge</span>
-              </div>
-              <div className="mt-4"><span className="font-label-sm text-label-sm" style={{ color: '#b47b10' }}>Active employees</span></div>
-            </div>
-            <div className="stat-card bg-surface-container-lowest border rounded-xl p-6 flex flex-col justify-between" style={{ borderColor: '#b8e0cc', boxShadow: '0 0 0 1px #00694c1a,0 4px 20px #00694c14' }}>
-              <div className="flex justify-between items-start">
-                <div><p className="text-on-surface-variant font-label-md text-label-md mb-1">New This Month</p><h3 className="font-bold" style={{ fontSize: '24px' }}>28</h3></div>
-                <span className="material-symbols-outlined p-2 rounded-lg" style={{ color: '#00694c', background: '#e0f5ed' }}>person_add</span>
-              </div>
-              <div className="mt-4 flex items-center gap-1"><span className="material-symbols-outlined" style={{ color: '#00694c', fontSize: '18px' }}>trending_up</span><span className="font-label-sm text-label-sm" style={{ color: '#00694c' }}>+5.2% vs last month</span></div>
-            </div>
-            <div className="stat-card bg-surface-container-lowest border rounded-xl p-6 flex flex-col justify-between" style={{ borderColor: '#fca5a5', boxShadow: '0 0 0 1px #dc262622,0 4px 20px #dc262614' }}>
-              <div className="flex justify-between items-start">
-                <div><p className="text-on-surface-variant font-label-md text-label-md mb-1">Locked Accounts</p><h3 className="font-bold" style={{ fontSize: '24px', color: '#dc2626' }}>3</h3></div>
-                <span className="material-symbols-outlined p-2 rounded-lg" style={{ color: '#dc2626', background: '#fee2e2' }}>lock</span>
-              </div>
-              <div className="mt-4"><span className="font-label-sm text-label-sm" style={{ color: '#dc2626' }}>Need review</span></div>
-            </div>
+      <div className="p-8 space-y-6 font-hanken">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-bold" style={{ color: '#191c1e' }}>Users</h1>
+            <p className="text-sm" style={{ color: '#6d7a73' }}>Manage customers and staff accounts</p>
           </div>
+          <Link href="/admin/users/create" className="flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-white text-sm" style={{ background: 'linear-gradient(135deg,#00694c,#00a86b)' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>add</span>
+            Add User
+          </Link>
+        </div>
 
-          {/* Tabs + Table */}
-          <div className="bg-surface-container-lowest border rounded-xl overflow-hidden" style={{ borderColor: '#c8e4d8' }}>
-            <div className="flex gap-2 px-6 py-3 border-b" style={{ borderColor: '#c8e4d8' }}>
-              <button className={`usr-tab${activeTab === 'customers' ? ' tab-active' : ''}`} onClick={() => setActiveTab('customers')}>Customers</button>
-              <button className={`usr-tab${activeTab === 'staff' ? ' tab-active' : ''}`} onClick={() => setActiveTab('staff')}>Staff</button>
+        {error && <p className="text-sm" style={{ color: '#dc2626' }}>{error}</p>}
+
+        {loading ? (
+          <div className="text-center py-20" style={{ color: '#94a3b8' }}>Loading users…</div>
+        ) : (
+          <>
+            {/* Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+              <div className="rounded-xl p-6 bg-white border" style={{ borderColor: '#b8e0cc', boxShadow: '0 4px 20px #00694c14' }}>
+                <div className="flex justify-between items-start">
+                  <div><p className="text-xs mb-1" style={{ color: '#6d7a73' }}>Total Customers</p><h3 className="text-xl font-bold">{customers.length}</h3></div>
+                  <span className="material-symbols-outlined p-2 rounded-lg" style={{ color: '#00694c', background: '#e0f5ed' }}>group</span>
+                </div>
+              </div>
+              <div className="rounded-xl p-6 bg-white border" style={{ borderColor: '#fcd97a', boxShadow: '0 4px 20px #f59e0b14' }}>
+                <div className="flex justify-between items-start">
+                  <div><p className="text-xs mb-1" style={{ color: '#6d7a73' }}>Staff Accounts</p><h3 className="text-xl font-bold">{staff.length}</h3></div>
+                  <span className="material-symbols-outlined p-2 rounded-lg" style={{ color: '#b47b10', background: '#fff3d6' }}>badge</span>
+                </div>
+              </div>
+              <div className="rounded-xl p-6 bg-white border" style={{ borderColor: '#b8e0cc', boxShadow: '0 4px 20px #00694c14' }}>
+                <div className="flex justify-between items-start">
+                  <div><p className="text-xs mb-1" style={{ color: '#6d7a73' }}>New This Month</p><h3 className="text-xl font-bold">{newThisMonth}</h3></div>
+                  <span className="material-symbols-outlined p-2 rounded-lg" style={{ color: '#00694c', background: '#e0f5ed' }}>person_add</span>
+                </div>
+              </div>
+              <div className="rounded-xl p-6 bg-white border" style={{ borderColor: '#fca5a5', boxShadow: '0 4px 20px #dc262614' }}>
+                <div className="flex justify-between items-start">
+                  <div><p className="text-xs mb-1" style={{ color: '#6d7a73' }}>Inactive Accounts</p><h3 className="text-xl font-bold" style={{ color: '#dc2626' }}>{inactiveCount}</h3></div>
+                  <span className="material-symbols-outlined p-2 rounded-lg" style={{ color: '#dc2626', background: '#fee2e2' }}>lock</span>
+                </div>
+              </div>
             </div>
 
-            {/* Customers Tab */}
-            {activeTab === 'customers' && (
-              <>
-                <div className="p-6 border-b flex items-center justify-between gap-3 flex-wrap" style={{ borderColor: '#c8e4d8' }}>
-                  <div className="flex items-center gap-3">
-                    <select value={custStatusFilter} onChange={e => setCustStatusFilter(e.target.value)} className="filter-select">
+            {/* Tabs + table */}
+            <div className="rounded-xl bg-white border overflow-hidden" style={{ borderColor: '#c8e4d8' }}>
+              <div className="flex gap-2 px-6 py-3 border-b" style={{ borderColor: '#c8e4d8' }}>
+                <button className={`usr-tab${tab === 'customers' ? ' tab-active' : ''}`} onClick={() => switchTab('customers')}>Customers</button>
+                <button className={`usr-tab${tab === 'staff' ? ' tab-active' : ''}`} onClick={() => switchTab('staff')}>Staff</button>
+              </div>
+
+              <div className="p-4 border-b flex items-center gap-3 flex-wrap" style={{ borderColor: '#c8e4d8' }}>
+                {tab === 'customers' ? (
+                  <>
+                    <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="filter-select">
                       <option value="">All Status</option>
-                      <option>Active</option>
-                      <option>Locked</option>
+                      {statusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
-                    <select value={genderFilter} onChange={e => setGenderFilter(e.target.value)} className="filter-select">
+                    <select value={genderFilter} onChange={(e) => { setGenderFilter(e.target.value); setPage(1); }} className="filter-select">
                       <option value="">All Gender</option>
-                      <option>Male</option>
-                      <option>Female</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
                     </select>
-                  </div>
-                  <button onClick={openAddCust} className="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg font-bold" style={{ fontSize: '14px' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add</span>
-                    Add Customer
-                  </button>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left">
-                    <thead style={{ background: '#f4fbf7' }}>
-                      <tr>
-                        <th className="px-4 py-3 w-10"><input type="checkbox" className="rounded" /></th>
-                        <th className="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Customer</th>
-                        <th className="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Phone</th>
-                        <th className="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Email</th>
-                        <th className="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Loyalty Points</th>
-                        <th className="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Registered</th>
-                        <th className="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Status</th>
-                        <th className="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase text-center">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y" style={{ borderColor: '#c8e4d8' }}>
-                      {pagedCustData.map((c, i) => (
-                        <tr key={c.id} className="transition-colors" style={{ borderColor: '#c8e4d8' }}>
-                          <td className="px-4 py-3"><input type="checkbox" className="rounded" /></td>
-                          <td className="px-4 py-3">
-                            <div className="flex items-center gap-3">
-                              <div className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0" style={{ background: avatarColors[i % avatarColors.length], fontSize: '12px' }}>
-                                {initials(c.name)}
-                              </div>
-                              <div>
-                                <p className="font-bold text-on-surface" style={{ fontSize: '13px' }}>{c.name}</p>
-                                <p className="text-on-surface-variant" style={{ fontSize: '11px' }}>{c.gender}</p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 text-on-surface" style={{ fontSize: '13px' }}>{c.phone}</td>
-                          <td className="px-4 py-3 text-on-surface-variant" style={{ fontSize: '12px' }}>{c.email}</td>
-                          <td className="px-4 py-3">
-                            <div className="flex items-center gap-1">
-                              <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#f59e0b' }}>star</span>
-                              <span className="font-bold text-on-surface" style={{ fontSize: '13px' }}>{c.points.toLocaleString()}</span>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 text-on-surface-variant" style={{ fontSize: '12px' }}>{c.registered}</td>
-                          <td className="px-4 py-3">
-                            {c.status === 'Active'
-                              ? <span style={{ background: '#e0f5ed', color: '#004d38', padding: '3px 10px', borderRadius: '99px', fontSize: '11px', fontWeight: 700 }}>Active</span>
-                              : <span style={{ background: '#fee2e2', color: '#7f1d1d', padding: '3px 10px', borderRadius: '99px', fontSize: '11px', fontWeight: 700 }}>Locked</span>
-                            }
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="flex items-center justify-center gap-2">
-                              <button onClick={() => openEditCust(c.id)} className="w-8 h-8 rounded-lg border flex items-center justify-center transition-colors" style={{ borderColor: '#c8e4d8' }}
-                                onMouseOver={e => { (e.currentTarget as HTMLButtonElement).style.background = '#e0f5ed'; (e.currentTarget as HTMLButtonElement).style.borderColor = '#00694c'; }}
-                                onMouseOut={e => { (e.currentTarget as HTMLButtonElement).style.background = ''; (e.currentTarget as HTMLButtonElement).style.borderColor = '#c8e4d8'; }} title="Edit">
-                                <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#3d4943' }}>edit</span>
-                              </button>
-                              <button onClick={() => openLock(c.id, 'customer')} className="w-8 h-8 rounded-lg border flex items-center justify-center transition-colors" style={{ borderColor: '#c8e4d8' }}
-                                onMouseOver={e => { (e.currentTarget as HTMLButtonElement).style.background = c.status === 'Active' ? '#fff3d6' : '#e0f5ed'; (e.currentTarget as HTMLButtonElement).style.borderColor = c.status === 'Active' ? '#f59e0b' : '#00694c'; }}
-                                onMouseOut={e => { (e.currentTarget as HTMLButtonElement).style.background = ''; (e.currentTarget as HTMLButtonElement).style.borderColor = '#c8e4d8'; }} title={c.status === 'Active' ? 'Lock' : 'Unlock'}>
-                                <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#3d4943' }}>{c.status === 'Active' ? 'lock' : 'lock_open'}</span>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                <div className="px-6 py-4 border-t flex items-center justify-center" style={{ borderColor: '#c8e4d8' }}>
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => goTo(curPage - 1)} disabled={curPage === 1}
-                      className="w-8 h-8 rounded-lg border flex items-center justify-center hover:bg-surface-container"
-                      style={{ borderColor: '#c8e4d8', opacity: curPage === 1 ? 0.4 : 1 }}>
-                      <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>chevron_left</span>
-                    </button>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
-                      <button key={p} onClick={() => goTo(p)}
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold${p === curPage ? ' btn-primary' : ' border hover:bg-surface-container'}`}
-                        style={{ fontSize: '13px', borderColor: p !== curPage ? '#c8e4d8' : undefined, color: p !== curPage ? '#3d4943' : undefined }}>
-                        {p}
-                      </button>
-                    ))}
-                    <button onClick={() => goTo(curPage + 1)} disabled={curPage === totalPages}
-                      className="w-8 h-8 rounded-lg border flex items-center justify-center hover:bg-surface-container"
-                      style={{ borderColor: '#c8e4d8', opacity: curPage === totalPages ? 0.4 : 1 }}>
-                      <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>chevron_right</span>
-                    </button>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* Staff Tab */}
-            {activeTab === 'staff' && (
-              <>
-                <div className="p-6 border-b flex items-center justify-between gap-3" style={{ borderColor: '#c8e4d8' }}>
-                  <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)} className="filter-select">
+                  </>
+                ) : (
+                  <select value={roleFilter} onChange={(e) => { setRoleFilter(e.target.value); setPage(1); }} className="filter-select">
                     <option value="">All Roles</option>
-                    <option>Admin</option>
-                    <option>Staff</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Staff">Staff</option>
                   </select>
-                  <button onClick={openAddStaff} className="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg font-bold" style={{ fontSize: '14px' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add</span>
-                    Add Staff
+                )}
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead style={{ background: '#f4fbf7' }}>
+                    <tr>
+                      <th className="px-4 py-3 text-xs uppercase" style={{ color: '#6d7a73' }}>{tab === 'customers' ? 'Customer' : 'Staff'}</th>
+                      <th className="px-4 py-3 text-xs uppercase" style={{ color: '#6d7a73' }}>Phone</th>
+                      <th className="px-4 py-3 text-xs uppercase" style={{ color: '#6d7a73' }}>Email</th>
+                      <th className="px-4 py-3 text-xs uppercase" style={{ color: '#6d7a73' }}>{tab === 'customers' ? 'Loyalty Points' : 'Role'}</th>
+                      <th className="px-4 py-3 text-xs uppercase" style={{ color: '#6d7a73' }}>Status</th>
+                      <th className="px-4 py-3 text-xs uppercase text-center" style={{ color: '#6d7a73' }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y" style={{ borderColor: '#f1f5f9' }}>
+                    {pagedList.map((u, i) => (
+                      <tr key={u.userId}>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0" style={{ background: AVATAR_COLORS[i % AVATAR_COLORS.length], fontSize: 12 }}>
+                              {initials(u.fullName)}
+                            </div>
+                            <div>
+                              <p className="font-bold" style={{ fontSize: 13 }}>{u.fullName}</p>
+                              <p style={{ fontSize: 11, color: '#6d7a73' }}>{tab === 'customers' ? (u.gender ?? '—') : u.username}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">{u.phone ?? '—'}</td>
+                        <td className="px-4 py-3" style={{ color: '#6d7a73' }}>{u.email ?? '—'}</td>
+                        <td className="px-4 py-3">
+                          {tab === 'customers' ? (
+                            <div className="flex items-center gap-1">
+                              <span className="material-symbols-outlined" style={{ fontSize: 16, color: '#f59e0b' }}>star</span>
+                              <span className="font-bold">{(u.loyaltyPoint ?? 0).toLocaleString()}</span>
+                            </div>
+                          ) : (
+                            <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold" style={{ background: '#fff3d6', color: '#7a5c00' }}>{u.role?.roleName ?? '—'}</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          {isActive(u) ? (
+                            <span className="px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: '#e0f5ed', color: '#004d38' }}>{u.status}</span>
+                          ) : (
+                            <span className="px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: '#fee2e2', color: '#7f1d1d' }}>{u.status || 'Inactive'}</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center justify-center gap-2">
+                            <Link href={`/admin/users/${u.userId}/edit`} className="w-8 h-8 rounded-lg border flex items-center justify-center" style={{ borderColor: '#c8e4d8' }} title="Edit">
+                              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>edit</span>
+                            </Link>
+                            <button onClick={() => setLockTarget(u)} className="w-8 h-8 rounded-lg border flex items-center justify-center" style={{ borderColor: '#c8e4d8' }} title={isActive(u) ? 'Deactivate' : 'Activate'}>
+                              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>{isActive(u) ? 'lock' : 'lock_open'}</span>
+                            </button>
+                            <Link href={`/admin/users/${u.userId}/delete`} className="w-8 h-8 rounded-lg border flex items-center justify-center" style={{ borderColor: '#fca5a5', color: '#dc2626' }} title="Delete">
+                              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>delete</span>
+                            </Link>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {pagedList.length === 0 && (
+                      <tr><td colSpan={6} className="px-6 py-8 text-center" style={{ color: '#94a3b8' }}>No users match your filters.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {totalPages > 1 && (
+                <div className="px-6 py-4 border-t flex items-center justify-center gap-1" style={{ borderColor: '#c8e4d8' }}>
+                  <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={safePage === 1}
+                    className="w-8 h-8 rounded-lg border flex items-center justify-center" style={{ borderColor: '#c8e4d8', opacity: safePage === 1 ? 0.4 : 1 }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>chevron_left</span>
+                  </button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                    <button key={p} onClick={() => setPage(p)}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm"
+                      style={p === safePage
+                        ? { background: 'linear-gradient(135deg,#00694c,#00a86b)', color: '#fff' }
+                        : { border: '1px solid #c8e4d8', color: '#3d4943' }}>
+                      {p}
+                    </button>
+                  ))}
+                  <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={safePage === totalPages}
+                    className="w-8 h-8 rounded-lg border flex items-center justify-center" style={{ borderColor: '#c8e4d8', opacity: safePage === totalPages ? 0.4 : 1 }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>chevron_right</span>
                   </button>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left">
-                    <thead style={{ background: '#f4fbf7' }}>
-                      <tr>
-                        <th className="px-4 py-3 w-10"><input type="checkbox" className="rounded" /></th>
-                        <th className="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Staff</th>
-                        <th className="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Phone</th>
-                        <th className="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Email</th>
-                        <th className="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Role</th>
-                        <th className="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Status</th>
-                        <th className="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase text-center">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y" style={{ borderColor: '#c8e4d8' }}>
-                      {staffData.map((s, i) => (
-                        <tr key={s.id} className="transition-colors" style={{ borderColor: '#c8e4d8' }}>
-                          <td className="px-4 py-3"><input type="checkbox" className="rounded" /></td>
-                          <td className="px-4 py-3">
-                            <div className="flex items-center gap-3">
-                              <div className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0" style={{ background: avatarColors[(i + 2) % avatarColors.length], fontSize: '12px' }}>
-                                {initials(s.name)}
-                              </div>
-                              <div>
-                                <p className="font-bold text-on-surface" style={{ fontSize: '13px' }}>{s.name}</p>
-                                <p className="text-on-surface-variant" style={{ fontSize: '11px' }}>{s.username}</p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 text-on-surface" style={{ fontSize: '13px' }}>{s.phone}</td>
-                          <td className="px-4 py-3 text-on-surface-variant" style={{ fontSize: '12px' }}>{s.email}</td>
-                          <td className="px-4 py-3">
-                            {s.role === 'Admin'
-                              ? <span style={{ background: '#fff3d6', color: '#7a5c00', padding: '2px 8px', borderRadius: '99px', fontSize: '11px', fontWeight: 600 }}>Admin</span>
-                              : <span style={{ background: '#e0f5ed', color: '#004d38', padding: '2px 8px', borderRadius: '99px', fontSize: '11px', fontWeight: 600 }}>Staff</span>
-                            }
-                          </td>
-                          <td className="px-4 py-3">
-                            {s.status === 'Active'
-                              ? <span style={{ background: '#e0f5ed', color: '#004d38', padding: '3px 10px', borderRadius: '99px', fontSize: '11px', fontWeight: 700 }}>Active</span>
-                              : <span style={{ background: '#fee2e2', color: '#7f1d1d', padding: '3px 10px', borderRadius: '99px', fontSize: '11px', fontWeight: 700 }}>Locked</span>
-                            }
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="flex items-center justify-center gap-2">
-                              <button onClick={() => openEditStaff(s.id)} className="w-8 h-8 rounded-lg border flex items-center justify-center transition-colors" style={{ borderColor: '#c8e4d8' }}
-                                onMouseOver={e => { (e.currentTarget as HTMLButtonElement).style.background = '#e0f5ed'; (e.currentTarget as HTMLButtonElement).style.borderColor = '#00694c'; }}
-                                onMouseOut={e => { (e.currentTarget as HTMLButtonElement).style.background = ''; (e.currentTarget as HTMLButtonElement).style.borderColor = '#c8e4d8'; }} title="Edit">
-                                <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#3d4943' }}>edit</span>
-                              </button>
-                              <button onClick={() => openLock(s.id, 'staff')} className="w-8 h-8 rounded-lg border flex items-center justify-center transition-colors" style={{ borderColor: '#c8e4d8' }}
-                                onMouseOver={e => { (e.currentTarget as HTMLButtonElement).style.background = s.status === 'Active' ? '#fff3d6' : '#e0f5ed'; (e.currentTarget as HTMLButtonElement).style.borderColor = s.status === 'Active' ? '#f59e0b' : '#00694c'; }}
-                                onMouseOut={e => { (e.currentTarget as HTMLButtonElement).style.background = ''; (e.currentTarget as HTMLButtonElement).style.borderColor = '#c8e4d8'; }} title={s.status === 'Active' ? 'Lock' : 'Unlock'}>
-                                <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#3d4943' }}>{s.status === 'Active' ? 'lock' : 'lock_open'}</span>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+              )}
+            </div>
+          </>
+        )}
+      </div>
 
-      {/* Customer Modal */}
-      {custOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)' }}
-          onClick={e => { if (e.target === e.currentTarget) setCustOpen(false); }}>
-          <div className="rounded-2xl w-[520px] max-w-[95vw] max-h-[90vh] overflow-y-auto" style={{ background: '#ffffff', border: '2px solid #00a86b', boxShadow: '0 20px 60px rgba(0,0,0,0.25), 0 4px 16px rgba(0,105,76,0.15)' }}>
-            <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: '#b2e8d0' }}>
-              <h3 className="font-bold text-on-surface" style={{ fontSize: '18px' }}>{editCustId ? 'Edit Customer' : 'Add Customer'}</h3>
-              <button onClick={() => setCustOpen(false)} className="material-symbols-outlined text-on-surface-variant hover:bg-surface-container rounded-full p-1">close</button>
+      {/* Lock/unlock confirm modal */}
+      {lockTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.55)' }}
+          onClick={(e) => { if (e.target === e.currentTarget && !lockBusy) setLockTarget(null); }}>
+          <div className="rounded-2xl w-[360px] p-8 text-center font-hanken" style={{ background: '#fff', border: '2px solid #00a86b' }}>
+            <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: isActive(lockTarget) ? '#fff3d6' : '#e0f5ed' }}>
+              <span className="material-symbols-outlined" style={{ color: isActive(lockTarget) ? '#7a5c00' : '#004d38', fontSize: 28 }}>
+                {isActive(lockTarget) ? 'lock' : 'lock_open'}
+              </span>
             </div>
-            <div className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Full Name *</label>
-                  <input type="text" placeholder="Enter full name" value={custForm.name} onChange={e => setCustForm(p => ({ ...p, name: e.target.value }))} className="modal-input" />
-                </div>
-                <div>
-                  <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Gender</label>
-                  <select value={custForm.gender} onChange={e => setCustForm(p => ({ ...p, gender: e.target.value }))} className="modal-input">
-                    <option>Male</option>
-                    <option>Female</option>
-                  </select>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Phone *</label>
-                  <input type="text" placeholder="0901234567" value={custForm.phone} onChange={e => setCustForm(p => ({ ...p, phone: e.target.value }))} className="modal-input" />
-                </div>
-                <div>
-                  <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Email</label>
-                  <input type="email" placeholder="email@example.com" value={custForm.email} onChange={e => setCustForm(p => ({ ...p, email: e.target.value }))} className="modal-input" />
-                </div>
-              </div>
-              <div>
-                <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Address</label>
-                <input type="text" placeholder="Street, District, City" value={custForm.address} onChange={e => setCustForm(p => ({ ...p, address: e.target.value }))} className="modal-input" />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Username</label>
-                  <input type="text" placeholder="username" value={custForm.username} onChange={e => setCustForm(p => ({ ...p, username: e.target.value }))} className="modal-input" />
-                </div>
-                <div>
-                  <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Status</label>
-                  <select value={custForm.status} onChange={e => setCustForm(p => ({ ...p, status: e.target.value }))} className="modal-input">
-                    <option>Active</option>
-                    <option>Locked</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-            <div className="flex justify-end gap-3 px-6 py-4 border-t" style={{ borderColor: '#c8e4d8' }}>
-              <button onClick={() => setCustOpen(false)} className="px-4 py-2 rounded-lg border text-on-surface-variant hover:bg-surface-container" style={{ borderColor: '#c8e4d8', fontSize: '14px' }}>Cancel</button>
-              <button onClick={saveCust} className="btn-primary px-4 py-2 rounded-lg text-white font-bold" style={{ fontSize: '14px' }}>Save Customer</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Staff Modal */}
-      {staffOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)' }}
-          onClick={e => { if (e.target === e.currentTarget) setStaffOpen(false); }}>
-          <div className="rounded-2xl w-[520px] max-w-[95vw] max-h-[90vh] overflow-y-auto" style={{ background: '#ffffff', border: '2px solid #00a86b', boxShadow: '0 20px 60px rgba(0,0,0,0.25), 0 4px 16px rgba(0,105,76,0.15)' }}>
-            <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: '#b2e8d0' }}>
-              <h3 className="font-bold text-on-surface" style={{ fontSize: '18px' }}>{editStaffId ? 'Edit Staff' : 'Add Staff'}</h3>
-              <button onClick={() => setStaffOpen(false)} className="material-symbols-outlined text-on-surface-variant hover:bg-surface-container rounded-full p-1">close</button>
-            </div>
-            <div className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Full Name *</label>
-                  <input type="text" placeholder="Enter full name" value={staffForm.name} onChange={e => setStaffForm(p => ({ ...p, name: e.target.value }))} className="modal-input" />
-                </div>
-                <div>
-                  <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Role *</label>
-                  <select value={staffForm.role} onChange={e => setStaffForm(p => ({ ...p, role: e.target.value }))} className="modal-input">
-                    <option>Staff</option>
-                    <option>Admin</option>
-                  </select>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Phone *</label>
-                  <input type="text" placeholder="0901234567" value={staffForm.phone} onChange={e => setStaffForm(p => ({ ...p, phone: e.target.value }))} className="modal-input" />
-                </div>
-                <div>
-                  <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Email</label>
-                  <input type="email" placeholder="email@example.com" value={staffForm.email} onChange={e => setStaffForm(p => ({ ...p, email: e.target.value }))} className="modal-input" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Username *</label>
-                  <input type="text" placeholder="username" value={staffForm.username} onChange={e => setStaffForm(p => ({ ...p, username: e.target.value }))} className="modal-input" />
-                </div>
-                <div>
-                  <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Password *</label>
-                  <input type="password" placeholder="••••••••" value={staffForm.password} onChange={e => setStaffForm(p => ({ ...p, password: e.target.value }))} className="modal-input" />
-                </div>
-              </div>
-              <div>
-                <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Address</label>
-                <input type="text" placeholder="Street, District, City" value={staffForm.address} onChange={e => setStaffForm(p => ({ ...p, address: e.target.value }))} className="modal-input" />
-              </div>
-              <div>
-                <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Status</label>
-                <select value={staffForm.status} onChange={e => setStaffForm(p => ({ ...p, status: e.target.value }))} className="modal-input">
-                  <option>Active</option>
-                  <option>Locked</option>
-                </select>
-              </div>
-            </div>
-            <div className="flex justify-end gap-3 px-6 py-4 border-t" style={{ borderColor: '#c8e4d8' }}>
-              <button onClick={() => setStaffOpen(false)} className="px-4 py-2 rounded-lg border text-on-surface-variant hover:bg-surface-container" style={{ borderColor: '#c8e4d8', fontSize: '14px' }}>Cancel</button>
-              <button onClick={saveStaff} className="btn-primary px-4 py-2 rounded-lg text-white font-bold" style={{ fontSize: '14px' }}>Save Staff</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Lock/Unlock Modal */}
-      {lockOpen && lockUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)' }}
-          onClick={e => { if (e.target === e.currentTarget) setLockOpen(false); }}>
-          <div className="rounded-2xl w-[360px] p-8 text-center" style={{ background: '#ffffff', border: '2px solid #00a86b', boxShadow: '0 20px 60px rgba(0,0,0,0.25), 0 4px 16px rgba(0,105,76,0.15)' }}>
-            <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: isLocking ? '#fff3d6' : '#e0f5ed' }}>
-              <span className="material-symbols-outlined" style={{ color: isLocking ? '#7a5c00' : '#004d38', fontSize: '28px' }}>{isLocking ? 'lock' : 'lock_open'}</span>
-            </div>
-            <h3 className="font-bold text-on-surface mb-2" style={{ fontSize: '18px' }}>{isLocking ? 'Lock account?' : 'Unlock account?'}</h3>
-            <p className="text-on-surface-variant mb-6" style={{ fontSize: '14px' }}>
-              {isLocking ? 'Lock' : 'Unlock'} account for &quot;{lockUser.name}&quot;?
+            <h3 className="font-bold mb-2" style={{ fontSize: 18 }}>{isActive(lockTarget) ? 'Deactivate account?' : 'Activate account?'}</h3>
+            <p className="mb-6 text-sm" style={{ color: '#6d7a73' }}>
+              {isActive(lockTarget) ? 'Deactivate' : 'Activate'} account for &quot;{lockTarget.fullName}&quot;?
             </p>
             <div className="flex gap-3 justify-center">
-              <button onClick={() => setLockOpen(false)} className="px-5 py-2 rounded-lg border text-on-surface-variant hover:bg-surface-container" style={{ borderColor: '#c8e4d8', fontSize: '14px' }}>Cancel</button>
-              <button onClick={confirmLock} className="px-5 py-2 rounded-lg text-white font-bold" style={{ background: isLocking ? '#f59e0b' : '#00694c', fontSize: '14px' }}>
-                {isLocking ? 'Lock' : 'Unlock'}
+              <button onClick={() => setLockTarget(null)} disabled={lockBusy} className="px-5 py-2 rounded-lg border text-sm" style={{ borderColor: '#c8e4d8' }}>Cancel</button>
+              <button onClick={confirmLockToggle} disabled={lockBusy} className="px-5 py-2 rounded-lg text-white font-bold text-sm" style={{ background: isActive(lockTarget) ? '#f59e0b' : '#00694c' }}>
+                {lockBusy ? 'Saving…' : isActive(lockTarget) ? 'Deactivate' : 'Activate'}
               </button>
             </div>
           </div>

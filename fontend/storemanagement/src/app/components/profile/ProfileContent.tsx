@@ -7,6 +7,8 @@ import Badge from "../ui/Badge";
 import BtnTeal from "../ui/BtnTeal";
 import BtnOutline from "../ui/BtnOutline";
 import ToggleSwitch from "../ui/ToggleSwitch";
+import { useAuth } from "../../context/AuthContext";
+import { userService, ApiUser } from "@/src/services/userService";
 
 const navItems: { id: ProfileTab; icon: string; label: string }[] = [
   { id: "info", icon: "person", label: "Personal Info" },
@@ -268,14 +270,77 @@ export default function ProfileContent() {
     showSuccess("Address added successfully");
   };
 
+  const { user, logout } = useAuth();
+  const [apiUser, setApiUser] = useState<ApiUser | null>(null);
   const [form, setForm] = useState({
-    firstName: "John",
-    lastName: "Doe",
-    email: "john.doe@email.com",
-    phone: "+84 912 345 678",
-    dob: "1992-01-15",
+    fullName: "",
+    email: "",
+    phone: "",
     gender: "Male",
+    address: "",
   });
+
+  const [pwForm, setPwForm] = useState({ current: "", next: "", confirm: "" });
+  const [pwError, setPwError] = useState("");
+
+  /* Load the real logged-in user's profile */
+  useEffect(() => {
+    if (!user) return;
+    userService
+      .getById(Number(user.id))
+      .then((u) => {
+        setApiUser(u);
+        setForm({
+          fullName: u.fullName,
+          email: u.email ?? "",
+          phone: u.phone ?? "",
+          gender: u.gender ?? "Male",
+          address: u.address ?? "",
+        });
+      })
+      .catch((err) => console.error(err));
+  }, [user]);
+
+  const handleSaveProfile = async () => {
+    if (!apiUser) return;
+    try {
+      await userService.updateMyInfo({
+        fullName: form.fullName,
+        email: form.email,
+        gender: form.gender,
+        address: form.address,
+      });
+      setApiUser((prev) => (prev ? { ...prev, ...form } : prev));
+      setEditing(false);
+      showSuccess("Profile updated successfully");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!apiUser) return;
+    if (!pwForm.current || !pwForm.next || !pwForm.confirm) {
+      setPwError("Please fill in all fields");
+      return;
+    }
+    if (pwForm.next !== pwForm.confirm) {
+      setPwError("Passwords do not match");
+      return;
+    }
+    try {
+      await userService.changePassword(apiUser.userId, {
+        currentPassword: pwForm.current,
+        newPassword: pwForm.next,
+      });
+      setPwForm({ current: "", next: "", confirm: "" });
+      setPwError("");
+      showSuccess("Password updated successfully");
+    } catch (err) {
+      console.error(err);
+      setPwError("Failed to update password");
+    }
+  };
 
   /* Persist addresses to localStorage so checkout can pre-fill */
   useEffect(() => {
@@ -804,10 +869,10 @@ export default function ProfileContent() {
                 className="serif"
                 style={{ fontWeight: 700, fontSize: "1.1rem" }}
               >
-                John Doe
+                {form.fullName || "…"}
               </p>
               <p style={{ color: "#64748b", fontSize: ".8rem" }}>
-                john.doe@email.com
+                {form.email || apiUser?.username || ""}
               </p>
               <Badge
                 style={{
@@ -925,6 +990,10 @@ export default function ProfileContent() {
                 }}
               />
               <button
+                onClick={() => {
+                  logout();
+                  router.push("/");
+                }}
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -1081,12 +1150,11 @@ export default function ProfileContent() {
                   }}
                 >
                   {[
-                    ["First Name", form.firstName],
-                    ["Last Name", form.lastName],
+                    ["Full Name", form.fullName],
                     ["Phone", form.phone],
                     ["Email (optional)", form.email || "—"],
-                    ["Date of Birth", form.dob],
                     ["Gender", form.gender],
+                    ["Address", form.address || "—"],
                   ].map(([l, v]) => (
                     <div key={l}>
                       <p
@@ -1110,31 +1178,50 @@ export default function ProfileContent() {
                     gap: "0.75rem",
                   }}
                 >
-                  {(["firstName", "lastName", "phone"] as const).map((k) => (
-                    <div key={k}>
-                      <label
-                        style={{
-                          fontSize: ".75rem",
-                          fontWeight: 600,
-                          color: "#4b5563",
-                          display: "block",
-                          marginBottom: 4,
-                        }}
-                      >
-                        {k === "firstName"
-                          ? "First Name"
-                          : k === "lastName"
-                            ? "Last Name"
-                            : "Phone"}
-                      </label>
-                      <input
-                        value={form[k]}
-                        onChange={(e) =>
-                          setForm((f) => ({ ...f, [k]: e.target.value }))
-                        }
-                      />
-                    </div>
-                  ))}
+                  <div>
+                    <label
+                      style={{
+                        fontSize: ".75rem",
+                        fontWeight: 600,
+                        color: "#4b5563",
+                        display: "block",
+                        marginBottom: 4,
+                      }}
+                    >
+                      Full Name
+                    </label>
+                    <input
+                      value={form.fullName}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, fullName: e.target.value }))
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label
+                      style={{
+                        fontSize: ".75rem",
+                        fontWeight: 600,
+                        color: "#4b5563",
+                        display: "block",
+                        marginBottom: 4,
+                      }}
+                    >
+                      Phone{" "}
+                      <span style={{ fontWeight: 400, color: "#94a3b8" }}>
+                        (cannot be changed)
+                      </span>
+                    </label>
+                    <input
+                      value={form.phone}
+                      disabled
+                      style={{
+                        background: "#f1f5f9",
+                        color: "#94a3b8",
+                        cursor: "not-allowed",
+                      }}
+                    />
+                  </div>
                   <div>
                     <label
                       style={{
@@ -1168,13 +1255,12 @@ export default function ProfileContent() {
                         marginBottom: 4,
                       }}
                     >
-                      Date of Birth
+                      Address
                     </label>
                     <input
-                      type="date"
-                      value={form.dob}
+                      value={form.address}
                       onChange={(e) =>
-                        setForm((f) => ({ ...f, dob: e.target.value }))
+                        setForm((f) => ({ ...f, address: e.target.value }))
                       }
                     />
                   </div>
@@ -1212,7 +1298,7 @@ export default function ProfileContent() {
                     }}
                   >
                     <BtnTeal
-                      onClick={() => setEditing(false)}
+                      onClick={handleSaveProfile}
                       style={{ padding: "0.6rem 1.5rem" }}
                     >
                       Save Changes
@@ -1378,12 +1464,14 @@ export default function ProfileContent() {
                 <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>
                   Change Password
                 </h3>
-                {[
-                  "Current Password",
-                  "New Password",
-                  "Confirm New Password",
-                ].map((l) => (
-                  <div key={l} style={{ marginBottom: "0.75rem" }}>
+                {(
+                  [
+                    { key: "current" as const, label: "Current Password" },
+                    { key: "next" as const, label: "New Password" },
+                    { key: "confirm" as const, label: "Confirm New Password" },
+                  ]
+                ).map(({ key, label }) => (
+                  <div key={key} style={{ marginBottom: "0.75rem" }}>
                     <label
                       style={{
                         fontSize: ".75rem",
@@ -1392,16 +1480,26 @@ export default function ProfileContent() {
                         marginBottom: 4,
                       }}
                     >
-                      {l}
+                      {label}
                     </label>
                     <input
                       type="password"
                       placeholder="••••••••"
+                      value={pwForm[key]}
+                      onChange={(e) =>
+                        setPwForm((f) => ({ ...f, [key]: e.target.value }))
+                      }
                       style={{ maxWidth: 340 }}
                     />
                   </div>
                 ))}
+                {pwError && (
+                  <p style={{ color: "#ef4444", fontSize: ".8rem", marginBottom: "0.5rem" }}>
+                    {pwError}
+                  </p>
+                )}
                 <BtnTeal
+                  onClick={handleChangePassword}
                   style={{ marginTop: "0.5rem", padding: "0.6rem 1.5rem" }}
                 >
                   Update Password

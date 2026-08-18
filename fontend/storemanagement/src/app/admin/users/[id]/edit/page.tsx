@@ -65,7 +65,7 @@ export default function EditUserPage() {
         address: form.address || null,
         roleId: Number(form.roleId),
       })
-      router.push('/admin/users')
+      router.push('/admin')
     } catch (err) {
       console.error('Failed to update user:', err)
       setError('Failed to update user.')

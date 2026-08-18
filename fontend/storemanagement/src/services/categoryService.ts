@@ -41,45 +41,42 @@ export interface PagedCategories {
 
 export const categoryService = {
   async getAll(): Promise<Category[]> {
-    const res = await api.get<PagedResult<ApiCategory>>("/categories", {
+    const res = await api.get<PagedResult<ApiCategory>>("/Categories", {
       params: { page: 1, pageSize: 1000 },
     });
     return res.data.items.map(mapCategory);
   },
 
-  // Server-side pagination/search — use this over getAll() when the list
-  // can grow large and you don't need every row loaded client-side at once.
-  async getPaged(params: { page?: number; pageSize?: number; keyword?: string } = {}): Promise<PagedCategories> {
-    const res = await api.get<PagedResult<ApiCategory>>("/categories", {
+  async getPaged(
+    params: { page?: number; pageSize?: number; keyword?: string } = {},
+  ): Promise<PagedCategories> {
+    const res = await api.get<PagedResult<ApiCategory>>("/Categories", {
       params: { page: 1, pageSize: 10, ...params },
     });
     return { ...res.data, items: res.data.items.map(mapCategory) };
   },
 
   async getById(id: number): Promise<Category> {
-    const res = await api.get<ApiCategory>(`/categories/${id}`);
+    const res = await api.get<ApiCategory>(`/Categories/${id}`);
     return mapCategory(res.data);
   },
 
-  // Returns the raw backend shape (incl. status/createdAt) — needed so
-  // edit forms can round-trip a full entity to the PUT endpoint, which
-  // replaces the whole row rather than patching individual fields.
   async getRawById(id: number): Promise<ApiCategoryRaw> {
-    const res = await api.get<ApiCategoryRaw>(`/categories/${id}`);
+    const res = await api.get<ApiCategoryRaw>(`/Categories/${id}`);
     return res.data;
   },
 
   async create(data: ApiCategoryRaw) {
-    const res = await api.post("/categories", data);
+    const res = await api.post("/Categories", data);
     return res.data;
   },
 
   async update(id: number, data: ApiCategoryRaw) {
-    const res = await api.put(`/categories/${id}`, data);
+    const res = await api.put(`/Categories/${id}`, data);
     return res.data;
   },
 
   async delete(id: number) {
-    await api.delete(`/categories/${id}`);
+    await api.delete(`/Categories/${id}`);
   },
 };

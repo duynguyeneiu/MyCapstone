@@ -7,6 +7,7 @@ import { fmt } from "../../lib/utils";
 import { useCart } from "../../context/CartContext";
 import { useOrders } from "../../context/OrderContext";
 import { useAuth } from "../../context/AuthContext";
+import { paymentService } from "@/src/services/paymentService";
 import BtnTeal from "../ui/BtnTeal";
 import Badge from "../ui/Badge";
 import QRModal from "../ui/QRModal";
@@ -151,24 +152,41 @@ export default function CheckoutContent() {
     return Object.keys(errs).length === 0;
   };
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     setPlaceError(null);
     setPlacing(true);
-    placeOrder({
-      receiverName: `${ship.firstName} ${ship.lastName}`.trim(),
-      receiverPhone: ship.phone,
-      shippingAddress: `${ship.address}, ${ship.city}`,
-      paymentMethod: payment === "vnpay" ? "VNPay" : "COD",
-    })
-      .then((order) => {
-        refreshCart();
-        router.push(`/orders/success?id=${order.orderId}`);
-      })
-      .catch((err) => {
-        console.error(err);
-        setPlaceError("Could not place order. Please try again.");
-      })
-      .finally(() => setPlacing(false));
+    try {
+      const order = await placeOrder({
+        receiverName: `${ship.firstName} ${ship.lastName}`.trim(),
+        receiverPhone: ship.phone,
+        shippingAddress: `${ship.address}, ${ship.city}`,
+        paymentMethod: payment === "vnpay" ? "VNPay" : "COD",
+      });
+
+      try {
+        const paymentRecord = await paymentService.create({
+          orderId: order.orderId,
+          paymentMethod: payment === "vnpay" ? "VNPay" : "COD",
+        });
+        if (payment === "vnpay") {
+          await paymentService.updateStatus(paymentRecord.paymentId, {
+            status: "Paid",
+          });
+        }
+      } catch (payErr) {
+        // Order already placed successfully — don't block the user on a
+        // payment-record failure, just log it for later investigation.
+        console.error(payErr);
+      }
+
+      refreshCart();
+      router.push(`/orders/success?id=${order.orderId}`);
+    } catch (err) {
+      console.error(err);
+      setPlaceError("Could not place order. Please try again.");
+    } finally {
+      setPlacing(false);
+    }
   };
 
   const handleSubmit = () => {

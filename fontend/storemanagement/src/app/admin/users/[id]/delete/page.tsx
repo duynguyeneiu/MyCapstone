@@ -25,7 +25,7 @@ export default function DeleteUserPage() {
     setError(null)
     try {
       await userService.delete(id)
-      router.push('/admin/users')
+      router.push('/admin')
     } catch (err) {
       console.error('Failed to delete user:', err)
       setError('Failed to delete user.')
@@ -44,7 +44,7 @@ export default function DeleteUserPage() {
             <p className="text-danger mb-4">This action cannot be undone.</p>
             <div className="d-flex justify-content-center gap-3">
               <button className="btn btn-danger px-4" onClick={handleDelete}>Confirm Delete</button>
-              <Link href="/admin/users" className="btn btn-secondary px-4">Cancel</Link>
+              <Link href="/admin" className="btn btn-secondary px-4">Cancel</Link>
             </div>
           </div>
         </div>

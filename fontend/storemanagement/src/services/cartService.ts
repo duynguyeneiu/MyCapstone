@@ -51,26 +51,26 @@ const mapCart = (c: ApiCart): Cart => ({
 
 export const cartService = {
   async getCart(userId: number): Promise<Cart> {
-    const res = await orderApi.get<ApiCart>(`/cart/${userId}`);
+    const res = await orderApi.get<ApiCart>(`/Cart/${userId}`);
     return mapCart(res.data);
   },
 
   async addItem(userId: number, productId: number, quantity: number): Promise<Cart> {
-    const res = await orderApi.post<ApiCart>("/cart/items", { userId, productId, quantity });
+    const res = await orderApi.post<ApiCart>("/Cart/items", { userId, productId, quantity });
     return mapCart(res.data);
   },
 
   async updateItem(cartDetailId: number, quantity: number): Promise<Cart> {
-    const res = await orderApi.put<ApiCart>(`/cart/items/${cartDetailId}`, { quantity });
+    const res = await orderApi.put<ApiCart>(`/Cart/items/${cartDetailId}`, { quantity });
     return mapCart(res.data);
   },
 
   async removeItem(cartDetailId: number): Promise<Cart> {
-    const res = await orderApi.delete<ApiCart>(`/cart/items/${cartDetailId}`);
+    const res = await orderApi.delete<ApiCart>(`/Cart/items/${cartDetailId}`);
     return mapCart(res.data);
   },
 
   async clearCart(userId: number): Promise<void> {
-    await orderApi.delete(`/cart/${userId}`);
+    await orderApi.delete(`/Cart/${userId}`);
   },
 };

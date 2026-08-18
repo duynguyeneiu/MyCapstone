@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const orderApi = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_ORDER_API_URL,
+  baseURL: `${process.env.NEXT_PUBLIC_ORDER_API_URL}/api`,
   headers: {
     "Content-Type": "application/json",
   },

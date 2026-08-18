@@ -3676,23 +3676,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Admin\\.nuget\\packages\\": {},
+    "C:\\Users\\Lenovo\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Tài liệu Đồ Án tốt nghiệp\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\UserService.API.csproj",
+      "projectUniqueName": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\UserService.API.csproj",
       "projectName": "UserService.API",
-      "projectPath": "D:\\Tài liệu Đồ Án tốt nghiệp\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\UserService.API.csproj",
-      "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-      "outputPath": "D:\\Tài liệu Đồ Án tốt nghiệp\\StoreManagement\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\obj\\",
+      "projectPath": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\UserService.API.csproj",
+      "packagesPath": "C:\\Users\\Lenovo\\.nuget\\packages\\",
+      "outputPath": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Lenovo\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -3701,7 +3701,6 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {

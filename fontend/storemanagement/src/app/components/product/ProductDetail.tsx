@@ -139,7 +139,7 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
         </div>
       </div>
 
-      <ReviewSection productId={p.id} rating={p.rating ?? 0} reviewCount={p.reviews ?? 0} />
+      <ReviewSection productId={p.id} />
 
       {related.length > 0 && (
         <div style={{ marginTop: '3.5rem' }}>
