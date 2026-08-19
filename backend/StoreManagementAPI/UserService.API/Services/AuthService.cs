@@ -98,5 +98,48 @@ namespace UserService.API.Services
                 Status = user.Status
             };
         }
+
+        public async Task<bool> ChangePasswordAsync(
+    int userId,
+    ChangePasswordRequestDto request)
+        {
+            var user =
+                await _userRepository.GetByIdAsync(userId);
+
+            if (user == null)
+                return false;
+
+            if (!PasswordHelper.VerifyPassword(
+                    request.CurrentPassword,
+                    user.Password))
+            {
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(
+                    request.NewPassword) ||
+                request.NewPassword.Length < 6)
+            {
+                return false;
+            }
+
+            if (request.NewPassword !=
+                request.ConfirmNewPassword)
+            {
+                return false;
+            }
+
+            user.Password =
+                PasswordHelper.HashPassword(
+                    request.NewPassword);
+
+            user.UpdatedAt = DateTime.Now;
+
+            _userRepository.Update(user);
+
+            await _userRepository.SaveChangesAsync();
+
+            return true;
+        }
     }
 }

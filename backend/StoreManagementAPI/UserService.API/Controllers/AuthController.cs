@@ -75,5 +75,76 @@ namespace UserService.API.Controllers
 
             return Ok(result);
         }
+
+        [Authorize]
+        [HttpPut("change-password")]
+        public async Task<IActionResult> ChangePassword(
+    [FromBody] ChangePasswordRequestDto request)
+        {
+            var userIdValue =
+                User.FindFirst(
+                    ClaimTypes.NameIdentifier
+                )?.Value;
+
+            if (!int.TryParse(
+                    userIdValue,
+                    out var userId))
+            {
+                return Unauthorized();
+            }
+
+            if (string.IsNullOrWhiteSpace(
+                    request.CurrentPassword) ||
+                string.IsNullOrWhiteSpace(
+                    request.NewPassword) ||
+                string.IsNullOrWhiteSpace(
+                    request.ConfirmNewPassword))
+            {
+                return BadRequest(new
+                {
+                    message =
+                        "Please fill in all fields."
+                });
+            }
+
+            if (request.NewPassword.Length < 6)
+            {
+                return BadRequest(new
+                {
+                    message =
+                        "New password must be at least 6 characters."
+                });
+            }
+
+            if (request.NewPassword !=
+                request.ConfirmNewPassword)
+            {
+                return BadRequest(new
+                {
+                    message =
+                        "Confirm password does not match."
+                });
+            }
+
+            var success =
+                await _authService.ChangePasswordAsync(
+                    userId,
+                    request);
+
+            if (!success)
+            {
+                return BadRequest(new
+                {
+                    message =
+                        "Current password is incorrect."
+                });
+            }
+
+            return Ok(new
+            {
+                message =
+                    "Password updated successfully."
+            });
+        }
     }
 }

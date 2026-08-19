@@ -8,5 +8,9 @@ namespace UserService.API.Interfaces
 
         Task<RegisterResponseDto?> RegisterAsync(
        RegisterRequestDto request);
+
+        Task<bool> ChangePasswordAsync(
+    int userId,
+    ChangePasswordRequestDto request);
     }
 }
