@@ -6,7 +6,7 @@ interface Props {
   search: string;
 }
 
-const fmt = (n: number) => new Intl.NumberFormat("vi-VN").format(n) + "₫";
+const fmt = (n: number) => new Intl.NumberFormat("vi-VN").format(n) + " VND";
 
 const statusConfig: Record<string, { bg: string; color: string }> = {
   Pending: { bg: "#fff3d6", color: "#7a5c00" },

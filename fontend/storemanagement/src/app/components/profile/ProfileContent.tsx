@@ -307,7 +307,7 @@ export default function ProfileContent() {
       .then((u) => {
         setApiUser(u);
         setForm({
-          fullName: u.fullName,
+          fullName: u.fullName ?? "",
           email: u.email ?? "",
           phone: u.phone ?? "",
           gender: u.gender ?? "Male",

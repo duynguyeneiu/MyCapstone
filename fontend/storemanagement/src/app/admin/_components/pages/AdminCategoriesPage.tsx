@@ -86,7 +86,8 @@ export default function AdminCategoriesPage({ search }: Props) {
         categoryService.getAll(),
       ]);
       setProducts(productsData);
-      setCategories(buildCategories(categoriesData, productsData));
+      // Newest categories first — sort by id descending (higher id = created later).
+      setCategories(buildCategories(categoriesData, productsData).sort((a, b) => b.id - a.id));
     } catch (err) {
       console.error(err);
     }

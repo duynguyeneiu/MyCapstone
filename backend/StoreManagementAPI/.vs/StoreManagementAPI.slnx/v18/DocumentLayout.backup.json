@@ -3,32 +3,36 @@
   "WorkspaceRootPath": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{2A55D08D-48B6-41BA-BCF6-52891BDCE61F}|PaymentService.API\\PaymentService.API.csproj|d:\\captone2\\mycapstone\\backend\\storemanagementapi\\paymentservice.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2A55D08D-48B6-41BA-BCF6-52891BDCE61F}|PaymentService.API\\PaymentService.API.csproj|solutionrelative:paymentservice.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|d:\\captone2\\mycapstone\\backend\\storemanagementapi\\storemanagementapi\\services\\productservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|solutionrelative:storemanagementapi\\services\\productservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{C706FD17-889A-40EA-8E17-2BC597534CC8}|ReviewService.API\\ReviewService.API.csproj|d:\\captone2\\mycapstone\\backend\\storemanagementapi\\reviewservice.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C706FD17-889A-40EA-8E17-2BC597534CC8}|ReviewService.API\\ReviewService.API.csproj|solutionrelative:reviewservice.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{2A55D08D-48B6-41BA-BCF6-52891BDCE61F}|PaymentService.API\\PaymentService.API.csproj|d:\\captone2\\mycapstone\\backend\\storemanagementapi\\paymentservice.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{2A55D08D-48B6-41BA-BCF6-52891BDCE61F}|PaymentService.API\\PaymentService.API.csproj|solutionrelative:paymentservice.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{006ADDA4-8D07-43DE-BB7B-DCF6C62B6B46}|UserService.API\\UserService.API.csproj|d:\\captone2\\mycapstone\\backend\\storemanagementapi\\userservice.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{006ADDA4-8D07-43DE-BB7B-DCF6C62B6B46}|UserService.API\\UserService.API.csproj|solutionrelative:userservice.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C706FD17-889A-40EA-8E17-2BC597534CC8}|ReviewService.API\\ReviewService.API.csproj|d:\\captone2\\mycapstone\\backend\\storemanagementapi\\reviewservice.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{C706FD17-889A-40EA-8E17-2BC597534CC8}|ReviewService.API\\ReviewService.API.csproj|solutionrelative:reviewservice.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|d:\\captone2\\mycapstone\\backend\\storemanagementapi\\storemanagementapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|solutionrelative:storemanagementapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\captone2\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|d:\\captone2\\mycapstone\\backend\\storemanagementapi\\storemanagementapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|solutionrelative:storemanagementapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{2A55D08D-48B6-41BA-BCF6-52891BDCE61F}|PaymentService.API\\PaymentService.API.csproj|d:\\captone2\\mycapstone\\backend\\storemanagementapi\\paymentservice.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{2A55D08D-48B6-41BA-BCF6-52891BDCE61F}|PaymentService.API\\PaymentService.API.csproj|solutionrelative:paymentservice.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C706FD17-889A-40EA-8E17-2BC597534CC8}|ReviewService.API\\ReviewService.API.csproj|d:\\captone2\\mycapstone\\backend\\storemanagementapi\\reviewservice.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{C706FD17-889A-40EA-8E17-2BC597534CC8}|ReviewService.API\\ReviewService.API.csproj|solutionrelative:reviewservice.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{006ADDA4-8D07-43DE-BB7B-DCF6C62B6B46}|UserService.API\\UserService.API.csproj|d:\\captone2\\mycapstone\\backend\\storemanagementapi\\userservice.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{006ADDA4-8D07-43DE-BB7B-DCF6C62B6B46}|UserService.API\\UserService.API.csproj|solutionrelative:userservice.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2A55D08D-48B6-41BA-BCF6-52891BDCE61F}|PaymentService.API\\PaymentService.API.csproj|d:\\captone2\\mycapstone\\backend\\storemanagementapi\\paymentservice.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2A55D08D-48B6-41BA-BCF6-52891BDCE61F}|PaymentService.API\\PaymentService.API.csproj|solutionrelative:paymentservice.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C706FD17-889A-40EA-8E17-2BC597534CC8}|ReviewService.API\\ReviewService.API.csproj|d:\\captone2\\mycapstone\\backend\\storemanagementapi\\reviewservice.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C706FD17-889A-40EA-8E17-2BC597534CC8}|ReviewService.API\\ReviewService.API.csproj|solutionrelative:reviewservice.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|d:\\captone2\\mycapstone\\backend\\storemanagementapi\\storemanagementapi\\repositories\\productrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -113,10 +117,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|d:\\captone2\\mycapstone\\backend\\storemanagementapi\\orderserviceapi\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{B5D1E2B8-8C56-4495-9288-9D78D5BE4020}|OrderServiceAPI\\OrderServiceAPI.csproj|solutionrelative:orderserviceapi\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|d:\\captone2\\mycapstone\\backend\\storemanagementapi\\storemanagementapi\\services\\productservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|solutionrelative:storemanagementapi\\services\\productservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{9C4A6077-41F5-4AF6-C2B9-977D34A99481}|StoreManagementAPI\\CatalogService.API.csproj|d:\\captone2\\mycapstone\\backend\\storemanagementapi\\storemanagementapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -246,83 +246,19 @@
       "DocumentGroups": [
         {
           "DockedHeight": 299,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Document",
               "DocumentIndex": 3,
               "Title": "appsettings.json",
-              "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\appsettings.json",
-              "RelativeDocumentMoniker": "UserService.API\\appsettings.json",
-              "ToolTip": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\appsettings.json",
-              "RelativeToolTip": "UserService.API\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAMAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-08-19T07:05:04.459Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "appsettings.json",
               "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\PaymentService.API\\appsettings.json",
               "RelativeDocumentMoniker": "PaymentService.API\\appsettings.json",
               "ToolTip": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\PaymentService.API\\appsettings.json",
               "RelativeToolTip": "PaymentService.API\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAACHAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAuAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-08-10T08:01:04.872Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Program.cs",
-              "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\PaymentService.API\\Program.cs",
-              "RelativeDocumentMoniker": "PaymentService.API\\Program.cs",
-              "ToolTip": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\PaymentService.API\\Program.cs",
-              "RelativeToolTip": "PaymentService.API\\Program.cs",
-              "ViewState": "AgIAADEAAAAAAAAAAAAAAEIAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-08-12T08:53:07.508Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Program.cs",
-              "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\ReviewService.API\\Program.cs",
-              "RelativeDocumentMoniker": "ReviewService.API\\Program.cs",
-              "ToolTip": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\ReviewService.API\\Program.cs",
-              "RelativeToolTip": "ReviewService.API\\Program.cs",
-              "ViewState": "AgIAAHQAAAAAAAAAAAAAAIEAAAAdAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-08-12T03:13:42.875Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\appsettings.json",
-              "RelativeDocumentMoniker": "OrderServiceAPI\\appsettings.json",
-              "ToolTip": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\appsettings.json",
-              "RelativeToolTip": "OrderServiceAPI\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-08-10T08:00:56.577Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\appsettings.json",
-              "RelativeDocumentMoniker": "StoreManagementAPI\\appsettings.json",
-              "ToolTip": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\appsettings.json",
-              "RelativeToolTip": "StoreManagementAPI\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAlAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-08-12T02:59:04.411Z"
+              "WhenOpened": "2026-08-10T08:01:04.872Z"
             },
             {
               "$type": "Document",
@@ -332,13 +268,86 @@
               "RelativeDocumentMoniker": "ReviewService.API\\appsettings.json",
               "ToolTip": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\ReviewService.API\\appsettings.json",
               "RelativeToolTip": "ReviewService.API\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAACEAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAsAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2026-08-12T02:59:16.501Z"
             },
             {
               "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\appsettings.json",
+              "RelativeDocumentMoniker": "StoreManagementAPI\\appsettings.json",
+              "ToolTip": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\appsettings.json",
+              "RelativeToolTip": "StoreManagementAPI\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-08-12T02:59:04.411Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ProductService.cs",
+              "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Services\\ProductService.cs",
+              "RelativeDocumentMoniker": "StoreManagementAPI\\Services\\ProductService.cs",
+              "ToolTip": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Services\\ProductService.cs",
+              "RelativeToolTip": "StoreManagementAPI\\Services\\ProductService.cs",
+              "ViewState": "AgIAAKkAAAAAAAAAAAAAALcAAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-12T04:20:17.192Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\appsettings.json",
+              "RelativeDocumentMoniker": "OrderServiceAPI\\appsettings.json",
+              "ToolTip": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\appsettings.json",
+              "RelativeToolTip": "OrderServiceAPI\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAwAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-08-10T08:00:56.577Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\appsettings.json",
+              "RelativeDocumentMoniker": "UserService.API\\appsettings.json",
+              "ToolTip": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\appsettings.json",
+              "RelativeToolTip": "UserService.API\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-08-19T07:05:04.459Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\PaymentService.API\\Program.cs",
+              "RelativeDocumentMoniker": "PaymentService.API\\Program.cs",
+              "ToolTip": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\PaymentService.API\\Program.cs",
+              "RelativeToolTip": "PaymentService.API\\Program.cs",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAAAEIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-12T08:53:07.508Z"
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 7,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\ReviewService.API\\Program.cs",
+              "RelativeDocumentMoniker": "ReviewService.API\\Program.cs",
+              "ToolTip": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\ReviewService.API\\Program.cs",
+              "RelativeToolTip": "ReviewService.API\\Program.cs",
+              "ViewState": "AgIAAHQAAAAAAAAAAAAAAIEAAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-12T03:13:42.875Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
               "Title": "ProductRepository.cs",
               "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Repositories\\ProductRepository.cs",
               "RelativeDocumentMoniker": "StoreManagementAPI\\Repositories\\ProductRepository.cs",
@@ -350,7 +359,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "CreateReviewDto.cs",
               "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\ReviewService.API\\DTOs\\CreateReviewDto.cs",
               "RelativeDocumentMoniker": "ReviewService.API\\DTOs\\CreateReviewDto.cs",
@@ -362,7 +371,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 11,
               "Title": "ReviewsService.cs",
               "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\ReviewService.API\\Services\\ReviewsService.cs",
               "RelativeDocumentMoniker": "ReviewService.API\\Services\\ReviewsService.cs",
@@ -374,7 +383,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 13,
               "Title": "UserServiceClient.cs",
               "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\ReviewService.API\\Clients\\UserServiceClient.cs",
               "RelativeDocumentMoniker": "ReviewService.API\\Clients\\UserServiceClient.cs",
@@ -386,7 +395,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 12,
               "Title": "ReviewResponseDto.cs",
               "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\ReviewService.API\\DTOs\\ReviewResponseDto.cs",
               "RelativeDocumentMoniker": "ReviewService.API\\DTOs\\ReviewResponseDto.cs",
@@ -398,7 +407,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 10,
               "Title": "ReviewsController.cs",
               "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\ReviewService.API\\Controllers\\ReviewsController.cs",
               "RelativeDocumentMoniker": "ReviewService.API\\Controllers\\ReviewsController.cs",
@@ -410,7 +419,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 14,
               "Title": "IUserServiceClient.cs",
               "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\ReviewService.API\\Interfaces\\IUserServiceClient.cs",
               "RelativeDocumentMoniker": "ReviewService.API\\Interfaces\\IUserServiceClient.cs",
@@ -422,7 +431,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 15,
               "Title": "UserDto.cs",
               "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\ReviewService.API\\DTOs\\User\\UserDto.cs",
               "RelativeDocumentMoniker": "ReviewService.API\\DTOs\\User\\UserDto.cs",
@@ -434,7 +443,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 16,
               "Title": "UsersController.cs",
               "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\Controllers\\UsersController.cs",
               "RelativeDocumentMoniker": "UserService.API\\Controllers\\UsersController.cs",
@@ -446,7 +455,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 17,
               "Title": "launchSettings.json",
               "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\Properties\\launchSettings.json",
               "RelativeDocumentMoniker": "UserService.API\\Properties\\launchSettings.json",
@@ -458,7 +467,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 21,
               "Title": "IUserRepository.cs",
               "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\Interfaces\\IUserRepository.cs",
               "RelativeDocumentMoniker": "UserService.API\\Interfaces\\IUserRepository.cs",
@@ -470,7 +479,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 18,
               "Title": "UserDto.cs",
               "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\DTOs\\User\\UserDto.cs",
               "RelativeDocumentMoniker": "UserService.API\\DTOs\\User\\UserDto.cs",
@@ -482,7 +491,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 22,
               "Title": "UpdateUserInforDto.cs",
               "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\DTOs\\User\\UpdateUserInforDto.cs",
               "RelativeDocumentMoniker": "UserService.API\\DTOs\\User\\UpdateUserInforDto.cs",
@@ -494,7 +503,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 19,
               "Title": "UsersService.cs",
               "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\Services\\UsersService.cs",
               "RelativeDocumentMoniker": "UserService.API\\Services\\UsersService.cs",
@@ -506,7 +515,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 20,
               "Title": "IUserService.cs",
               "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\Interfaces\\IUserService.cs",
               "RelativeDocumentMoniker": "UserService.API\\Interfaces\\IUserService.cs",
@@ -518,7 +527,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 27,
+              "DocumentIndex": 28,
               "Title": "launchSettings.json",
               "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\OrderServiceAPI\\Properties\\launchSettings.json",
               "RelativeDocumentMoniker": "OrderServiceAPI\\Properties\\launchSettings.json",
@@ -530,7 +539,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 24,
               "Title": "appsettings.Development.json",
               "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\appsettings.Development.json",
               "RelativeDocumentMoniker": "StoreManagementAPI\\appsettings.Development.json",
@@ -542,7 +551,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 23,
               "Title": "User.cs",
               "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\UserService.API\\Models\\User.cs",
               "RelativeDocumentMoniker": "UserService.API\\Models\\User.cs",
@@ -554,7 +563,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 24,
+              "DocumentIndex": 25,
               "Title": "launchSettings.json",
               "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Properties\\launchSettings.json",
               "RelativeDocumentMoniker": "StoreManagementAPI\\Properties\\launchSettings.json",
@@ -566,7 +575,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 26,
+              "DocumentIndex": 27,
               "Title": "launchSettings.json",
               "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\PaymentService.API\\Properties\\launchSettings.json",
               "RelativeDocumentMoniker": "PaymentService.API\\Properties\\launchSettings.json",
@@ -578,7 +587,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
+              "DocumentIndex": 26,
               "Title": "launchSettings.json",
               "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\ReviewService.API\\Properties\\launchSettings.json",
               "RelativeDocumentMoniker": "ReviewService.API\\Properties\\launchSettings.json",
@@ -587,18 +596,6 @@
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2026-08-12T08:48:04.554Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 28,
-              "Title": "ProductService.cs",
-              "DocumentMoniker": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Services\\ProductService.cs",
-              "RelativeDocumentMoniker": "StoreManagementAPI\\Services\\ProductService.cs",
-              "ToolTip": "D:\\Captone2\\MyCapstone\\backend\\StoreManagementAPI\\StoreManagementAPI\\Services\\ProductService.cs",
-              "RelativeToolTip": "StoreManagementAPI\\Services\\ProductService.cs",
-              "ViewState": "AgIAAEYAAAAAAAAAAAAgwFQAAAA2AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-08-12T04:20:17.192Z"
             },
             {
               "$type": "Document",
@@ -646,8 +643,7 @@
               "RelativeToolTip": "StoreManagementAPI\\Program.cs",
               "ViewState": "AgIAABsAAAAAAAAAAAAAADkAAAAVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-08-12T07:41:57.519Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-08-12T07:41:57.519Z"
             },
             {
               "$type": "Document",

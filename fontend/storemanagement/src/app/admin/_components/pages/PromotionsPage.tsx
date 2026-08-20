@@ -13,7 +13,7 @@ const pageCSS = `
 .modal-input:focus { border-color: #00694c; }
 `;
 
-const fmt = (n: number) => new Intl.NumberFormat('vi-VN').format(n) + '₫';
+const fmt = (n: number) => new Intl.NumberFormat('vi-VN').format(n) + ' VND';
 
 const statusConfig: Record<string, { bg: string; color: string }> = {
   'Active':   { bg: '#e0f5ed', color: '#004d38' },
@@ -28,9 +28,9 @@ interface Promo {
 
 const initialPromos: Promo[] = [
   { id:1, code:'SUMMER20',   desc:'Summer sale 20% off',         type:'Percentage', value:20,    minOrder:200000, start:'2024-05-01', end:'2024-05-31', status:'Active'   },
-  { id:2, code:'WELCOME50K', desc:'New customer 50,000₫ off',    type:'Fixed',      value:50000, minOrder:300000, start:'2024-01-01', end:'2024-12-31', status:'Active'   },
+  { id:2, code:'WELCOME50K', desc:'New customer 50,000 VND off',    type:'Fixed',      value:50000, minOrder:300000, start:'2024-01-01', end:'2024-12-31', status:'Active'   },
   { id:3, code:'FLASH15',    desc:'Flash sale 15% this weekend', type:'Percentage', value:15,    minOrder:0,      start:'2024-05-24', end:'2024-05-26', status:'Active'   },
-  { id:4, code:'VIP100K',    desc:'VIP customer 100,000₫ off',  type:'Fixed',      value:100000,minOrder:500000, start:'2024-05-01', end:'2024-05-28', status:'Active'   },
+  { id:4, code:'VIP100K',    desc:'VIP customer 100,000 VND off',  type:'Fixed',      value:100000,minOrder:500000, start:'2024-05-01', end:'2024-05-28', status:'Active'   },
   { id:5, code:'FREESHIP',   desc:'Free shipping on all orders', type:'Fixed',      value:30000, minOrder:150000, start:'2024-05-20', end:'2024-05-27', status:'Active'   },
   { id:6, code:'TETHOLIDAY', desc:'Tet holiday special 25% off', type:'Percentage', value:25,    minOrder:400000, start:'2024-02-01', end:'2024-02-15', status:'Expired'  },
   { id:7, code:'BLACKFRI30', desc:'Black Friday 30% mega sale',  type:'Percentage', value:30,    minOrder:500000, start:'2023-11-24', end:'2023-11-24', status:'Expired'  },
@@ -119,9 +119,9 @@ export default function PromotionsPage({ search }: Props) {
   const previewCode = form.code.toUpperCase() || 'CODE';
   const previewDiscount = form.type === 'Percentage'
     ? `${form.value || 0}% off`
-    : `${new Intl.NumberFormat('vi-VN').format(Number(form.value) || 0)}₫ off`;
+    : `${new Intl.NumberFormat('vi-VN').format(Number(form.value) || 0)} VND off`;
   const previewMin = Number(form.minOrder) > 0
-    ? `Min order: ${new Intl.NumberFormat('vi-VN').format(Number(form.minOrder))}₫`
+    ? `Min order: ${new Intl.NumberFormat('vi-VN').format(Number(form.minOrder))} VND`
     : 'No minimum order';
 
   return (
@@ -146,7 +146,7 @@ export default function PromotionsPage({ search }: Props) {
             </div>
             <div className="stat-card bg-surface-container-lowest border rounded-xl p-6 flex flex-col justify-between" style={{ borderColor: '#b8e0cc', boxShadow: '0 0 0 1px #00694c1a,0 4px 20px #00694c14' }}>
               <div className="flex justify-between items-start">
-                <div><p className="text-on-surface-variant font-label-md text-label-md mb-1">Total Discount Given</p><h3 className="font-bold" style={{ fontSize: '22px' }}>8,240,000₫</h3></div>
+                <div><p className="text-on-surface-variant font-label-md text-label-md mb-1">Total Discount Given</p><h3 className="font-bold" style={{ fontSize: '22px' }}>8,240,000 VND</h3></div>
                 <span className="material-symbols-outlined p-2 rounded-lg" style={{ color: '#00694c', background: '#e0f5ed' }}>savings</span>
               </div>
               <div className="mt-4"><span className="font-label-sm text-label-sm" style={{ color: '#00694c' }}>This month</span></div>
@@ -212,7 +212,7 @@ export default function PromotionsPage({ search }: Props) {
                         <td className="px-4 py-3">
                           {p.type === 'Percentage'
                             ? <span style={{ background: '#e0f5ed', color: '#004d38', padding: '2px 8px', borderRadius: '99px', fontSize: '11px', fontWeight: 600 }}>% Percent</span>
-                            : <span style={{ background: '#fff3d6', color: '#7a5c00', padding: '2px 8px', borderRadius: '99px', fontSize: '11px', fontWeight: 600 }}>₫ Fixed</span>
+                            : <span style={{ background: '#fff3d6', color: '#7a5c00', padding: '2px 8px', borderRadius: '99px', fontSize: '11px', fontWeight: 600 }}>VND Fixed</span>
                           }
                         </td>
                         <td className="px-4 py-3">
@@ -290,7 +290,7 @@ export default function PromotionsPage({ search }: Props) {
                   <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Discount Type *</label>
                   <select value={form.type} onChange={e => updateForm('type', e.target.value)} className="modal-input">
                     <option value="Percentage">Percentage (%)</option>
-                    <option value="Fixed">Fixed Amount (₫)</option>
+                    <option value="Fixed">Fixed Amount (VND)</option>
                   </select>
                 </div>
               </div>
@@ -304,7 +304,7 @@ export default function PromotionsPage({ search }: Props) {
                   <input type="number" min="0" placeholder="0" value={form.value} onChange={e => updateForm('value', e.target.value)} className="modal-input" />
                 </div>
                 <div>
-                  <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Min Order Value (₫)</label>
+                  <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Min Order Value (VND)</label>
                   <input type="number" min="0" placeholder="0" value={form.minOrder} onChange={e => updateForm('minOrder', e.target.value)} className="modal-input" />
                 </div>
               </div>

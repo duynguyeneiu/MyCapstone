@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "PowerShell(try { $r = Invoke-WebRequest -Uri \"http://localhost:5001/swagger/v1/swagger.json\" -UseBasicParsing -TimeoutSec 8; $r.Content } catch { \"ERROR 5001: $\\($_.Exception.Message\\)\" })"
+      "PowerShell(try { $r = Invoke-WebRequest -Uri \"http://localhost:5001/swagger/v1/swagger.json\" -UseBasicParsing -TimeoutSec 8; $r.Content } catch { \"ERROR 5001: $\\($_.Exception.Message\\)\" })",
+      "Read(//d/Captone2/MyCapstone/backend/StoreManagementAPI/StoreManagementAPI/Mappers/**)",
+      "Read(//d/Captone2/MyCapstone/backend/StoreManagementAPI/StoreManagementAPI/DTOs/Product/**)"
     ]
   }
 }

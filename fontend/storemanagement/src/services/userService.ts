@@ -2,7 +2,7 @@ import api from "../lib/userApi";
 
 export interface ApiUser {
   userId: number;
-  fullName: string;
+  fullName: string | null;
   gender: string | null;
   phone: string | null;
   email: string | null;

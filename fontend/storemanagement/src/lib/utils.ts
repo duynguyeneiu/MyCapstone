@@ -27,8 +27,8 @@ export const getImageUrl = (image: string | null | undefined): string => {
 export const disc = (p: Product) =>
   p.price ? Math.round((1 - p.price / p.price) * 100) : 0;
 
-export const initials = (name: string) =>
-  name.split(" ").map((w) => w[0]).slice(-2).join("").toUpperCase();
+export const initials = (name: string | null | undefined) =>
+  (name ?? "").trim().split(/\s+/).filter(Boolean).map((w) => w[0]).slice(-2).join("").toUpperCase();
 
 export function getPageNums(current: number, total: number): (number | "…")[] {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);

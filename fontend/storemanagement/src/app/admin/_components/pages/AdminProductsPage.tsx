@@ -2,8 +2,10 @@
 import { useState, useEffect } from "react";
 import { productService, ApiProductRaw } from "@/src/services/productService";
 import { categoryService } from "@/src/services/categoryService";
+import { reviewService, ApiReview } from "@/src/services/reviewService";
 import { Category } from "@/src/lib/data";
 import { getApiErrorMessage } from "@/src/lib/apiError";
+import { getImageUrl } from "@/src/lib/utils";
 
 interface Props {
   search: string;
@@ -12,15 +14,17 @@ interface Props {
 const CAT_COLORS = ["#e0f5ed", "#fff3d6", "#fef3c7", "#ede9fe", "#e0f2fe"];
 const CAT_TEXT_COLORS = ["#004d38", "#7a5c00", "#92400e", "#4c1d95", "#075985"];
 
-const fmt = (n: number) => n.toLocaleString('vi-VN') + '₫';
+const fmt = (n: number) => n.toLocaleString('vi-VN') + ' VND';
 
-// Backend stores product.image as a bare filename; the app serves it from /image/.
-// External URLs / already-rooted paths are passed through untouched.
-const IMAGE_PREFIX = "/image/";
-const toDisplayImage = (filename: string | null) =>
-  !filename ? "" : /^https?:\/\//.test(filename) || filename.startsWith("/") ? filename : `${IMAGE_PREFIX}${filename}`;
-const toRawImage = (display: string): string | null =>
-  display.startsWith(IMAGE_PREFIX) ? display.slice(IMAGE_PREFIX.length) : display || null;
+// Backend may return a bare filename or a full URL (sometimes with a stale/
+// unreachable host baked in) — getImageUrl() normalizes either into a URL
+// that actually resolves against the current API host. Same helper the
+// customer-facing pages use, so admin previews match what shoppers see.
+const toDisplayImage = (filename: string | null) => getImageUrl(filename);
+const toRawImage = (display: string): string | null => {
+  const fileName = display.replace(/\\/g, "/").split("/").pop();
+  return fileName || null;
+};
 
 interface AdminProduct {
   id: number;
@@ -37,7 +41,24 @@ interface AdminProduct {
   raw: ApiProductRaw;
 }
 
-const toAdmin = (products: ApiProductRaw[]): AdminProduct[] =>
+// Backend doesn't expose an aggregate rating on the product list endpoint,
+// so the average is computed here from the real reviews — products with no
+// reviews yet simply keep the 0 fallback.
+const buildRatingMap = (reviews: ApiReview[]): Map<number, number> => {
+  const byProduct = new Map<number, number[]>();
+  for (const r of reviews) {
+    const list = byProduct.get(r.productId) ?? [];
+    list.push(r.rating);
+    byProduct.set(r.productId, list);
+  }
+  const averages = new Map<number, number>();
+  for (const [productId, ratings] of byProduct) {
+    averages.set(productId, ratings.reduce((s, x) => s + x, 0) / ratings.length);
+  }
+  return averages;
+};
+
+const toAdmin = (products: ApiProductRaw[], ratings: Map<number, number>): AdminProduct[] =>
   products.map((p) => ({
     id: p.productId,
     name: p.productName,
@@ -49,7 +70,7 @@ const toAdmin = (products: ApiProductRaw[]): AdminProduct[] =>
     stock: p.quantityInStock,
     status: p.status,
     desc: p.description ?? "",
-    rating: 0,
+    rating: ratings.get(p.productId) ?? 0,
     raw: p,
   }));
 
@@ -80,11 +101,15 @@ export default function AdminProductsPage({ search }: Props) {
 
   async function loadData() {
     try {
-      const [productsData, categoriesData] = await Promise.all([
+      const [productsData, categoriesData, reviewsData] = await Promise.all([
         productService.getAllRaw(),
         categoryService.getAll(),
+        reviewService.getAll(),
       ]);
-      setProducts(toAdmin(productsData));
+      const ratings = buildRatingMap(reviewsData);
+      // Newest products first — the list endpoint doesn't reliably return
+      // createdAt, so fall back to id descending (higher id = created later).
+      setProducts(toAdmin(productsData, ratings).sort((a, b) => b.id - a.id));
       setCategories(categoriesData);
     } catch (err) {
       console.error(err);
@@ -924,7 +949,7 @@ export default function AdminProductsPage({ search }: Props) {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
-                    Import Price (₫) <span style={{ color: "#dc2626" }}>*</span>
+                    Import Price (VND) <span style={{ color: "#dc2626" }}>*</span>
                   </label>
                   <input
                     type="number"
@@ -938,7 +963,7 @@ export default function AdminProductsPage({ search }: Props) {
                 </div>
                 <div>
                   <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
-                    Sale Price (₫) <span style={{ color: "#dc2626" }}>*</span>
+                    Sale Price (VND) <span style={{ color: "#dc2626" }}>*</span>
                   </label>
                   <input
                     type="number"

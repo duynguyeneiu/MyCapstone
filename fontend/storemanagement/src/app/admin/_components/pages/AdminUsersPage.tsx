@@ -80,7 +80,7 @@ export default function AdminUsersPage({ search }: Props) {
       customers.filter(
         (u) =>
           (!q ||
-            u.fullName.toLowerCase().includes(q) ||
+            (u.fullName ?? '').toLowerCase().includes(q) ||
             (u.phone ?? '').includes(q) ||
             (u.email ?? '').toLowerCase().includes(q)) &&
           (!statusFilter || u.status === statusFilter) &&
@@ -93,7 +93,7 @@ export default function AdminUsersPage({ search }: Props) {
       staff.filter(
         (u) =>
           (!q ||
-            u.fullName.toLowerCase().includes(q) ||
+            (u.fullName ?? '').toLowerCase().includes(q) ||
             (u.phone ?? '').includes(q) ||
             (u.email ?? '').toLowerCase().includes(q)) &&
           (!roleFilter || (u.role?.roleName ?? '').toLowerCase() === roleFilter.toLowerCase())
@@ -214,7 +214,9 @@ export default function AdminUsersPage({ search }: Props) {
                       <th className="px-4 py-3 text-xs uppercase" style={{ color: '#6d7a73' }}>{tab === 'customers' ? 'Customer' : 'Staff'}</th>
                       <th className="px-4 py-3 text-xs uppercase" style={{ color: '#6d7a73' }}>Phone</th>
                       <th className="px-4 py-3 text-xs uppercase" style={{ color: '#6d7a73' }}>Email</th>
-                      <th className="px-4 py-3 text-xs uppercase" style={{ color: '#6d7a73' }}>{tab === 'customers' ? 'Loyalty Points' : 'Role'}</th>
+                      {tab === 'staff' && (
+                        <th className="px-4 py-3 text-xs uppercase" style={{ color: '#6d7a73' }}>Role</th>
+                      )}
                       <th className="px-4 py-3 text-xs uppercase" style={{ color: '#6d7a73' }}>Status</th>
                       <th className="px-4 py-3 text-xs uppercase text-center" style={{ color: '#6d7a73' }}>Actions</th>
                     </tr>
@@ -235,16 +237,11 @@ export default function AdminUsersPage({ search }: Props) {
                         </td>
                         <td className="px-4 py-3">{u.phone ?? '—'}</td>
                         <td className="px-4 py-3" style={{ color: '#6d7a73' }}>{u.email ?? '—'}</td>
-                        <td className="px-4 py-3">
-                          {tab === 'customers' ? (
-                            <div className="flex items-center gap-1">
-                              <span className="material-symbols-outlined" style={{ fontSize: 16, color: '#f59e0b' }}>star</span>
-                              <span className="font-bold">{(u.loyaltyPoint ?? 0).toLocaleString()}</span>
-                            </div>
-                          ) : (
+                        {tab === 'staff' && (
+                          <td className="px-4 py-3">
                             <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold" style={{ background: '#fff3d6', color: '#7a5c00' }}>{u.role?.roleName ?? '—'}</span>
-                          )}
-                        </td>
+                          </td>
+                        )}
                         <td className="px-4 py-3">
                           {isActive(u) ? (
                             <span className="px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: '#e0f5ed', color: '#004d38' }}>{u.status}</span>
@@ -268,7 +265,7 @@ export default function AdminUsersPage({ search }: Props) {
                       </tr>
                     ))}
                     {pagedList.length === 0 && (
-                      <tr><td colSpan={6} className="px-6 py-8 text-center" style={{ color: '#94a3b8' }}>No users match your filters.</td></tr>
+                      <tr><td colSpan={tab === 'staff' ? 6 : 5} className="px-6 py-8 text-center" style={{ color: '#94a3b8' }}>No users match your filters.</td></tr>
                     )}
                   </tbody>
                 </table>

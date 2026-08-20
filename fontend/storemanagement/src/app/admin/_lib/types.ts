@@ -34,7 +34,17 @@ export const globalStyle = `
   @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
 `;
 
-export type Page = "login" | "dashboard" | "pos" | "products" | "categories" | "orders" | "inventory" | "users" | "promotions" | "settings";
+export type Page =
+  | "login"
+  | "dashboard"
+  | "pos"
+  | "products"
+  | "categories"
+  | "orders"
+  | "inventory"
+  | "users"
+  | "promotions"
+  | "settings";
 
 export const NAV_ITEMS: { page: Page; icon: string; label: string }[] = [
   { page: "dashboard", icon: "dashboard", label: "Dashboard" },
@@ -43,7 +53,7 @@ export const NAV_ITEMS: { page: Page; icon: string; label: string }[] = [
   { page: "categories", icon: "category", label: "Categories" },
   { page: "orders", icon: "receipt_long", label: "Orders" },
   { page: "inventory", icon: "inventory", label: "Inventory" },
-  { page: "promotions", icon: "sell", label: "Promotions" },
+  // { page: "promotions", icon: "sell", label: "Promotions" },
   { page: "users", icon: "people", label: "Users" },
   { page: "settings", icon: "settings", label: "Settings" },
 ];

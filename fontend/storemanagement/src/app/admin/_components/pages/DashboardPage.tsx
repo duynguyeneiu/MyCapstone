@@ -385,7 +385,9 @@ export default function DashboardPage({ onNav, search }: Props) {
                             <td className="px-6 py-4">
                               <div className="flex items-center gap-3">
                                 <div className="rounded-md overflow-hidden flex-shrink-0" style={{ width: 32, height: 32, background: '#e0f5ed' }}>
-                                  <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 3 }} />
+                                  {p.image && (
+                                    <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 3 }} />
+                                  )}
                                 </div>
                                 <span className="font-medium">{p.name}</span>
                               </div>

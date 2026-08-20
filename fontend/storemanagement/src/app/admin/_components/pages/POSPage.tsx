@@ -86,9 +86,9 @@ const posCSS = `
 
 const POS_PROMOS = [
   { code: 'SUMMER20',   desc: 'Summer sale 20% off',          type: 'Percentage', value: 20,     minOrder: 200000 },
-  { code: 'WELCOME50K', desc: 'New customer 50,000₫ off',     type: 'Fixed',      value: 50000,  minOrder: 300000 },
+  { code: 'WELCOME50K', desc: 'New customer 50,000 VND off',     type: 'Fixed',      value: 50000,  minOrder: 300000 },
   { code: 'FLASH15',    desc: 'Flash sale 15% this weekend',  type: 'Percentage', value: 15,     minOrder: 0      },
-  { code: 'VIP100K',    desc: 'VIP customer 100,000₫ off',    type: 'Fixed',      value: 100000, minOrder: 500000 },
+  { code: 'VIP100K',    desc: 'VIP customer 100,000 VND off',    type: 'Fixed',      value: 100000, minOrder: 500000 },
   { code: 'FREESHIP',   desc: 'Free shipping on all orders',  type: 'Fixed',      value: 30000,  minOrder: 150000 },
 ];
 
@@ -294,7 +294,9 @@ export default function POSPage() {
                 onMouseEnter={(e) => { if (p.stock > 0) { const el = e.currentTarget as HTMLDivElement; el.style.borderColor = C.primary; el.style.transform = "translateY(-1px)"; el.style.boxShadow = `0 4px 12px ${C.primary}20`; }}}
                 onMouseLeave={(e) => { const el = e.currentTarget as HTMLDivElement; el.style.borderColor = "#e0e3e5"; el.style.transform = ""; el.style.boxShadow = ""; }}>
                 <div style={{ width: 44, height: 44, borderRadius: 10, background: C.primaryBg, overflow: "hidden", marginBottom: 8 }}>
-                  <img src={p.image} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "contain", padding: 4 }} />
+                  {p.image && (
+                    <img src={p.image} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "contain", padding: 4 }} />
+                  )}
                 </div>
                 <p style={{ fontSize: 12, fontWeight: 600, lineHeight: 1.3, marginBottom: 4 }}>{p.name}</p>
                 <p style={{ fontSize: 13, fontWeight: 700, color: C.primary }}>{fmt(p.price)}</p>

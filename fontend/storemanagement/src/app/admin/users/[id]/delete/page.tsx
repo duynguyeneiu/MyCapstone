@@ -14,7 +14,7 @@ export default function DeleteUserPage() {
 
   useEffect(() => {
     userService.getById(id)
-      .then((u) => setName(u.fullName))
+      .then((u) => setName(u.fullName ?? `User #${id}`))
       .catch((err) => {
         console.error('Failed to load user:', err)
         setName(`User #${id}`)

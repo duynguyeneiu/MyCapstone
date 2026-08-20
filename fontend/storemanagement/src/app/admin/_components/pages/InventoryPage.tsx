@@ -22,7 +22,7 @@ const pageCSS = `
 .inv-cb:checked { background: #00694c; border-color: #00694c; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 8l4 4 6-6' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-size: 12px; background-repeat: no-repeat; background-position: center; }
 `;
 
-const fmt = (n: number) => new Intl.NumberFormat('vi-VN').format(n) + '₫';
+const fmt = (n: number) => new Intl.NumberFormat('vi-VN').format(n) + ' VND';
 
 const CAT_COLORS = ['#e0f5ed', '#fff3d6', '#fef3c7', '#ede9fe', '#e0f2fe'];
 const CAT_TEXT_COLORS = ['#004d38', '#7a5c00', '#92400e', '#4c1d95', '#075985'];
@@ -105,7 +105,8 @@ export default function InventoryPage({ search }: Props) {
           productService.getAll(),
           categoryService.getAll(),
         ]);
-        setProducts(buildInitialProducts(productsData));
+        // Newest products first — sort by id descending (higher id = created later).
+        setProducts(buildInitialProducts(productsData).sort((a, b) => b.id - a.id));
         setCategories(categoriesData);
       } catch (err) {
         console.error(err);
@@ -324,7 +325,9 @@ export default function InventoryPage({ search }: Props) {
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-3">
                                 <div className="w-9 h-9 rounded-lg flex-shrink-0 overflow-hidden" style={{ background: '#e0f5ed' }}>
-                                  <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 3 }} />
+                                  {p.image && (
+                                    <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 3 }} />
+                                  )}
                                 </div>
                                 <div>
                                   <p className="font-bold text-on-surface" style={{ fontSize: '13px' }}>{p.name}</p>

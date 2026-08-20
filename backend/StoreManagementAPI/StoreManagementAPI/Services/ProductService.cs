@@ -181,6 +181,7 @@ namespace CatalogService.API.Services
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category?.CategoryName,
                 Unit = p.Unit,
+                ImportPrice = p.ImportPrice,
                 SalePrice = p.SalePrice,
                 QuantityInStock = p.QuantityInStock,
                 Status = p.Status,

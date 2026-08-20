@@ -1,22 +1,22 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { globalStyle, NAV_ITEMS, type Page } from './_lib/types';
-import { C } from './_lib/types';
-import AdminSidebar from './_components/layout/AdminSidebar';
-import AdminHeader from './_components/layout/AdminHeader';
-import LoginPage from './_components/pages/LoginPage';
-import DashboardPage from './_components/pages/DashboardPage';
-import POSPage from './_components/pages/POSPage';
-import AdminProductsPage from './_components/pages/AdminProductsPage';
-import AdminCategoriesPage from './_components/pages/AdminCategoriesPage';
-import AdminOrdersPage from './_components/pages/AdminOrdersPage';
-import InventoryPage from './_components/pages/InventoryPage';
-import AdminUsersPage from './_components/pages/AdminUsersPage';
-import PromotionsPage from './_components/pages/PromotionsPage';
-import AdminSettingsPage from './_components/pages/AdminSettingsPage';
-import { useAuth } from '../context/AuthContext';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { globalStyle, NAV_ITEMS, type Page } from "./_lib/types";
+import { C } from "./_lib/types";
+import AdminSidebar from "./_components/layout/AdminSidebar";
+import AdminHeader from "./_components/layout/AdminHeader";
+import LoginPage from "./_components/pages/LoginPage";
+import DashboardPage from "./_components/pages/DashboardPage";
+import POSPage from "./_components/pages/POSPage";
+import AdminProductsPage from "./_components/pages/AdminProductsPage";
+import AdminCategoriesPage from "./_components/pages/AdminCategoriesPage";
+import AdminOrdersPage from "./_components/pages/AdminOrdersPage";
+import InventoryPage from "./_components/pages/InventoryPage";
+import AdminUsersPage from "./_components/pages/AdminUsersPage";
+import PromotionsPage from "./_components/pages/PromotionsPage";
+import AdminSettingsPage from "./_components/pages/AdminSettingsPage";
+import { useAuth } from "../context/AuthContext";
 
 /* Shared styles injected once for all admin pages */
 const sharedAdminCSS = `
@@ -71,45 +71,86 @@ const sharedAdminCSS = `
 export default function AdminPage() {
   const { user, logout } = useAuth();
   const router = useRouter();
-  const [activePage, setActivePage] = useState<Page>('dashboard');
+  const [activePage, setActivePage] = useState<Page>("dashboard");
   const [rpLoggedIn, setRpLoggedIn] = useState(false);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (user === null) {
-      router.push('/');
-    } else if (user.role === 'client') {
-      router.push('/');
-    } else if (user.role === 'staff') {
-      setActivePage('pos');
+      router.push("/");
+    } else if (user.role === "client") {
+      router.push("/");
+    } else if (user.role === "staff") {
+      setActivePage("pos");
       setRpLoggedIn(true);
-    } else if (user.role === 'admin') {
+    } else if (user.role === "admin") {
       setRpLoggedIn(true);
-      setActivePage('dashboard');
+      setActivePage("dashboard");
     }
   }, [user, router]);
 
-  if (!user || user.role === 'client') return null;
+  if (!user || user.role === "client") return null;
 
-  const handleNav = (p: string) => { setActivePage(p as Page); setSearch(''); };
-  const handleLogout = () => { logout(); router.push('/'); };
+  const handleNav = (p: string) => {
+    setActivePage(p as Page);
+    setSearch("");
+  };
+  const handleLogout = () => {
+    logout();
+    router.push("/");
+  };
 
   /* ── STAFF: POS only ──────────────────────────────────────────────────── */
-  if (user.role === 'staff') {
+  if (user.role === "staff") {
     return (
-      <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <div
+        style={{ height: "100vh", display: "flex", flexDirection: "column" }}
+      >
         <style>{globalStyle}</style>
-        <div style={{ height: 48, background: C.primary, display: 'flex', alignItems: 'center', padding: '0 20px', gap: 12, flexShrink: 0 }}>
-          <span style={{ fontFamily: "'Hanken Grotesk',sans-serif", fontWeight: 700, color: '#fff', fontSize: 16, flex: 1 }}>
+        <div
+          style={{
+            height: 48,
+            background: C.primary,
+            display: "flex",
+            alignItems: "center",
+            padding: "0 20px",
+            gap: 12,
+            flexShrink: 0,
+          }}
+        >
+          <span
+            style={{
+              fontFamily: "'Hanken Grotesk',sans-serif",
+              fontWeight: 700,
+              color: "#fff",
+              fontSize: 16,
+              flex: 1,
+            }}
+          >
             🏪 Happy Market — POS Terminal
           </span>
-          <span style={{ fontSize: 12, color: '#b8e0cc' }}>Staff: {user.name}</span>
-          <button onClick={handleLogout}
-            style={{ padding: '5px 14px', borderRadius: 8, background: 'rgba(255,255,255,.15)', border: '1px solid rgba(255,255,255,.25)', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+          <span style={{ fontSize: 12, color: "#b8e0cc" }}>
+            Staff: {user.name}
+          </span>
+          <button
+            onClick={handleLogout}
+            style={{
+              padding: "5px 14px",
+              borderRadius: 8,
+              background: "rgba(255,255,255,.15)",
+              border: "1px solid rgba(255,255,255,.25)",
+              color: "#fff",
+              cursor: "pointer",
+              fontSize: 12,
+              fontWeight: 600,
+            }}
+          >
             Sign Out
           </button>
         </div>
-        <div style={{ flex: 1, overflow: 'hidden' }}><POSPage /></div>
+        <div style={{ flex: 1, overflow: "hidden" }}>
+          <POSPage />
+        </div>
       </div>
     );
   }
@@ -119,66 +160,160 @@ export default function AdminPage() {
     return (
       <>
         <style>{globalStyle}</style>
-        <LoginPage onNav={(p) => { setRpLoggedIn(true); setActivePage(p as Page); }} />
+        <LoginPage
+          onNav={(p) => {
+            setRpLoggedIn(true);
+            setActivePage(p as Page);
+          }}
+        />
       </>
     );
   }
 
   /* ── ADMIN: Full shell ────────────────────────────────────────────────── */
-  const pageTitle = NAV_ITEMS.find(n => n.page === activePage)?.label ?? 'Dashboard';
+  const pageTitle =
+    NAV_ITEMS.find((n) => n.page === activePage)?.label ?? "Dashboard";
 
   /* POS gets full-screen treatment (no sidebar/header) */
-  if (activePage === 'pos') {
+  if (activePage === "pos") {
     return (
-      <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <div
+        style={{ height: "100vh", display: "flex", flexDirection: "column" }}
+      >
         <style>{globalStyle}</style>
-        <div style={{ height: 48, background: C.primary, display: 'flex', alignItems: 'center', padding: '0 20px', gap: 12, flexShrink: 0 }}>
-          <span style={{ fontFamily: "'Hanken Grotesk',sans-serif", fontWeight: 700, color: '#fff', fontSize: 16, flex: 1 }}>
+        <div
+          style={{
+            height: 48,
+            background: C.primary,
+            display: "flex",
+            alignItems: "center",
+            padding: "0 20px",
+            gap: 12,
+            flexShrink: 0,
+          }}
+        >
+          <span
+            style={{
+              fontFamily: "'Hanken Grotesk',sans-serif",
+              fontWeight: 700,
+              color: "#fff",
+              fontSize: 16,
+              flex: 1,
+            }}
+          >
             🏪 Happy Market — POS
           </span>
-          <button onClick={() => setActivePage('dashboard')}
-            style={{ padding: '5px 14px', borderRadius: 8, background: 'rgba(255,255,255,.15)', border: '1px solid rgba(255,255,255,.25)', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+          <button
+            onClick={() => setActivePage("dashboard")}
+            style={{
+              padding: "5px 14px",
+              borderRadius: 8,
+              background: "rgba(255,255,255,.15)",
+              border: "1px solid rgba(255,255,255,.25)",
+              color: "#fff",
+              cursor: "pointer",
+              fontSize: 12,
+              fontWeight: 600,
+            }}
+          >
             ← Back to Admin
           </button>
-          <button onClick={handleLogout}
-            style={{ padding: '5px 14px', borderRadius: 8, background: 'rgba(255,255,255,.15)', border: '1px solid rgba(255,255,255,.25)', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+          <button
+            onClick={handleLogout}
+            style={{
+              padding: "5px 14px",
+              borderRadius: 8,
+              background: "rgba(255,255,255,.15)",
+              border: "1px solid rgba(255,255,255,.25)",
+              color: "#fff",
+              cursor: "pointer",
+              fontSize: 12,
+              fontWeight: 600,
+            }}
+          >
             Sign Out
           </button>
         </div>
-        <div style={{ flex: 1, overflow: 'hidden' }}><POSPage /></div>
+        <div style={{ flex: 1, overflow: "hidden" }}>
+          <POSPage />
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', fontFamily: 'Inter, sans-serif' }}>
+    <div
+      style={{
+        display: "flex",
+        height: "100vh",
+        overflow: "hidden",
+        fontFamily: "Inter, sans-serif",
+      }}
+    >
       <style>{globalStyle + sharedAdminCSS}</style>
 
       {/* Shared sidebar — rendered once for all pages */}
       <AdminSidebar
         activePage={activePage}
-        onNav={p => setActivePage(p)}
-        onGoHome={() => router.push('/')}
+        onNav={(p) => setActivePage(p)}
+        onGoHome={() => router.push("/")}
         adminName={user.name}
         onLogout={handleLogout}
       />
 
       {/* Right column: header + scrollable content */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+        }}
+      >
         <AdminHeader
-          title={pageTitle} onNav={handleNav} userName={user.name}
-          searchValue={['dashboard','products','categories','orders','inventory','users','promotions'].includes(activePage) ? search : undefined}
-          onSearch={['dashboard','products','categories','orders','inventory','users','promotions'].includes(activePage) ? setSearch : undefined}
+          title={pageTitle}
+          onNav={handleNav}
+          userName={user.name}
+          searchValue={
+            [
+              "dashboard",
+              "products",
+              "categories",
+              "orders",
+              "inventory",
+              "users",
+              "promotions",
+            ].includes(activePage)
+              ? search
+              : undefined
+          }
+          onSearch={
+            [
+              "dashboard",
+              "products",
+              "categories",
+              "orders",
+              "inventory",
+              "users",
+              "promotions",
+            ].includes(activePage)
+              ? setSearch
+              : undefined
+          }
         />
-        <main style={{ flex: 1, overflowY: 'auto', background: '#f7fbf9' }}>
-          {activePage === 'dashboard'  && <DashboardPage  onNav={handleNav} search={search} />}
-          {activePage === 'products'   && <AdminProductsPage  search={search} />}
-          {activePage === 'categories' && <AdminCategoriesPage search={search} />}
-          {activePage === 'orders'     && <AdminOrdersPage    search={search} />}
-          {activePage === 'inventory'  && <InventoryPage      search={search} />}
-          {activePage === 'users'      && <AdminUsersPage     search={search} />}
-          {activePage === 'promotions' && <PromotionsPage     search={search} />}
-          {activePage === 'settings'   && <AdminSettingsPage  onNav={handleNav} />}
+        <main style={{ flex: 1, overflowY: "auto", background: "#f7fbf9" }}>
+          {activePage === "dashboard" && (
+            <DashboardPage onNav={handleNav} search={search} />
+          )}
+          {activePage === "products" && <AdminProductsPage search={search} />}
+          {activePage === "categories" && (
+            <AdminCategoriesPage search={search} />
+          )}
+          {activePage === "orders" && <AdminOrdersPage search={search} />}
+          {activePage === "inventory" && <InventoryPage search={search} />}
+          {activePage === "users" && <AdminUsersPage search={search} />}
+          {/* {activePage === 'promotions' && <PromotionsPage     search={search} />} */}
+          {activePage === "settings" && <AdminSettingsPage onNav={handleNav} />}
         </main>
       </div>
     </div>
