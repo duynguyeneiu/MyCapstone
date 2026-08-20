@@ -1,12 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { fmt } from '../../lib/utils';
+import { fmt } from '@/src/lib/utils';
 import { useOrders } from '../../context/OrderContext';
+import { useAuth } from '../../context/AuthContext';
 import { Order } from '@/src/services/orderService';
+import { reviewService, ApiReview, unwrapComment } from '@/src/services/reviewService';
 import BtnTeal from '../ui/BtnTeal';
 import BtnOutline from '../ui/BtnOutline';
+import StarRow from '../ui/StarRow';
 
 type UiStatus = 'processing' | 'shipping' | 'delivered' | 'cancelled';
 
@@ -20,7 +23,7 @@ const statusCfg: Record<UiStatus, { label: string; bg: string; color: string; ic
 function mapStatus(orderStatus: string): UiStatus {
   const s = orderStatus.toLowerCase();
   if (s === 'cancelled' || s === 'refunded') return 'cancelled';
-  if (s === 'delivered' || s === 'paid') return 'delivered';
+  if (s === 'delivered' || s === 'paid' || s === 'completed') return 'delivered';
   if (s === 'shipped' || s === 'shipping') return 'shipping';
   return 'processing';
 }
@@ -30,10 +33,24 @@ const progressPct = (s: UiStatus) => s === 'processing' ? 25 : s === 'shipping' 
 export default function OrdersContent() {
   const router = useRouter();
   const { orders } = useOrders();
+  const { user } = useAuth();
   const [filter, setFilter] = useState<UiStatus | 'all'>('all');
   const [search, setSearch] = useState('');
   const [detailOrder, setDetailOrder] = useState<Order | null>(null);
+  const [reviewOrder, setReviewOrder] = useState<Order | null>(null);
+  const [myReviews, setMyReviews] = useState<ApiReview[]>([]);
   const [curPage, setCurPage] = useState(1);
+
+  useEffect(() => {
+    if (!user) return;
+    reviewService
+      .getAll()
+      .then((data) => setMyReviews(data.filter((r) => r.userId === Number(user.id))))
+      .catch((err) => console.error(err));
+  }, [user]);
+
+  const reviewFor = (productId: number) => myReviews.find((r) => r.productId === productId);
+  const isFullyReviewed = (o: Order) => o.items.length > 0 && o.items.every((i) => reviewFor(i.productId));
 
   const filtered = orders.filter(o => {
     const status = mapStatus(o.orderStatus);
@@ -108,9 +125,15 @@ export default function OrdersContent() {
 
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 {status === 'delivered' && (
-                  <BtnTeal onClick={() => { setDetailOrder(null); router.push('/reviews'); }} style={{ flex: 1, padding: '0.6rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>star</span>Write Review
-                  </BtnTeal>
+                  isFullyReviewed(detailOrder) ? (
+                    <BtnTeal onClick={() => { setDetailOrder(null); setReviewOrder(detailOrder); }} style={{ flex: 1, padding: '0.6rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>rate_review</span>View Review
+                    </BtnTeal>
+                  ) : (
+                    <BtnTeal onClick={() => { setDetailOrder(null); router.push('/reviews'); }} style={{ flex: 1, padding: '0.6rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>star</span>Write Review
+                    </BtnTeal>
+                  )
                 )}
                 {status === 'shipping' && (
                   <BtnTeal style={{ flex: 1, padding: '0.6rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
@@ -124,6 +147,47 @@ export default function OrdersContent() {
         </div>
         );
       })()}
+
+      {/* View Review Modal */}
+      {reviewOrder && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setReviewOrder(null)}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: '1.5rem', width: '90%', maxWidth: 520, overflow: 'hidden', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,.2)' }}>
+            <div style={{ padding: '1.5rem', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'sticky', top: 0, background: '#fff', zIndex: 10 }}>
+              <div>
+                <h3 className="serif" style={{ fontWeight: 700, fontSize: '1.15rem' }}>Your Review — #{reviewOrder.orderNumber}</h3>
+                <p style={{ fontSize: '.8rem', color: '#64748b' }}>{new Date(reviewOrder.orderDate).toLocaleDateString()}</p>
+              </div>
+              <button onClick={() => setReviewOrder(null)} style={{ width: 32, height: 32, borderRadius: '50%', background: '#f1f5f9', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#64748b' }}>close</span>
+              </button>
+            </div>
+            <div style={{ padding: '1.5rem' }}>
+              {reviewOrder.items.map(item => {
+                const rev = reviewFor(item.productId);
+                if (!rev) return null;
+                const { text, isAnonymous } = unwrapComment(rev.comment);
+                return (
+                  <div key={item.productId} style={{ background: 'var(--teal-xs)', borderRadius: '0.75rem', padding: '1rem', marginBottom: '0.75rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: '0.4rem' }}>
+                      <span style={{ fontWeight: 600, fontSize: '.9rem' }}>{item.productName}</span>
+                      {isAnonymous && (
+                        <span style={{ fontSize: '.7rem', color: '#64748b', background: '#fff', borderRadius: 9999, padding: '.1rem .55rem', flexShrink: 0 }}>Anonymous</span>
+                      )}
+                    </div>
+                    <div style={{ marginBottom: '0.4rem' }}>
+                      <StarRow rating={rev.rating} size="text-base" />
+                    </div>
+                    {text && (
+                      <p style={{ color: '#4b5563', fontSize: '.875rem', lineHeight: 1.6 }}>{text}</p>
+                    )}
+                  </div>
+                );
+              })}
+              <BtnOutline onClick={() => setReviewOrder(null)} style={{ width: '100%', padding: '0.6rem' } as React.CSSProperties}>Close</BtnOutline>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>
@@ -208,9 +272,15 @@ export default function OrdersContent() {
                   <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                     <BtnTeal onClick={() => setDetailOrder(o)} style={{ fontSize: '.8rem', padding: '0.45rem 1rem' }}>View Details</BtnTeal>
                     {status === 'delivered' && (
-                      <BtnOutline onClick={() => router.push('/reviews')} style={{ fontSize: '.8rem', padding: '0.4rem .9rem', display: 'inline-flex', alignItems: 'center', gap: 4 } as React.CSSProperties}>
-                        <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>star</span>Write Review
-                      </BtnOutline>
+                      isFullyReviewed(o) ? (
+                        <BtnOutline onClick={() => setReviewOrder(o)} style={{ fontSize: '.8rem', padding: '0.4rem .9rem', display: 'inline-flex', alignItems: 'center', gap: 4 } as React.CSSProperties}>
+                          <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>rate_review</span>View Review
+                        </BtnOutline>
+                      ) : (
+                        <BtnOutline onClick={() => router.push('/reviews')} style={{ fontSize: '.8rem', padding: '0.4rem .9rem', display: 'inline-flex', alignItems: 'center', gap: 4 } as React.CSSProperties}>
+                          <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>star</span>Write Review
+                        </BtnOutline>
+                      )
                     )}
                     {status === 'shipping' && (
                       <BtnOutline style={{ fontSize: '.8rem', padding: '0.4rem .9rem', display: 'inline-flex', alignItems: 'center', gap: 4 } as React.CSSProperties}>

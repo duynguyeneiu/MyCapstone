@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getPageNums } from '../../lib/utils';
+import { getPageNums } from '@/src/lib/utils';
 import ProductCard from '../ui/ProductCard';
 import BtnTeal from '../ui/BtnTeal';
 import Badge from '../ui/Badge';

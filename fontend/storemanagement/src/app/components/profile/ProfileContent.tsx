@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ProfileTab } from "../../lib/types";
+import { ProfileTab } from "@/src/lib/data";
 import Badge from "../ui/Badge";
 import BtnTeal from "../ui/BtnTeal";
 import BtnOutline from "../ui/BtnOutline";
@@ -12,7 +12,7 @@ import { userService, ApiUser } from "@/src/services/userService";
 
 const navItems: { id: ProfileTab; icon: string; label: string }[] = [
   { id: "info", icon: "person", label: "Personal Info" },
-  { id: "address", icon: "location_on", label: "Addresses" },
+  // { id: "address", icon: "location_on", label: "Addresses" },
   { id: "security", icon: "lock", label: "Security" },
   { id: "notif", icon: "notifications", label: "Notifications" },
 ];
@@ -215,14 +215,30 @@ export default function ProfileContent() {
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   const DEFAULT_ADDRESSES = [
-    { id: 1, type: "Home",   name: "John Doe", addr: "123 Nguyen Hue Street, District 1", city: "Ho Chi Minh City, 70000",          def: true  },
-    { id: 2, type: "Office", name: "John Doe", addr: "456 Le Loi Blvd, Floor 12",         city: "District 3, Ho Chi Minh City, 70000", def: false },
+    {
+      id: 1,
+      type: "Home",
+      name: "John Doe",
+      addr: "123 Nguyen Hue Street, District 1",
+      city: "Ho Chi Minh City, 70000",
+      def: true,
+    },
+    {
+      id: 2,
+      type: "Office",
+      name: "John Doe",
+      addr: "456 Le Loi Blvd, Floor 12",
+      city: "District 3, Ho Chi Minh City, 70000",
+      def: false,
+    },
   ];
   const [addresses, setAddresses] = useState(() => {
     try {
-      const stored = localStorage.getItem('hm-addresses');
+      const stored = localStorage.getItem("hm-addresses");
       if (stored) return JSON.parse(stored) as typeof DEFAULT_ADDRESSES;
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
     return DEFAULT_ADDRESSES;
   });
   const [showAddAddr, setShowAddAddr] = useState(false);
@@ -344,7 +360,11 @@ export default function ProfileContent() {
 
   /* Persist addresses to localStorage so checkout can pre-fill */
   useEffect(() => {
-    try { localStorage.setItem('hm-addresses', JSON.stringify(addresses)); } catch { /* ignore */ }
+    try {
+      localStorage.setItem("hm-addresses", JSON.stringify(addresses));
+    } catch {
+      /* ignore */
+    }
   }, [addresses]);
 
   /* Auto-dismiss success toast after 5 s */
@@ -1022,7 +1042,7 @@ export default function ProfileContent() {
           </div>
 
           {/* Stats */}
-          <div
+          {/* <div
             style={{
               background: "#fff",
               borderRadius: "1.25rem",
@@ -1076,7 +1096,7 @@ export default function ProfileContent() {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
         </aside>
 
         {/* ── Main content ── */}
@@ -1313,7 +1333,7 @@ export default function ProfileContent() {
           )}
 
           {/* ADDRESSES */}
-          {tab === "address" && (
+          {/* {tab === "address" && (
             <div>
               <div
                 style={{
@@ -1437,7 +1457,7 @@ export default function ProfileContent() {
                 </div>
               )}
             </div>
-          )}
+          )} */}
 
           {/* SECURITY */}
           {tab === "security" && (
@@ -1464,13 +1484,11 @@ export default function ProfileContent() {
                 <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>
                   Change Password
                 </h3>
-                {(
-                  [
-                    { key: "current" as const, label: "Current Password" },
-                    { key: "next" as const, label: "New Password" },
-                    { key: "confirm" as const, label: "Confirm New Password" },
-                  ]
-                ).map(({ key, label }) => (
+                {[
+                  { key: "current" as const, label: "Current Password" },
+                  { key: "next" as const, label: "New Password" },
+                  { key: "confirm" as const, label: "Confirm New Password" },
+                ].map(({ key, label }) => (
                   <div key={key} style={{ marginBottom: "0.75rem" }}>
                     <label
                       style={{
@@ -1494,7 +1512,13 @@ export default function ProfileContent() {
                   </div>
                 ))}
                 {pwError && (
-                  <p style={{ color: "#ef4444", fontSize: ".8rem", marginBottom: "0.5rem" }}>
+                  <p
+                    style={{
+                      color: "#ef4444",
+                      fontSize: ".8rem",
+                      marginBottom: "0.5rem",
+                    }}
+                  >
                     {pwError}
                   </p>
                 )}

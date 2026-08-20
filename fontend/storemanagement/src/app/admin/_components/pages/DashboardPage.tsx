@@ -6,6 +6,7 @@ import { productService } from '@/src/services/productService';
 import { categoryService } from '@/src/services/categoryService';
 import { userService } from '@/src/services/userService';
 import { Product, Category } from '@/src/lib/data';
+import { fmt } from '@/src/lib/utils';
 
 interface Props { onNav: (p: string) => void; search: string; }
 
@@ -18,10 +19,6 @@ const pageCSS = `
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Hanken+Grotesk:wght@600;700&display=swap');
 .font-hanken { font-family: 'Hanken Grotesk', sans-serif; }
 `;
-
-function fmtVND(n: number) {
-  return n.toLocaleString() + ' VND';
-}
 
 function statusColors(status: string) {
   switch (status.toLowerCase()) {
@@ -165,7 +162,7 @@ export default function DashboardPage({ onNav, search }: Props) {
           maintainAspectRatio: false,
           plugins: {
             legend: { display: false },
-            tooltip: { callbacks: { label: (ctx: { parsed: { y: number } }) => fmtVND(ctx.parsed.y) } },
+            tooltip: { callbacks: { label: (ctx: { parsed: { y: number } }) => fmt(ctx.parsed.y) } },
           },
           scales: {
             x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 12 }, color: '#3d4943' } },
@@ -224,7 +221,7 @@ export default function DashboardPage({ onNav, search }: Props) {
                 <div className="flex justify-between items-start">
                   <div>
                     <p className="text-xs mb-1" style={{ color: '#6d7a73' }}>Total Revenue</p>
-                    <h3 className="text-xl font-bold">{fmtVND(totalRevenue)}</h3>
+                    <h3 className="text-xl font-bold">{fmt(totalRevenue)}</h3>
                   </div>
                   <span className="material-symbols-outlined p-2 rounded-lg" style={{ color: '#00694c', background: '#e0f5ed' }}>payments</span>
                 </div>
@@ -330,7 +327,7 @@ export default function DashboardPage({ onNav, search }: Props) {
                           <tr key={o.orderId}>
                             <td className="px-6 py-4">#{o.orderId}</td>
                             <td className="px-6 py-4">{o.receiverName}</td>
-                            <td className="px-6 py-4">{fmtVND(o.totalAmount)}</td>
+                            <td className="px-6 py-4">{fmt(o.totalAmount)}</td>
                             <td className="px-6 py-4">
                               <div className="flex flex-wrap gap-1 items-center">
                                 <span className="px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: sc.bg, color: sc.color }}>

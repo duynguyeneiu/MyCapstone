@@ -3,7 +3,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { Product } from "@/src/lib/data";
-import { fmt, disc } from "../../lib/utils";
+import { fmt, disc } from "@/src/lib/utils";
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
 import Badge from "./Badge";
@@ -13,65 +13,44 @@ interface ProductCardProps {
   categoryName: string;
 }
 
-export default function ProductCard({
-  p,
-  categoryName,
-}: ProductCardProps) {
+export default function ProductCard({ p, categoryName }: ProductCardProps) {
   const router = useRouter();
 
-  const {
-    addToCart,
-  } = useCart();
+  const { addToCart } = useCart();
 
-  const {
-    user,
-  } = useAuth();
+  const { user } = useAuth();
 
   const d = disc(p);
 
   return (
     <div
-      onClick={() =>
-        router.push(
-          `/product/${p.id}`,
-        )
-      }
+      onClick={() => router.push(`/product/${p.id}`)}
       style={{
         background: "#fff",
         borderRadius: "1.25rem",
         overflow: "hidden",
-        boxShadow:
-          "0 4px 24px rgba(0,0,0,.10)",
+        boxShadow: "0 4px 24px rgba(0,0,0,.10)",
         cursor: "pointer",
         transition: "all .25s",
       }}
       onMouseEnter={(e) => {
-        (
-          e.currentTarget as HTMLDivElement
-        ).style.transform =
+        (e.currentTarget as HTMLDivElement).style.transform =
           "translateY(-4px)";
 
-        (
-          e.currentTarget as HTMLDivElement
-        ).style.boxShadow =
+        (e.currentTarget as HTMLDivElement).style.boxShadow =
           "0 12px 36px rgba(0,105,76,.22)";
       }}
       onMouseLeave={(e) => {
-        (
-          e.currentTarget as HTMLDivElement
-        ).style.transform = "";
+        (e.currentTarget as HTMLDivElement).style.transform = "";
 
-        (
-          e.currentTarget as HTMLDivElement
-        ).style.boxShadow =
+        (e.currentTarget as HTMLDivElement).style.boxShadow =
           "0 4px 24px rgba(0,0,0,.10)";
       }}
     >
       {/* IMAGE */}
       <div
         style={{
-          background:
-            "var(--teal-xs)",
+          background: "var(--teal-xs)",
           height: 160,
           position: "relative",
           overflow: "hidden",
@@ -96,8 +75,7 @@ export default function ProductCard({
               height: "100%",
               display: "flex",
               alignItems: "center",
-              justifyContent:
-                "center",
+              justifyContent: "center",
               color: "#94a3b8",
               fontSize: ".8rem",
             }}
@@ -106,7 +84,7 @@ export default function ProductCard({
           </div>
         )}
 
-        {d > 0 && (
+        {/* {d > 0 && (
           <span
             style={{
               position:
@@ -127,7 +105,7 @@ export default function ProductCard({
           >
             -{d}%
           </span>
-        )}
+        )} */}
       </div>
 
       {/* PRODUCT INFO */}
@@ -136,35 +114,26 @@ export default function ProductCard({
           padding: "1rem",
         }}
       >
-        <Badge>
+        {/* <Badge>
           {categoryName
             .split("-")
-            .map(
-              (w) =>
-                w
-                  .charAt(0)
-                  .toUpperCase() +
-                w.slice(1),
-            )
+            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
             .join(" ")}
-        </Badge>
+        </Badge> */}
 
         <p
           style={{
             fontWeight: 600,
-            fontSize:
-              ".875rem",
+            fontSize: ".875rem",
             lineHeight: 1.4,
-            margin:
-              ".3rem 0 .25rem",
+            margin: ".3rem 0 .25rem",
+            minHeight: "2.45rem",
 
-            display:
-              "-webkit-box",
+            display: "-webkit-box",
 
             WebkitLineClamp: 2,
 
-            WebkitBoxOrient:
-              "vertical",
+            WebkitBoxOrient: "vertical",
 
             overflow: "hidden",
           }}
@@ -175,20 +144,16 @@ export default function ProductCard({
         <div
           style={{
             display: "flex",
-            alignItems:
-              "center",
-            justifyContent:
-              "space-between",
+            alignItems: "center",
+            justifyContent: "space-between",
           }}
         >
           <div>
             <span
               style={{
                 fontWeight: 700,
-                fontSize:
-                  ".875rem",
-                color:
-                  "var(--teal)",
+                fontSize: ".875rem",
+                color: "var(--teal)",
               }}
             >
               {fmt(p.price)}
@@ -201,9 +166,7 @@ export default function ProductCard({
               e.stopPropagation();
 
               if (!user) {
-                router.push(
-                  "/login",
-                );
+                router.push("/login");
                 return;
               }
 
@@ -212,21 +175,15 @@ export default function ProductCard({
             style={{
               width: 32,
               height: 32,
-              borderRadius:
-                "50%",
-              background:
-                "var(--teal)",
+              borderRadius: "50%",
+              background: "var(--teal)",
               color: "#fff",
               border: "none",
-              cursor:
-                "pointer",
-              fontSize:
-                "1.1rem",
+              cursor: "pointer",
+              fontSize: "1.1rem",
               display: "flex",
-              alignItems:
-                "center",
-              justifyContent:
-                "center",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             +

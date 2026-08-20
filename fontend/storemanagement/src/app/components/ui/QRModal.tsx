@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import { PaymentMethod } from '../../lib/types';
-import { fmt } from '../../lib/utils';
+import { PaymentMethod } from '@/src/lib/data';
+import { fmt } from '@/src/lib/utils';
 import BtnTeal from './BtnTeal';
 
 interface QRModalProps {

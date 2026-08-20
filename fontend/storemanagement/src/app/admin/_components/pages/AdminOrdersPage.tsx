@@ -14,6 +14,7 @@ const statusConfig: Record<string, { bg: string; color: string }> = {
   Shipped: { bg: "#e0f5ed", color: "#004d38" },
   Delivered: { bg: "#e0f5ed", color: "#004d38" },
   Paid: { bg: "#e0f5ed", color: "#004d38" },
+  Completed: { bg: "#e0f5ed", color: "#004d38" },
   Refunded: { bg: "#fce7f3", color: "#831843" },
   Cancelled: { bg: "#fee2e2", color: "#7f1d1d" },
 };
@@ -310,6 +311,7 @@ export default function AdminOrdersPage({ search }: Props) {
                     <option>Processing</option>
                     <option>Shipped</option>
                     <option>Delivered</option>
+                    <option>Completed</option>
                   </optgroup>
                   <optgroup label="── POS ──">
                     <option>Paid</option>
@@ -849,6 +851,7 @@ export default function AdminOrdersPage({ search }: Props) {
                     <option>Processing</option>
                     <option>Shipped</option>
                     <option>Delivered</option>
+                    <option>Completed</option>
                   </optgroup>
                   <optgroup label="── POS ──">
                     <option>Paid</option>

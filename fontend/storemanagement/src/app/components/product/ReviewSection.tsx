@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { reviewService, ApiReview } from '@/src/services/reviewService';
+import { reviewService, ApiReview, unwrapComment, maskName } from '@/src/services/reviewService';
 
 // ─── Mini star renderer ───────────────────────────────────────────────────────
 
@@ -150,8 +150,18 @@ export default function ReviewSection({ productId }: Props) {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {paged.map(rev => {
-                const label = `Customer #${rev.userId}`;
-                const initials = String(rev.userId).slice(-2);
+                const realName = rev.userName || `Customer #${rev.userId}`;
+                const { text: commentText, isAnonymous } = unwrapComment(rev.comment);
+                const label = isAnonymous ? maskName(realName) : realName;
+                const initials = isAnonymous
+                  ? realName.charAt(0).toUpperCase()
+                  : realName
+                      .split(' ')
+                      .filter(Boolean)
+                      .map(w => w[0])
+                      .slice(-2)
+                      .join('')
+                      .toUpperCase() || String(rev.userId).slice(-2);
                 const color = AVATAR_COLORS[rev.userId % AVATAR_COLORS.length];
                 return (
                   <div key={rev.reviewId} style={{ background: '#fff', borderRadius: '1.25rem', padding: '1.25rem 1.5rem', boxShadow: '0 2px 8px rgba(0,0,0,.05)' }}>
@@ -171,8 +181,8 @@ export default function ReviewSection({ productId }: Props) {
                       </div>
                     </div>
                     {/* Body */}
-                    {rev.comment && (
-                      <p style={{ color: '#4b5563', fontSize: '.875rem', lineHeight: 1.65 }}>{rev.comment}</p>
+                    {commentText && (
+                      <p style={{ color: '#4b5563', fontSize: '.875rem', lineHeight: 1.65 }}>{commentText}</p>
                     )}
                   </div>
                 );

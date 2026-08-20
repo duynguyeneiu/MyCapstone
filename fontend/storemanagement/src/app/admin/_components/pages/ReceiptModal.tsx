@@ -1,7 +1,7 @@
 'use client';
 
 import { C } from '../../_lib/types';
-import { fmt } from '../../_lib/utils';
+import { fmt } from '@/src/lib/utils';
 
 interface CartItem { id: number; name: string; price: number; qty: number; }
 

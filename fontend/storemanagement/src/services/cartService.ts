@@ -1,4 +1,5 @@
 import orderApi from "../lib/orderApi";
+import { getImageUrl } from "../lib/utils";
 
 export interface CartItem {
   cartDetailId: number;
@@ -42,7 +43,7 @@ const mapCart = (c: ApiCart): Cart => ({
     cartDetailId: i.cartDetailId,
     productId: i.productId,
     productName: i.productName,
-    image: i.imageUrl ? `/image/${i.imageUrl}` : "",
+    image: getImageUrl(i.imageUrl),
     quantity: i.quantity,
     unitPrice: i.unitPrice,
     subtotal: i.subtotal,

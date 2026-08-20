@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getPageNums } from "../../lib/utils";
+import { getPageNums } from "@/src/lib/utils";
 import ProductCard from "../ui/ProductCard";
 import { productService } from "@/src/services/productService";
 import { categoryService } from "@/src/services/categoryService";
@@ -14,6 +14,38 @@ interface ShopContentProps {
 }
 
 const ITEMS_PER_PAGE = 12;
+
+type SortOption = "default" | "name-asc" | "name-desc" | "price-asc" | "price-desc";
+
+const SORT_LABELS: Record<SortOption, string> = {
+  default: "Default",
+  "name-asc": "Name: A → Z",
+  "name-desc": "Name: Z → A",
+  "price-asc": "Price: Low to High",
+  "price-desc": "Price: High to Low",
+};
+
+function sortProducts(items: Product[], sortBy: SortOption): Product[] {
+  const sorted = [...items];
+  switch (sortBy) {
+    case "default":
+      // Keep the order returned by the backend — no client-side sorting.
+      break;
+    case "name-asc":
+      sorted.sort((a, b) => a.name.localeCompare(b.name));
+      break;
+    case "name-desc":
+      sorted.sort((a, b) => b.name.localeCompare(a.name));
+      break;
+    case "price-asc":
+      sorted.sort((a, b) => a.price - b.price);
+      break;
+    case "price-desc":
+      sorted.sort((a, b) => b.price - a.price);
+      break;
+  }
+  return sorted;
+}
 
 export default function ShopContent({
   initCategory = "all",
@@ -27,6 +59,7 @@ export default function ShopContent({
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoriesLoaded, setCategoriesLoaded] = useState(false);
+  const [sortBy, setSortBy] = useState<SortOption>("default");
 
   // category and subcategory are URL-driven — read directly from props
   const category = initCategory;
@@ -43,9 +76,13 @@ export default function ShopContent({
   // Reset to page 1 whenever the URL-driven category/subcategory changes.
   // Adjusting state during render (rather than in an effect) avoids an
   // extra cascading render — see https://react.dev/learn/you-might-not-need-an-effect
-  const [prevFilters, setPrevFilters] = useState({ category, subcategory });
-  if (prevFilters.category !== category || prevFilters.subcategory !== subcategory) {
-    setPrevFilters({ category, subcategory });
+  const [prevFilters, setPrevFilters] = useState({ category, subcategory, sortBy });
+  if (
+    prevFilters.category !== category ||
+    prevFilters.subcategory !== subcategory ||
+    prevFilters.sortBy !== sortBy
+  ) {
+    setPrevFilters({ category, subcategory, sortBy });
     setPage(1);
   }
 
@@ -56,15 +93,17 @@ export default function ShopContent({
     async function loadProducts() {
       setLoading(true);
       try {
+        // Sorting must hold across the whole filtered catalog (not just the
+        // current page), so fetch every matching item up front and paginate
+        // client-side after sorting.
+        let allItems: Product[];
+
         if (subcategory !== "all") {
           const result = await productService.getByCategory(Number(subcategory), {
-            page,
-            pageSize: ITEMS_PER_PAGE,
+            page: 1,
+            pageSize: 1000,
           });
-          if (cancelled) return;
-          setProducts(result.items);
-          setTotalItems(result.totalItems);
-          setTotalPages(Math.max(1, result.totalPages));
+          allItems = result.items;
         } else if (category !== "all") {
           // Backend only scopes by a single category id — a top-level category
           // groups several leaf categories that products are actually assigned
@@ -76,19 +115,18 @@ export default function ShopContent({
           const pages = await Promise.all(
             ids.map((id) => productService.getByCategory(id, { page: 1, pageSize: 1000 })),
           );
-          if (cancelled) return;
-          const merged = pages.flatMap((r) => r.items).sort((a, b) => a.name.localeCompare(b.name));
-          const start = (page - 1) * ITEMS_PER_PAGE;
-          setProducts(merged.slice(start, start + ITEMS_PER_PAGE));
-          setTotalItems(merged.length);
-          setTotalPages(Math.max(1, Math.ceil(merged.length / ITEMS_PER_PAGE)));
+          allItems = pages.flatMap((r) => r.items);
         } else {
-          const result = await productService.getPaged({ page, pageSize: ITEMS_PER_PAGE });
-          if (cancelled) return;
-          setProducts(result.items);
-          setTotalItems(result.totalItems);
-          setTotalPages(Math.max(1, result.totalPages));
+          const result = await productService.getPaged({ page: 1, pageSize: 1000 });
+          allItems = result.items;
         }
+
+        if (cancelled) return;
+        const sorted = sortProducts(allItems, sortBy);
+        const start = (page - 1) * ITEMS_PER_PAGE;
+        setProducts(sorted.slice(start, start + ITEMS_PER_PAGE));
+        setTotalItems(sorted.length);
+        setTotalPages(Math.max(1, Math.ceil(sorted.length / ITEMS_PER_PAGE)));
       } catch (err) {
         console.error(err);
       } finally {
@@ -100,7 +138,7 @@ export default function ShopContent({
     return () => {
       cancelled = true;
     };
-  }, [category, subcategory, page, categories, categoriesLoaded]);
+  }, [category, subcategory, page, categories, categoriesLoaded, sortBy]);
 
   const currentCategory = categories.find((c) => c.id === Number(category));
 
@@ -270,6 +308,8 @@ export default function ShopContent({
               alignItems: "center",
               justifyContent: "space-between",
               marginBottom: "1.25rem",
+              flexWrap: "wrap",
+              gap: "0.75rem",
             }}
           >
             <h2
@@ -278,9 +318,61 @@ export default function ShopContent({
             >
               {heading}
             </h2>
-            <span style={{ color: "#64748b", fontSize: ".875rem" }}>
-              {totalItems} product{totalItems !== 1 ? "s" : ""}
-            </span>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.75rem",
+                flexWrap: "wrap",
+              }}
+            >
+              <span style={{ color: "#64748b", fontSize: ".875rem" }}>
+                {totalItems} product{totalItems !== 1 ? "s" : ""}
+              </span>
+
+              {/* Sort box */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  background: "#fff",
+                  borderRadius: "0.75rem",
+                  padding: "0.4rem 0.75rem",
+                  boxShadow: "0 2px 8px rgba(0,0,0,.05)",
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: ".85rem",
+                    fontWeight: 500,
+                    color: "#64748b",
+                  }}
+                >
+                  Sort
+                </span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as SortOption)}
+                  style={{
+                    border: "none",
+                    padding: 0,
+                    width: "auto",
+                    fontSize: ".85rem",
+                    fontWeight: 500,
+                    color: "#374151",
+                    background: "transparent",
+                    cursor: "pointer",
+                  }}
+                >
+                  {(Object.keys(SORT_LABELS) as SortOption[]).map((key) => (
+                    <option key={key} value={key}>
+                      {SORT_LABELS[key]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
           {!loading && products.length === 0 ? (
             <p

@@ -1,5 +1,6 @@
 import api from "../lib/api";
 import { Product } from "../lib/data";
+import { getImageUrl } from "../lib/utils";
 
 interface ApiProduct {
   productId: number;
@@ -16,7 +17,7 @@ interface ApiProduct {
 
 interface PagedResult<T> {
   items: T[];
-  totalItems: number;
+  totalCount: number;
   page: number;
   pageSize: number;
   totalPages: number;
@@ -40,52 +41,9 @@ export interface ApiProductRaw {
   updatedAt?: string | null;
 }
 
-const getProductImageUrl = (
-  image: string | null,
-): string => {
-  if (!image) {
-    return "";
-  }
-
-  const baseUrl =
-    process.env.NEXT_PUBLIC_PRODUCT_API_URL ||
-    "http://localhost:5001";
-
-
-  if (
-    image.startsWith("http://") ||
-    image.startsWith("https://")
-  ) {
-    try {
-      const url = new URL(image);
-
-      const fileName = url.pathname
-        .replace(/\\/g, "/")
-        .split("/")
-        .pop();
-
-      if (!fileName) {
-        return "";
-      }
-
-      return `${baseUrl}/images/${fileName}`;
-    } catch {
-      return "";
-    }
-  }
-
-  const fileName = image
-    .replace(/\\/g, "/")
-    .split("/")
-    .pop();
-
-  if (!fileName) {
-    return "";
-  }
-
-  return `${baseUrl}/images/${fileName}`;
-};
-
+// ======================================================
+// MAP PRODUCT
+// ======================================================
 
 const mapProduct = (
   p: ApiProduct,
@@ -96,7 +54,8 @@ const mapProduct = (
   price: p.salePrice,
   quantity: p.quantityInStock,
 
-  image: getProductImageUrl(p.image),
+  // URL ảnh backend
+  image: getImageUrl(p.image),
 
   categoryId: p.categoryId,
   category: p.categoryName,
@@ -104,6 +63,10 @@ const mapProduct = (
   barcode: p.barcode ?? "",
   status: p.status,
 });
+
+// ======================================================
+// PAGED PRODUCTS
+// ======================================================
 
 export interface PagedProducts {
   items: Product[];
@@ -113,18 +76,28 @@ export interface PagedProducts {
   totalPages: number;
 }
 
+// ======================================================
+// PRODUCT SERVICE
+// ======================================================
+
 export const productService = {
   async getAll(): Promise<Product[]> {
-    const res = await api.get<
-      PagedResult<ApiProduct>
-    >("/Products", {
-      params: {
-        page: 1,
-        pageSize: 1000,
-      },
-    });
+    const res =
+      await api.get<
+        PagedResult<ApiProduct>
+      >(
+        "/Products",
+        {
+          params: {
+            page: 1,
+            pageSize: 1000,
+          },
+        },
+      );
 
-    return res.data.items.map(mapProduct);
+    return res.data.items.map(
+      mapProduct,
+    );
   },
 
   async getPaged(
@@ -134,65 +107,93 @@ export const productService = {
       keyword?: string;
     } = {},
   ): Promise<PagedProducts> {
-    const res = await api.get<
-      PagedResult<ApiProduct>
-    >("/Products", {
-      params: {
-        page: 1,
-        pageSize: 10,
-        ...params,
-      },
-    });
+    const res =
+      await api.get<
+        PagedResult<ApiProduct>
+      >(
+        "/Products",
+        {
+          params: {
+            page: 1,
+            pageSize: 10,
+            ...params,
+          },
+        },
+      );
 
     return {
-      ...res.data,
-      items: res.data.items.map(mapProduct),
+      items:
+        res.data.items.map(
+          mapProduct,
+        ),
+      totalItems: res.data.totalCount,
+      page: res.data.page,
+      pageSize: res.data.pageSize,
+      totalPages: res.data.totalPages,
     };
   },
 
   async getByCategory(
     categoryId: number,
+
     params: {
       page?: number;
       pageSize?: number;
     } = {},
   ): Promise<PagedProducts> {
-    const res = await api.get<
-      PagedResult<ApiProduct>
-    >(`/Products/category/${categoryId}`, {
-      params: {
-        page: 1,
-        pageSize: 10,
-        ...params,
-      },
-    });
+    const res =
+      await api.get<
+        PagedResult<ApiProduct>
+      >(
+        `/Products/category/${categoryId}`,
+        {
+          params: {
+            page: 1,
+            pageSize: 10,
+            ...params,
+          },
+        },
+      );
 
     return {
-      ...res.data,
-      items: res.data.items.map(mapProduct),
+      items:
+        res.data.items.map(
+          mapProduct,
+        ),
+      totalItems: res.data.totalCount,
+      page: res.data.page,
+      pageSize: res.data.pageSize,
+      totalPages: res.data.totalPages,
     };
   },
 
   async getById(
     id: number,
   ): Promise<Product> {
-    const res = await api.get<ApiProduct>(
-      `/Products/${id}`,
-    );
+    const res =
+      await api.get<ApiProduct>(
+        `/Products/${id}`,
+      );
 
-    return mapProduct(res.data);
+    return mapProduct(
+      res.data,
+    );
   },
 
   async getAllRaw():
     Promise<ApiProductRaw[]> {
-    const res = await api.get<
-      PagedResult<ApiProductRaw>
-    >("/Products", {
-      params: {
-        page: 1,
-        pageSize: 1000,
-      },
-    });
+    const res =
+      await api.get<
+        PagedResult<ApiProductRaw>
+      >(
+        "/Products",
+        {
+          params: {
+            page: 1,
+            pageSize: 1000,
+          },
+        },
+      );
 
     return res.data.items;
   },
@@ -211,10 +212,11 @@ export const productService = {
   async create(
     data: ApiProductRaw,
   ) {
-    const res = await api.post(
-      "/Products",
-      data,
-    );
+    const res =
+      await api.post(
+        "/Products",
+        data,
+      );
 
     return res.data;
   },
@@ -223,10 +225,11 @@ export const productService = {
     id: number,
     data: ApiProductRaw,
   ) {
-    const res = await api.put(
-      `/Products/${id}`,
-      data,
-    );
+    const res =
+      await api.put(
+        `/Products/${id}`,
+        data,
+      );
 
     return res.data;
   },

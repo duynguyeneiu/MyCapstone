@@ -106,7 +106,7 @@ export default function HomeContent() {
           </div>
 
           {/* Sliding track — overflow hidden clips cards outside the viewport */}
-          <div style={{ overflow: 'hidden', margin: '0 -0.625rem', background: '#f8fafc' }}>
+          <div style={{ overflow: 'hidden', margin: '0 -0.625rem', padding: '0.75rem 0 1.25rem', borderRadius: '1.5rem', background: '#f8fafc' }}>
             <div style={{
               display: 'flex',
               width: `calc(500% / 3)`,
@@ -182,7 +182,7 @@ export default function HomeContent() {
           </div>
 
           {/* Sliding track */}
-          <div style={{ overflow: 'hidden', margin: '0 -0.5rem', background: '#fff' }}>
+          <div style={{ overflow: 'hidden', margin: '0 -0.5rem', padding: '0.75rem 0 1.25rem', borderRadius: '1.5rem', background: '#fff' }}>
             <div style={{
               display: 'flex',
               width: `calc(${featured.length} * 100% / ${SHOW})`,

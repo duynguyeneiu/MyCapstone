@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { fmt } from '../../lib/utils';
+import { fmt } from '@/src/lib/utils';
 import { orderService, Order } from '@/src/services/orderService';
 import BtnTeal from '../ui/BtnTeal';
 

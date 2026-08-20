@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { userService, ApiUser } from '@/src/services/userService';
+import { initials } from '@/src/lib/utils';
 
 interface Props { search: string; }
 
@@ -17,10 +18,6 @@ const pageCSS = `
 
 const AVATAR_COLORS = ['#00694c', '#b47b10', '#1d6fb8', '#7c3aed', '#004d38', '#854f0b', '#00a86b', '#f59e0b'];
 const PAGE_SIZE = 6;
-
-function initials(name: string) {
-  return name.split(' ').map((w) => w[0]).slice(-2).join('').toUpperCase();
-}
 
 function isStaffRole(u: ApiUser) {
   const name = u.role?.roleName?.toLowerCase();

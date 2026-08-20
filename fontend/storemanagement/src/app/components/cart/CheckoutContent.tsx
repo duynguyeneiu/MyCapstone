@@ -1,13 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { PaymentMethod } from "../../lib/types";
-import { fmt } from "../../lib/utils";
+import { PaymentMethod } from "@/src/lib/data";
+import { fmt } from "@/src/lib/utils";
 import { useCart } from "../../context/CartContext";
 import { useOrders } from "../../context/OrderContext";
 import { useAuth } from "../../context/AuthContext";
 import { paymentService } from "@/src/services/paymentService";
+import { userService } from "@/src/services/userService";
 import BtnTeal from "../ui/BtnTeal";
 import Badge from "../ui/Badge";
 import QRModal from "../ui/QRModal";
@@ -58,6 +59,30 @@ export default function CheckoutContent() {
   const [shipErrors, setShipErrors] = useState<
     Partial<Record<keyof ShipForm, string>>
   >({});
+
+  // AuthContext's `user` is a lightweight object (login() never captures
+  // email) — backfill from the full profile so Shipping Information starts
+  // with everything already on file, same source ProfileContent uses.
+  // Only fills fields still blank, so it never clobbers what the user typed.
+  useEffect(() => {
+    if (!user) return;
+    userService
+      .getById(Number(user.id))
+      .then((u) => {
+        setShip((s) => ({
+          ...s,
+          firstName: s.firstName || u.fullName?.trim().split(/\s+/)[0] || "",
+          lastName:
+            s.lastName ||
+            u.fullName?.trim().split(/\s+/).slice(1).join(" ") ||
+            "",
+          email: s.email || u.email || "",
+          phone: s.phone || u.phone || "",
+          address: s.address || u.address || "",
+        }));
+      })
+      .catch((err) => console.error(err));
+  }, [user]);
 
   const sub = totalAmount;
   const tax = sub * 0.1;

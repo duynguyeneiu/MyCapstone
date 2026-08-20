@@ -5,7 +5,7 @@ import Icon from '../ui/Icon';
 import { Modal, ModalHeader } from '../ui/AdminModal';
 import Btn from '../ui/AdminBtn';
 import { C } from '../../_lib/types';
-import { fmt } from '../../_lib/utils';
+import { fmt } from '@/src/lib/utils';
 import { productService } from '@/src/services/productService';
 import { categoryService } from '@/src/services/categoryService';
 import { Product, Category } from '@/src/lib/data';

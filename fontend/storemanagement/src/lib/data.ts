@@ -22,62 +22,9 @@ export interface Product {
   rating?: number;
   reviews?: number;
 }
-export interface ProductCardDto {
-  id: number;
-  name: string;
-  price: number;
-  originalPrice?: number | null;
 
-  image: string;
+export type PaymentMethod = "vnpay" | "cod";
+export type ProfileTab = "info" | "address" | "security" | "notif";
+export type ReviewTab = "write" | "mine" | "pending";
 
-  category: string;
-  subcategory?: string;
-
-  rating: number;
-  reviews: number;
-}
-
-export interface User {
-  id: number;
-  fullname: string;
-  email: string;
-  phone: string;
-  address: string;
-  avatar: string;
-  role: string;
-  status: string;
-  createdDate: string;
-}
-
-export interface CartItem {
-  productId: number;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-}
-
-export interface OrderItem {
-  productId: number;
-  productName: string;
-  quantity: number;
-  unitPrice: number;
-}
-
-export interface Order {
-  id: number;
-  userId: number;
-  customerName: string;
-  date: string;
-  items: OrderItem[];
-  totalAmount: number;
-  status: string;
-  address: string;
-}
-
-export interface DashboardStats {
-  totalRevenue: number;
-  totalOrders: number;
-  totalCustomers: number;
-  totalProducts: number;
-}
+export const STAR_LABELS = ["", "Terrible", "Bad", "Okay", "Good", "Excellent"];

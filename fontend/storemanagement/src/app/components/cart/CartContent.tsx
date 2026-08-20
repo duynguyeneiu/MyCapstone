@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { fmt } from '../../lib/utils';
+import { fmt } from '@/src/lib/utils';
 import { useCart } from '../../context/CartContext';
 import BtnTeal from '../ui/BtnTeal';
 import BtnOutline from '../ui/BtnOutline';
@@ -18,7 +18,9 @@ export default function CartContent() {
   if (cart.length === 0) {
     return (
       <div style={{ maxWidth: 800, margin: '0 auto', padding: '5rem 1.5rem', textAlign: 'center' }}>
-        <span style={{ fontSize: '5rem' }}>🛒</span>
+        <div style={{ width: 96, height: 96, borderRadius: '50%', background: 'var(--teal-xs)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '44px', color: 'var(--teal)' }}>remove_shopping_cart</span>
+        </div>
         <p className="serif" style={{ fontSize: '1.75rem', fontWeight: 700, marginTop: '1rem', marginBottom: '0.5rem' }}>Your cart is empty</p>
         <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>Looks like you haven&apos;t added anything yet</p>
         <BtnTeal onClick={() => router.push('/shop')}>Start Shopping</BtnTeal>

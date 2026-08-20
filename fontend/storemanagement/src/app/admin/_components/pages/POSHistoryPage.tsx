@@ -2,7 +2,7 @@
 
 import Icon from '../ui/Icon';
 import { C } from '../../_lib/types';
-import { fmt } from '../../_lib/utils';
+import { fmt } from '@/src/lib/utils';
 import { TransactionRecord } from './ReceiptModal';
 
 interface POSHistoryPageProps {
