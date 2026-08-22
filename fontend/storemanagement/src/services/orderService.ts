@@ -32,9 +32,26 @@ export interface CheckoutRequest {
   paymentMethod: string;
 }
 
+export interface PosCheckoutItem {
+  productId: number;
+  quantity: number;
+}
+
+export interface PosCheckoutRequest {
+  staffUserId?: number;
+  receiverName?: string;
+  paymentMethod: string;
+  items: PosCheckoutItem[];
+}
+
 export const orderService = {
   async checkout(data: CheckoutRequest): Promise<Order> {
     const res = await orderApi.post<Order>("/Order/checkout", data);
+    return res.data;
+  },
+
+  async checkoutPos(data: PosCheckoutRequest): Promise<Order> {
+    const res = await orderApi.post<Order>("/Order/pos-checkout", data);
     return res.data;
   },
 

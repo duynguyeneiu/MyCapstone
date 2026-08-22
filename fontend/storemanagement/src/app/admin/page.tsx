@@ -6,7 +6,6 @@ import { globalStyle, NAV_ITEMS, type Page } from "./_lib/types";
 import { C } from "./_lib/types";
 import AdminSidebar from "./_components/layout/AdminSidebar";
 import AdminHeader from "./_components/layout/AdminHeader";
-import LoginPage from "./_components/pages/LoginPage";
 import DashboardPage from "./_components/pages/DashboardPage";
 import POSPage from "./_components/pages/POSPage";
 import AdminProductsPage from "./_components/pages/AdminProductsPage";
@@ -15,7 +14,7 @@ import AdminOrdersPage from "./_components/pages/AdminOrdersPage";
 import InventoryPage from "./_components/pages/InventoryPage";
 import AdminUsersPage from "./_components/pages/AdminUsersPage";
 import PromotionsPage from "./_components/pages/PromotionsPage";
-import AdminSettingsPage from "./_components/pages/AdminSettingsPage";
+import AdminSettingsPage, { SEC_TOGGLES_KEY } from "./_components/pages/AdminSettingsPage";
 import { useAuth } from "../context/AuthContext";
 
 /* Shared styles injected once for all admin pages */
@@ -89,6 +88,42 @@ export default function AdminPage() {
     }
   }, [user, router]);
 
+  // "Auto logout after inactivity" (Settings → Security) — enforced here so
+  // it applies across the whole admin area, not just while Settings itself
+  // is open. Reads the same localStorage key AdminSettingsPage writes to;
+  // index 2 is that specific toggle (see SEC_TOGGLE_DEFAULTS there).
+  useEffect(() => {
+    if (!user) return;
+    let enabled = true;
+    try {
+      const raw = localStorage.getItem(SEC_TOGGLES_KEY);
+      if (raw) {
+        const saved: boolean[] = JSON.parse(raw);
+        if (Array.isArray(saved) && typeof saved[2] === "boolean") enabled = saved[2];
+      }
+    } catch {
+      /* ignore */
+    }
+    if (!enabled) return;
+
+    const AUTO_LOGOUT_MS = 30 * 60 * 1000;
+    let timer: ReturnType<typeof setTimeout>;
+    const reset = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        logout();
+        router.push("/");
+      }, AUTO_LOGOUT_MS);
+    };
+    const events = ["mousemove", "keydown", "click", "scroll"];
+    events.forEach((e) => window.addEventListener(e, reset));
+    reset();
+    return () => {
+      clearTimeout(timer);
+      events.forEach((e) => window.removeEventListener(e, reset));
+    };
+  }, [user, logout, router]);
+
   if (!user || user.role === "client") return null;
 
   const handleNav = (p: string) => {
@@ -127,7 +162,7 @@ export default function AdminPage() {
               flex: 1,
             }}
           >
-            🏪 Happy Market — POS Terminal
+            Happy Market — POS Terminal
           </span>
           <span style={{ fontSize: 12, color: "#b8e0cc" }}>
             Staff: {user.name}
@@ -155,17 +190,14 @@ export default function AdminPage() {
     );
   }
 
-  /* ── ADMIN: Login gate ────────────────────────────────────────────────── */
+  /* ── ADMIN: waiting for the real auth check above to confirm role ──────── */
   if (!rpLoggedIn) {
     return (
       <>
         <style>{globalStyle}</style>
-        <LoginPage
-          onNav={(p) => {
-            setRpLoggedIn(true);
-            setActivePage(p as Page);
-          }}
-        />
+        <div style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: "#6d7a73" }}>
+          Loading…
+        </div>
       </>
     );
   }
@@ -201,7 +233,7 @@ export default function AdminPage() {
               flex: 1,
             }}
           >
-            🏪 Happy Market — POS
+            Happy Market — POS
           </span>
           <button
             onClick={() => setActivePage("dashboard")}

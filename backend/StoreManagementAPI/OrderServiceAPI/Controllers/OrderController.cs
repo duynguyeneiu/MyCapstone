@@ -26,6 +26,14 @@ namespace OrderServiceAPI.Controllers
             return Ok(result);
         }
 
+        [HttpPost("pos-checkout")]
+        public async Task<IActionResult> CheckoutPos(PosCheckoutRequest request)
+        {
+            var result = await _orderService.CheckoutPosAsync(request);
+
+            return Ok(result);
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAllOrders()
         {

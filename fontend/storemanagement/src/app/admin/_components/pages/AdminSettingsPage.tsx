@@ -1,5 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/src/app/context/AuthContext';
+import { userService, ApiUser } from '@/src/services/userService';
 
 interface Props { onNav: (p: string) => void; }
 
@@ -49,42 +51,120 @@ function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) =>
   );
 }
 
+// Toggle rows below are declared with their real default `on` values here,
+// then any saved localStorage override is applied on top when the state is
+// created — keeps the defaults readable in one place while still letting a
+// saved choice win.
+const NOTIF_DEFAULTS: ToggleItem[] = [
+  { label: 'New order placed',         desc: 'Alert when a new order is received',               on: true  },
+  { label: 'Order status update',      desc: 'When an order status changes',                     on: true  },
+  { label: 'Order cancelled',          desc: 'When a customer cancels an order',                 on: false },
+  { label: 'Low stock alert',          desc: 'When product stock falls below threshold',          on: true  },
+  { label: 'Out of stock',             desc: 'When a product runs out completely',                on: true  },
+  { label: 'New user registered',      desc: 'When a new customer registers',                    on: false },
+  { label: 'Promotion expiring soon',  desc: '7 days before a promotion ends',                   on: true  },
+];
+
+const POS_TOGGLE_DEFAULTS: ToggleItem[] = [
+  { label: 'Auto-print receipt',            desc: 'Automatically print receipt after checkout', on: true  },
+  { label: 'Barcode scanner mode',          desc: 'Enable USB barcode scanner input',           on: true  },
+  { label: 'Require customer selection',    desc: 'Must select a customer before checkout',     on: false },
+  { label: 'Allow manual price override',   desc: 'Staff can change price during checkout',     on: false },
+];
+
+const SEC_TOGGLE_DEFAULTS: ToggleItem[] = [
+  { label: 'OTP verification on registration', desc: 'Require SMS OTP when new customer registers', on: true  },
+  { label: 'Two-factor for admin login',        desc: 'Require OTP for admin panel access',          on: false },
+  { label: 'Auto logout after inactivity',      desc: 'Log out staff session after 30 minutes',      on: true  },
+];
+
+const NOTIF_KEY = 'hm-admin-notif-settings';
+const POS_TOGGLES_KEY = 'hm-admin-pos-toggles';
+export const SEC_TOGGLES_KEY = 'hm-admin-security-settings';
+export const POS_NUMS_KEY = 'hm-admin-pos-numbers';
+
+function loadToggleStates(key: string, defaults: ToggleItem[]): ToggleItem[] {
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw) {
+      const saved: boolean[] = JSON.parse(raw);
+      if (Array.isArray(saved) && saved.length === defaults.length) {
+        return defaults.map((d, i) => ({ ...d, on: saved[i] }));
+      }
+    }
+  } catch { /* ignore */ }
+  return defaults;
+}
+
+interface PosNumbers { lowStockThreshold: number; defaultDiscountPct: number }
+const POS_NUMS_DEFAULT: PosNumbers = { lowStockThreshold: 10, defaultDiscountPct: 0 };
+
 export default function AdminSettingsPage({ onNav }: Props) {
+  const { user } = useAuth();
   const [activeSection, setActiveSection] = useState<Section>('store');
   const [toast, setToast] = useState<{ msg: string; visible: boolean; fading: boolean }>({ msg: '', visible: false, fading: false });
 
-  // Notification toggles
-  const [notifs, setNotifs] = useState<ToggleItem[]>([
-    { label: 'New order placed',         desc: 'Alert when a new order is received',               on: true  },
-    { label: 'Order status update',      desc: 'When an order status changes',                     on: true  },
-    { label: 'Order cancelled',          desc: 'When a customer cancels an order',                 on: false },
-    { label: 'Low stock alert',          desc: 'When product stock falls below threshold',          on: true  },
-    { label: 'Out of stock',             desc: 'When a product runs out completely',                on: true  },
-    { label: 'New user registered',      desc: 'When a new customer registers',                    on: false },
-    { label: 'Promotion expiring soon',  desc: '7 days before a promotion ends',                   on: true  },
-  ]);
+  // Notification toggles — persisted per-browser (no per-account API exists yet)
+  const [notifs, setNotifs] = useState<ToggleItem[]>(() => loadToggleStates(NOTIF_KEY, NOTIF_DEFAULTS));
 
-  // Payment method toggles
+  // Payment method toggles — left as UI-only: these represent store-wide
+  // config (affects real checkout/POS for every user), not something safe
+  // to fake via localStorage on one browser.
   const [payMethods, setPayMethods] = useState<ToggleItem[]>([
     { label: 'Cash',          desc: 'Accept cash payments at POS',            on: true },
     { label: 'VNPay',         desc: 'Online payment gateway',                 on: true },
     { label: 'COD',           desc: 'Cash on delivery for online orders',     on: true },
   ]);
 
-  // POS toggles
-  const [posToggles, setPosToggles] = useState<ToggleItem[]>([
-    { label: 'Auto-print receipt',            desc: 'Automatically print receipt after checkout', on: true  },
-    { label: 'Barcode scanner mode',          desc: 'Enable USB barcode scanner input',           on: true  },
-    { label: 'Require customer selection',    desc: 'Must select a customer before checkout',     on: false },
-    { label: 'Allow manual price override',   desc: 'Staff can change price during checkout',     on: false },
-  ]);
+  // POS toggles — persisted per-machine (a POS terminal's own hardware/behavior config)
+  const [posToggles, setPosToggles] = useState<ToggleItem[]>(() => loadToggleStates(POS_TOGGLES_KEY, POS_TOGGLE_DEFAULTS));
+  const [posNums, setPosNums] = useState<PosNumbers>(() => {
+    try {
+      const raw = localStorage.getItem(POS_NUMS_KEY);
+      if (raw) return { ...POS_NUMS_DEFAULT, ...JSON.parse(raw) };
+    } catch { /* ignore */ }
+    return POS_NUMS_DEFAULT;
+  });
 
-  // Security toggles
-  const [secToggles, setSecToggles] = useState<ToggleItem[]>([
-    { label: 'OTP verification on registration', desc: 'Require SMS OTP when new customer registers', on: true  },
-    { label: 'Two-factor for admin login',        desc: 'Require OTP for admin panel access',          on: false },
-    { label: 'Auto logout after inactivity',      desc: 'Log out staff session after 30 minutes',      on: true  },
-  ]);
+  // Security toggles — persisted per-machine; "Auto logout" is actually
+  // enforced app-wide in admin/page.tsx (reads the same localStorage key),
+  // since this settings screen isn't always mounted.
+  const [secToggles, setSecToggles] = useState<ToggleItem[]>(() => loadToggleStates(SEC_TOGGLES_KEY, SEC_TOGGLE_DEFAULTS));
+
+  // My Profile — wired to the same real endpoints the customer Profile page uses.
+  const [apiUser, setApiUser] = useState<ApiUser | null>(null);
+  const [profileForm, setProfileForm] = useState({ fullName: '', phone: '', email: '' });
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [pwForm, setPwForm] = useState({ current: '', next: '', confirm: '' });
+  const [pwError, setPwError] = useState('');
+  const [pwSaving, setPwSaving] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    userService
+      .getById(Number(user.id))
+      .then((u) => {
+        setApiUser(u);
+        setProfileForm({ fullName: u.fullName ?? '', phone: u.phone ?? '', email: u.email ?? '' });
+      })
+      .catch((err) => console.error(err));
+  }, [user]);
+
+  useEffect(() => {
+    try { localStorage.setItem(NOTIF_KEY, JSON.stringify(notifs.map((n) => n.on))); } catch { /* ignore */ }
+  }, [notifs]);
+
+  useEffect(() => {
+    try { localStorage.setItem(POS_TOGGLES_KEY, JSON.stringify(posToggles.map((n) => n.on))); } catch { /* ignore */ }
+  }, [posToggles]);
+
+  useEffect(() => {
+    try { localStorage.setItem(POS_NUMS_KEY, JSON.stringify(posNums)); } catch { /* ignore */ }
+  }, [posNums]);
+
+  useEffect(() => {
+    try { localStorage.setItem(SEC_TOGGLES_KEY, JSON.stringify(secToggles.map((n) => n.on))); } catch { /* ignore */ }
+  }, [secToggles]);
 
   const showToast = (msg: string) => {
     setToast({ msg, visible: true, fading: false });
@@ -97,6 +177,44 @@ export default function AdminSettingsPage({ onNav }: Props) {
       return () => { clearTimeout(t1); clearTimeout(t2); };
     }
   }, [toast.visible]);
+
+  const handleSaveProfile = async () => {
+    if (!apiUser) return;
+    setProfileSaving(true);
+    try {
+      await userService.updateMyInfo({
+        fullName: profileForm.fullName,
+        email: profileForm.email,
+        gender: apiUser.gender ?? undefined,
+        address: apiUser.address ?? undefined,
+      });
+      setApiUser((prev) => (prev ? { ...prev, fullName: profileForm.fullName, email: profileForm.email } : prev));
+      showToast('Profile updated!');
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to update profile.');
+    } finally {
+      setProfileSaving(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!apiUser) return;
+    if (!pwForm.current || !pwForm.next || !pwForm.confirm) { setPwError('Please fill in all fields'); return; }
+    if (pwForm.next !== pwForm.confirm) { setPwError('Passwords do not match'); return; }
+    setPwSaving(true);
+    try {
+      await userService.changePassword(apiUser.userId, { currentPassword: pwForm.current, newPassword: pwForm.next });
+      setPwForm({ current: '', next: '', confirm: '' });
+      setPwError('');
+      showToast('Password updated!');
+    } catch (err) {
+      console.error(err);
+      setPwError('Failed to update password. Check your current password.');
+    } finally {
+      setPwSaving(false);
+    }
+  };
 
   const updateToggle = (setter: React.Dispatch<React.SetStateAction<ToggleItem[]>>, idx: number, val: boolean) => {
     setter(prev => prev.map((item, i) => i === idx ? { ...item, on: val } : item));
@@ -195,34 +313,64 @@ export default function AdminSettingsPage({ onNav }: Props) {
                         <span className="material-symbols-outlined text-white" style={{ fontSize: '32px' }}>person</span>
                       </div>
                       <div>
-                        <button className="save-btn" style={{ fontSize: '13px', padding: '7px 14px' }}>Change Avatar</button>
+                        <button className="save-btn" style={{ fontSize: '13px', padding: '7px 14px', opacity: .5, cursor: 'not-allowed' }} disabled title="Avatar upload isn't wired to any storage yet">Change Avatar</button>
                         <p style={{ fontSize: '12px', color: '#3d4943', marginTop: '4px' }}>JPG, PNG up to 2MB</p>
                       </div>
                     </div>
                     <div className="field-row">
-                      <div><label className="field-label">Full Name</label><input className="form-input" type="text" defaultValue="Alex Nguyen" /></div>
-                      <div><label className="field-label">Username</label><input className="form-input" type="text" defaultValue="alex.nguyen" readOnly style={{ opacity: .6 }} /></div>
+                      <div>
+                        <label className="field-label">Full Name</label>
+                        <input className="form-input" type="text" value={profileForm.fullName}
+                          onChange={(e) => setProfileForm((f) => ({ ...f, fullName: e.target.value }))} />
+                      </div>
+                      <div><label className="field-label">Username</label><input className="form-input" type="text" value={apiUser?.username ?? ''} readOnly style={{ opacity: .6 }} /></div>
                     </div>
                     <div className="field-row">
-                      <div><label className="field-label">Phone</label><input className="form-input" type="text" defaultValue="0901111111" /></div>
-                      <div><label className="field-label">Email</label><input className="form-input" type="email" defaultValue="alex@retailpro.vn" /></div>
+                      <div>
+                        <label className="field-label">Phone</label>
+                        <input className="form-input" type="text" value={profileForm.phone} readOnly style={{ opacity: .6 }} title="Phone isn't editable via this endpoint" />
+                      </div>
+                      <div>
+                        <label className="field-label">Email</label>
+                        <input className="form-input" type="email" value={profileForm.email}
+                          onChange={(e) => setProfileForm((f) => ({ ...f, email: e.target.value }))} />
+                      </div>
+                    </div>
+                    <div className="flex justify-end gap-3" style={{ marginTop: 16 }}>
+                      <button className="save-btn" disabled={profileSaving} onClick={handleSaveProfile} style={{ opacity: profileSaving ? .6 : 1 }}>
+                        {profileSaving ? 'Saving…' : 'Save Profile'}
+                      </button>
                     </div>
                   </div>
                   <div className="section-card">
                     <h3>Change Password</h3>
                     <p className="desc">Update your login password</p>
                     <div className="field-row full" style={{ marginBottom: 12 }}>
-                      <div><label className="field-label">Current Password</label><input className="form-input" type="password" placeholder="••••••••" /></div>
+                      <div>
+                        <label className="field-label">Current Password</label>
+                        <input className="form-input" type="password" placeholder="••••••••" value={pwForm.current}
+                          onChange={(e) => setPwForm((f) => ({ ...f, current: e.target.value }))} />
+                      </div>
                     </div>
                     <div className="field-row">
-                      <div><label className="field-label">New Password</label><input className="form-input" type="password" placeholder="••••••••" /></div>
-                      <div><label className="field-label">Confirm New Password</label><input className="form-input" type="password" placeholder="••••••••" /></div>
+                      <div>
+                        <label className="field-label">New Password</label>
+                        <input className="form-input" type="password" placeholder="••••••••" value={pwForm.next}
+                          onChange={(e) => setPwForm((f) => ({ ...f, next: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label className="field-label">Confirm New Password</label>
+                        <input className="form-input" type="password" placeholder="••••••••" value={pwForm.confirm}
+                          onChange={(e) => setPwForm((f) => ({ ...f, confirm: e.target.value }))} />
+                      </div>
                     </div>
+                    {pwError && <p style={{ fontSize: '12px', color: '#dc2626', marginBottom: 8 }}>{pwError}</p>}
                     <p style={{ fontSize: '12px', color: '#3d4943' }}>Password must be at least 8 characters with uppercase, lowercase and number.</p>
-                  </div>
-                  <div className="flex justify-end gap-3">
-                    <button className="cancel-btn">Cancel</button>
-                    <button className="save-btn" onClick={() => showToast('Profile updated!')}>Save Changes</button>
+                    <div className="flex justify-end gap-3" style={{ marginTop: 16 }}>
+                      <button className="save-btn" disabled={pwSaving} onClick={handleChangePassword} style={{ opacity: pwSaving ? .6 : 1 }}>
+                        {pwSaving ? 'Updating…' : 'Update Password'}
+                      </button>
+                    </div>
                   </div>
                 </>
               )}
@@ -331,9 +479,18 @@ export default function AdminSettingsPage({ onNav }: Props) {
                       <div><label className="field-label">Paper Width</label><select className="form-input"><option>80mm</option><option>58mm</option></select></div>
                     </div>
                     <div className="field-row">
-                      <div><label className="field-label">Low Stock Warning Threshold</label><input className="form-input" type="number" defaultValue="10" min="1" /></div>
-                      <div><label className="field-label">Default Discount (%)</label><input className="form-input" type="number" defaultValue="0" min="0" max="100" /></div>
+                      <div>
+                        <label className="field-label">Low Stock Warning Threshold</label>
+                        <input className="form-input" type="number" min="1" value={posNums.lowStockThreshold}
+                          onChange={(e) => setPosNums((n) => ({ ...n, lowStockThreshold: Math.max(1, parseInt(e.target.value) || 1) }))} />
+                      </div>
+                      <div>
+                        <label className="field-label">Default Discount (%)</label>
+                        <input className="form-input" type="number" min="0" max="100" value={posNums.defaultDiscountPct}
+                          onChange={(e) => setPosNums((n) => ({ ...n, defaultDiscountPct: Math.min(100, Math.max(0, parseInt(e.target.value) || 0)) }))} />
+                      </div>
                     </div>
+                    <p style={{ fontSize: '12px', color: '#3d4943', marginTop: 8 }}>These two apply live in the POS screen (low-stock warnings and the default discount on new carts). Printer Name / Paper Width are cosmetic only — the browser&apos;s print dialog always lets the cashier pick the real printer.</p>
                   </div>
                   <div className="flex justify-end gap-3">
                     <button className="cancel-btn">Cancel</button>

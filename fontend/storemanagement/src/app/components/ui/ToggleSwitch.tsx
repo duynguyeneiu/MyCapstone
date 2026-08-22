@@ -2,11 +2,16 @@
 
 import React, { useState } from 'react';
 
-export default function ToggleSwitch({ defaultOn }: { defaultOn: boolean }) {
+interface ToggleSwitchProps {
+  defaultOn: boolean;
+  onChange?: (on: boolean) => void;
+}
+
+export default function ToggleSwitch({ defaultOn, onChange }: ToggleSwitchProps) {
   const [on, setOn] = useState(defaultOn);
   return (
     <div
-      onClick={() => setOn(v => !v)}
+      onClick={() => setOn(v => { const next = !v; onChange?.(next); return next; })}
       style={{
         width: 44,
         height: 24,

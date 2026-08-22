@@ -124,6 +124,82 @@ namespace OrderServiceAPI.Services
             };
         }
 
+        // Bán hàng tại quầy (POS): không cần cart, không phí ship, khách vãng
+        // lai không bắt buộc có tài khoản, thanh toán và trừ kho ngay lập tức.
+        // Không đụng tới CheckoutAsync() ở trên — dành riêng cho luồng online.
+        public async Task<OrderDto> CheckoutPosAsync(PosCheckoutRequest request)
+        {
+            if (request.Items == null || !request.Items.Any())
+                throw new Exception("No items to checkout.");
+
+            decimal totalAmount = 0;
+            var orderDetails = new List<OrderDetail>();
+
+            foreach (var item in request.Items)
+            {
+                var product = await _catalogClient.GetProductAsync(item.ProductId);
+
+                if (product == null)
+                    throw new Exception($"Product {item.ProductId} not found.");
+
+                if (product.StockQuantity < item.Quantity)
+                    throw new Exception($"Product {item.ProductId} is out of stock.");
+
+                var subtotal = product.Price * item.Quantity;
+                totalAmount += subtotal;
+
+                orderDetails.Add(new OrderDetail
+                {
+                    ProductId = item.ProductId,
+                    ProductName = product.ProductName,
+                    Quantity = item.Quantity,
+                    UnitPrice = product.Price,
+                    Subtotal = subtotal,
+                    CreatedAt = DateTime.Now
+                });
+            }
+
+            var order = new Order
+            {
+                OrderNumber = $"POS-{DateTime.Now:yyyyMMddHHmmssfff}",
+                CustomerUserId = null,
+                StaffUserId = request.StaffUserId,
+                ReceiverName = string.IsNullOrWhiteSpace(request.ReceiverName) ? "Walk-in Customer" : request.ReceiverName,
+                ReceiverPhone = string.Empty,
+                OrderType = "POS",
+                PaymentMethod = request.PaymentMethod,
+                PaymentStatus = "Paid",
+                OrderStatus = "Completed",
+                TotalAmount = totalAmount,
+                Discount = 0,
+                Vat = 0,
+                ShippingFee = 0,
+                FinalAmount = totalAmount,
+                CreatedAt = DateTime.Now,
+                OrderDate = DateTime.Now
+            };
+
+            await _orderRepository.AddOrderAsync(order);
+            await _orderRepository.SaveChangesAsync();
+
+            foreach (var detail in orderDetails)
+                detail.OrderId = order.OrderId;
+
+            await _orderRepository.AddOrderDetailRangeAsync(orderDetails);
+            await _orderRepository.SaveChangesAsync();
+
+            // Trừ tồn kho ngay — POS thanh toán tức thì tại quầy, không đợi
+            // bước duyệt trạng thái riêng như đơn online (chỉ trừ khi
+            // OrderStatus đổi sang "Confirmed").
+            foreach (var item in request.Items)
+            {
+                await _catalogClient.UpdateStockAsync(item.ProductId, item.Quantity);
+            }
+
+            order.OrderDetails = orderDetails;
+            return MapToDto(order);
+        }
+
         public async Task<List<OrderDto>> GetOrdersByUserIdAsync(int userId)
         {
             var orders = await _orderRepository.GetOrdersByUserIdAsync(userId);

@@ -186,6 +186,22 @@
   },
   {
     "ContainingType": "OrderServiceAPI.Controllers.OrderController",
+    "Method": "CheckoutPos",
+    "RelativePath": "api/Order/pos-checkout",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "OrderServiceAPI.DTOs.PosCheckoutRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "OrderServiceAPI.Controllers.OrderController",
     "Method": "GetOrdersByUserId",
     "RelativePath": "api/Order/user/{userId}",
     "HttpMethod": "GET",

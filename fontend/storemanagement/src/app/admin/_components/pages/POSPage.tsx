@@ -5,10 +5,13 @@ import Icon from '../ui/Icon';
 import { Modal, ModalHeader } from '../ui/AdminModal';
 import Btn from '../ui/AdminBtn';
 import { C } from '../../_lib/types';
-import { fmt } from '@/src/lib/utils';
+import { fmt, initials } from '@/src/lib/utils';
 import { productService } from '@/src/services/productService';
 import { categoryService } from '@/src/services/categoryService';
+import { orderService, Order } from '@/src/services/orderService';
+import { getApiErrorMessage } from '@/src/lib/apiError';
 import { Product, Category } from '@/src/lib/data';
+import { useAuth } from '@/src/app/context/AuthContext';
 import ReceiptModal, { TransactionRecord } from './ReceiptModal';
 import POSHistoryPage from './POSHistoryPage';
 
@@ -84,44 +87,119 @@ const posCSS = `
 .checkout-btn:disabled { background: #bccac1; cursor: not-allowed; }
 `;
 
-const POS_PROMOS = [
-  { code: 'SUMMER20',   desc: 'Summer sale 20% off',          type: 'Percentage', value: 20,     minOrder: 200000 },
-  { code: 'WELCOME50K', desc: 'New customer 50,000 VND off',     type: 'Fixed',      value: 50000,  minOrder: 300000 },
-  { code: 'FLASH15',    desc: 'Flash sale 15% this weekend',  type: 'Percentage', value: 15,     minOrder: 0      },
-  { code: 'VIP100K',    desc: 'VIP customer 100,000 VND off',    type: 'Fixed',      value: 100000, minOrder: 500000 },
-  { code: 'FREESHIP',   desc: 'Free shipping on all orders',  type: 'Fixed',      value: 30000,  minOrder: 150000 },
-];
+// Rebuilds the receipt shape POSHistoryPage/ReceiptModal already render from
+// a real persisted Order — discount/vat aren't tracked separately on POS
+// orders in the backend yet, so they show as 0 here (matches what's actually
+// stored; the live checkout screen still shows its own computed VAT before
+// payment is confirmed).
+function orderToTransactionRecord(o: Order): TransactionRecord {
+  const d = new Date(o.orderDate);
+  return {
+    invoiceNo: o.orderId,
+    date: d.toLocaleDateString('vi-VN'),
+    time: d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+    items: o.items.map(i => ({ id: i.productId, name: i.productName, price: i.unitPrice, qty: i.quantity })),
+    subtotal: o.totalAmount,
+    discount: 0,
+    vat: 0,
+    total: o.totalAmount,
+    paymentMethod: o.paymentMethod,
+  };
+}
+
+// Settings → POS writes these two localStorage keys (see AdminSettingsPage.tsx).
+const POS_NUMS_KEY = 'hm-admin-pos-numbers';
+const POS_TOGGLES_KEY = 'hm-admin-pos-toggles';
+
+interface PosSettings { lowStockThreshold: number; defaultDiscountPct: number; autoPrint: boolean }
+
+function loadPosSettings(): PosSettings {
+  let lowStockThreshold = 10;
+  let defaultDiscountPct = 0;
+  let autoPrint = true;
+  try {
+    const rawNums = localStorage.getItem(POS_NUMS_KEY);
+    if (rawNums) {
+      const parsed = JSON.parse(rawNums);
+      if (typeof parsed.lowStockThreshold === 'number') lowStockThreshold = parsed.lowStockThreshold;
+      if (typeof parsed.defaultDiscountPct === 'number') defaultDiscountPct = parsed.defaultDiscountPct;
+    }
+    const rawToggles = localStorage.getItem(POS_TOGGLES_KEY);
+    if (rawToggles) {
+      const saved: boolean[] = JSON.parse(rawToggles);
+      // index 0 = "Auto-print receipt" (see POS_TOGGLE_DEFAULTS in AdminSettingsPage.tsx)
+      if (Array.isArray(saved) && typeof saved[0] === 'boolean') autoPrint = saved[0];
+    }
+  } catch { /* ignore */ }
+  return { lowStockThreshold, defaultDiscountPct, autoPrint };
+}
 
 export default function POSPage() {
   interface CartItem { id: number; name: string; price: number; qty: number; }
 
+  const { user } = useAuth();
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [paymentMethod, setPaymentMethod] = useState("Cash");
-  const [promoCode, setPromoCode] = useState("");
-  const [discount, setDiscount] = useState(0);
   const [showCheckout, setShowCheckout] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [invoiceNo, setInvoiceNo] = useState(1);
   const [clock, setClock] = useState("");
+  const [posSettings, setPosSettings] = useState<PosSettings>(loadPosSettings);
+  const [autoPrintPending, setAutoPrintPending] = useState(false);
+
+  // Settings → POS is a separate admin page/component — re-read on focus so
+  // a change saved there shows up here without requiring a full reload.
+  useEffect(() => {
+    const refresh = () => setPosSettings(loadPosSettings());
+    window.addEventListener('focus', refresh);
+    return () => window.removeEventListener('focus', refresh);
+  }, []);
 
   // New: history & receipt states
-  const [posHistory, setPosHistory] = useState<TransactionRecord[]>([]);
+  const [posOrders, setPosOrders] = useState<Order[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [currentReceipt, setCurrentReceipt] = useState<TransactionRecord | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [checkoutSaving, setCheckoutSaving] = useState(false);
+
+  useEffect(() => {
+    if (!autoPrintPending || !currentReceipt) return;
+    // Give the ReceiptModal a tick to actually render before printing it.
+    const t = setTimeout(() => {
+      window.print();
+      setAutoPrintPending(false);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [autoPrintPending, currentReceipt]);
+
+  async function loadProducts() {
+    const productsData = await productService.getAll();
+    setProducts(productsData);
+  }
+
+  async function loadPosOrders() {
+    try {
+      const all = await orderService.getAll();
+      const today = new Date().toDateString();
+      setPosOrders(
+        all.filter(o => o.orderType === 'POS' && new Date(o.orderDate).toDateString() === today)
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [productsData, categoriesData] = await Promise.all([
-          productService.getAll(),
-          categoryService.getAll(),
+        await Promise.all([
+          loadProducts(),
+          categoryService.getAll().then(setCategories),
+          loadPosOrders(),
         ]);
-        setProducts(productsData);
-        setCategories(categoriesData);
       } catch (err) {
         console.error(err);
       }
@@ -143,11 +221,19 @@ export default function POSPage() {
     { slug: 'all', label: 'All' },
     ...categories
       .filter((c) => c.parentCategoryId == null)
-      .map((c) => ({ slug: String(c.id), label: c.name })),
+      .map((c) => ({ slug: String(c.id), label: c.name }))
+      .sort((a, b) => a.label.localeCompare(b.label)),
   ];
 
+  // A top-level tab (e.g. "Beverages") is a parent category — products are
+  // actually assigned to its child categories (e.g. "Tea & Coffee"), not the
+  // parent id itself, so roll the children's ids in when matching.
+  const activeCategoryIds = activeCategory === "all"
+    ? null
+    : [Number(activeCategory), ...categories.filter((c) => c.parentCategoryId === Number(activeCategory)).map((c) => c.id)];
+
   const filtered = POS_PRODUCTS.filter((p) =>
-    (activeCategory === "all" || String(p.categoryId) === activeCategory) &&
+    (!activeCategoryIds || activeCategoryIds.includes(p.categoryId)) &&
     (p.name.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase()))
   );
 
@@ -165,35 +251,56 @@ export default function POSPage() {
   };
 
   const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  // Replaces the old promo-code discount (that UI is hidden) — set in
+  // Settings → POS → "Default Discount (%)", 0 by default so nothing
+  // changes unless an admin opts in.
+  const discount = Math.round(subtotal * (posSettings.defaultDiscountPct / 100));
   const vat = (subtotal - discount) * 0.1;
   const total = subtotal - discount + vat;
 
-  const applyPromo = (code: string) => {
-    const promo = POS_PROMOS.find(p => p.code === code);
-    if (!promo) { setDiscount(0); return; }
-    if (subtotal < promo.minOrder) { setDiscount(0); return; }
-    setDiscount(promo.type === 'Percentage'
-      ? Math.round(subtotal * promo.value / 100)
-      : Math.min(promo.value, subtotal));
-  };
-
-  const processPayment = () => {
+  const processPayment = async () => {
     const now = new Date();
-    const tx: TransactionRecord = {
-      invoiceNo,
-      date: now.toLocaleDateString("vi-VN"),
-      time: now.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
-      items: [...cart],
-      subtotal,
-      discount,
-      vat,
-      total,
-      paymentMethod,
-    };
-    setPosHistory((h) => [...h, tx]);
-    setCurrentReceipt(tx);
-    setShowCheckout(false);
-    setShowSuccess(true);
+    setCheckoutSaving(true);
+    try {
+      // Tạo Order thật trong database — trừ tồn kho ngay tại đây.
+      await orderService.checkoutPos({
+        staffUserId: user ? Number(user.id) : undefined,
+        paymentMethod: paymentMethod === "QR" ? "VNPay" : "Cash",
+        items: cart.map((i) => ({ productId: i.id, quantity: i.qty })),
+      });
+
+      const tx: TransactionRecord = {
+        invoiceNo,
+        date: now.toLocaleDateString("vi-VN"),
+        time: now.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
+        items: [...cart],
+        subtotal,
+        discount,
+        vat,
+        total,
+        paymentMethod,
+      };
+      setCurrentReceipt(tx);
+      setShowCheckout(false);
+      if (posSettings.autoPrint) {
+        // Skip the "Payment Successful" interstitial and go straight to the
+        // printable receipt — the useEffect below fires window.print() once
+        // it's actually mounted.
+        setShowSuccess(false);
+        setAutoPrintPending(true);
+      } else {
+        setShowSuccess(true);
+      }
+      await Promise.all([
+        loadProducts(),   // đồng bộ lại tồn kho hiển thị sau khi trừ thật
+        loadPosOrders(),  // đơn vừa tạo sẽ xuất hiện ngay trong tab History
+      ]);
+    } catch (err) {
+      console.error(err);
+      alert(getApiErrorMessage(err));
+    } finally {
+      setCheckoutSaving(false);
+    }
   };
 
   const handlePrintReceipt = () => {
@@ -204,7 +311,7 @@ export default function POSPage() {
   const newInvoice = () => {
     setShowSuccess(false);
     setCurrentReceipt(null);
-    setCart([]); setDiscount(0); setPromoCode("");
+    setCart([]);
     setInvoiceNo((n) => n + 1);
   };
 
@@ -218,7 +325,7 @@ export default function POSPage() {
     return (
       <>
         <POSHistoryPage
-          history={posHistory}
+          history={posOrders.map(orderToTransactionRecord)}
           onBack={() => setShowHistory(false)}
           onViewReceipt={(tx) => setCurrentReceipt(tx)}
         />
@@ -226,6 +333,7 @@ export default function POSPage() {
           <ReceiptModal
             tx={currentReceipt}
             onClose={() => setCurrentReceipt(null)}
+            cashierName={user?.name}
           />
         )}
       </>
@@ -252,17 +360,17 @@ export default function POSPage() {
         >
           <Icon name="history" size={16} />
           History
-          {posHistory.length > 0 && (
+          {posOrders.length > 0 && (
             <span style={{ background: C.primary, color: "#fff", borderRadius: 99, padding: "1px 6px", fontSize: 10, fontWeight: 700 }}>
-              {posHistory.length}
+              {posOrders.length}
             </span>
           )}
         </button>
 
         <span style={{ fontSize: 13, color: C.textMuted, fontWeight: 500 }}>{clock}</span>
         <div style={{ width: 1, height: 20, background: "#e0e3e5" }} />
-        <div style={{ width: 30, height: 30, borderRadius: "50%", background: "#1d6fb8", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "#fff" }}>MT</div>
-        <span style={{ fontSize: 13, fontWeight: 600 }}>Minh Tran</span>
+        <div style={{ width: 30, height: 30, borderRadius: "50%", background: "#1d6fb8", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "#fff" }}>{initials(user?.name)}</div>
+        <span style={{ fontSize: 13, fontWeight: 600 }}>{user?.name ?? "Unknown"}</span>
       </div>
 
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
@@ -300,8 +408,8 @@ export default function POSPage() {
                 </div>
                 <p style={{ fontSize: 12, fontWeight: 600, lineHeight: 1.3, marginBottom: 4 }}>{p.name}</p>
                 <p style={{ fontSize: 13, fontWeight: 700, color: C.primary }}>{fmt(p.price)}</p>
-                <p style={{ fontSize: 11, color: p.stock === 0 ? "#dc2626" : p.stock <= 5 ? C.amber : C.textFaint, marginTop: 2, fontWeight: p.stock <= 5 ? 600 : 400 }}>
-                  {p.stock === 0 ? "Out of stock" : p.stock <= 5 ? `⚠ ${p.stock} left` : `${p.stock} in stock`}
+                <p style={{ fontSize: 11, color: p.stock === 0 ? "#dc2626" : p.stock <= posSettings.lowStockThreshold ? C.amber : C.textFaint, marginTop: 2, fontWeight: p.stock <= posSettings.lowStockThreshold ? 600 : 400 }}>
+                  {p.stock === 0 ? "Out of stock" : p.stock <= posSettings.lowStockThreshold ? `⚠ ${p.stock} left` : `${p.stock} in stock`}
                 </p>
               </div>
             ))}
@@ -347,6 +455,8 @@ export default function POSPage() {
           </div>
 
           <div style={{ padding: "12px 16px", borderTop: `1px solid #e0e3e5`, flexShrink: 0 }}>
+            {/* Promotions feature is disabled (admin Promotions page hidden) —
+                hiding the picker here too so POS doesn't offer codes nobody can manage.
             <div style={{ marginBottom: 10 }}>
               <select
                 value={promoCode}
@@ -361,6 +471,7 @@ export default function POSPage() {
                 ))}
               </select>
             </div>
+            */}
             {[["Subtotal", fmt(subtotal)], ["Discount", discount > 0 ? `-${fmt(discount)}` : "—"], ["VAT (10%)", fmt(vat)]].map(([label, val]) => (
               <div key={label} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 6 }}>
                 <span style={{ color: C.textFaint }}>{label}</span>
@@ -423,10 +534,10 @@ export default function POSPage() {
               <p style={{ fontSize: 12, color: C.textFaint, marginTop: 8 }}>Scan VNPay QR code to pay</p>
             </div>
           )}
-          <button onClick={processPayment}
-            style={{ width: "100%", padding: 14, background: C.primary, color: "#fff", border: "none", borderRadius: 12,
-              fontSize: 16, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-            <Icon name="check_circle" size={20} style={{ color: "#fff" }} /> Confirm Payment
+          <button onClick={processPayment} disabled={checkoutSaving}
+            style={{ width: "100%", padding: 14, background: checkoutSaving ? C.textFaint : C.primary, color: "#fff", border: "none", borderRadius: 12,
+              fontSize: 16, fontWeight: 700, cursor: checkoutSaving ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+            <Icon name="check_circle" size={20} style={{ color: "#fff" }} /> {checkoutSaving ? "Processing…" : "Confirm Payment"}
           </button>
         </div>
       </Modal>
@@ -455,6 +566,7 @@ export default function POSPage() {
           tx={currentReceipt}
           onClose={() => setCurrentReceipt(null)}
           onNewInvoice={currentReceipt.invoiceNo === invoiceNo ? newInvoice : undefined}
+          cashierName={user?.name}
         />
       )}
     </div>

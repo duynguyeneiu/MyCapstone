@@ -21,6 +21,7 @@ interface ReceiptModalProps {
   tx: TransactionRecord;
   onClose: () => void;
   onNewInvoice?: () => void;
+  cashierName?: string;
 }
 
 function Divider({ dashed = false }: { dashed?: boolean }) {
@@ -41,7 +42,7 @@ function Row({ label, value, bold = false, color }: { label: string; value: stri
   );
 }
 
-export default function ReceiptModal({ tx, onClose, onNewInvoice }: ReceiptModalProps) {
+export default function ReceiptModal({ tx, onClose, onNewInvoice, cashierName }: ReceiptModalProps) {
   const handlePrint = () => window.print();
 
   return (
@@ -68,7 +69,7 @@ export default function ReceiptModal({ tx, onClose, onNewInvoice }: ReceiptModal
               Invoice #{String(tx.invoiceNo).padStart(4, '0')}
             </p>
             <p style={{ fontSize: 12, color: '#6d7a73', marginTop: 2 }}>{tx.date} • {tx.time}</p>
-            <p style={{ fontSize: 11, color: '#6d7a73' }}>Cashier: Minh Tran</p>
+            <p style={{ fontSize: 11, color: '#6d7a73' }}>Cashier: {cashierName ?? 'Unknown'}</p>
           </div>
 
           <Divider dashed />

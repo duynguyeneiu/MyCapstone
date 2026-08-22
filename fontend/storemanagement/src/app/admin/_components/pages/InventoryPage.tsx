@@ -1,8 +1,10 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { productService } from '@/src/services/productService';
+import { productService, ApiProductRaw } from '@/src/services/productService';
 import { categoryService } from '@/src/services/categoryService';
-import { Product, Category } from '@/src/lib/data';
+import { Category } from '@/src/lib/data';
+import { getImageUrl } from '@/src/lib/utils';
+import { getApiErrorMessage } from '@/src/lib/apiError';
 
 interface Props { search: string; }
 
@@ -33,21 +35,22 @@ const typeConfig: Record<string, { bg: string; color: string }> = {
   'Adjust': { bg: '#fff3d6', color: '#7a5c00' },
 };
 
-interface StockProduct { id: number; name: string; code: string; barcode: string; categoryId: number; stock: number; importPrice: number; image: string; }
+interface StockProduct { id: number; name: string; code: string; barcode: string; categoryId: number; stock: number; importPrice: number; image: string; raw: ApiProductRaw; }
 interface ImportReceipt { id: string; date: string; staff: string; items: number; total: number; status: string; }
 interface Transaction { date: string; product: string; type: string; qty: number; after: number; ref: string; }
-interface ImportRow { id: number; productName: string; productPrice: number; qty: number; price: number; }
+interface ImportRow { id: number; productId: number; productName: string; productPrice: number; qty: number; price: number; }
 
-const buildInitialProducts = (products: Product[]): StockProduct[] =>
+const buildInitialProducts = (products: ApiProductRaw[]): StockProduct[] =>
   products.map(p => ({
-    id: p.id,
-    name: p.name,
-    code: `P${String(p.id).padStart(3, '0')}`,
-    barcode: p.barcode || `893521748${String(p.id).padStart(4, '0')}`,
+    id: p.productId,
+    name: p.productName,
+    code: p.productCode,
+    barcode: p.barcode || `893521748${String(p.productId).padStart(4, '0')}`,
     categoryId: p.categoryId,
-    stock: p.quantity,
-    importPrice: Math.round(p.price * 0.7),
-    image: p.image,
+    stock: p.quantityInStock,
+    importPrice: p.importPrice,
+    image: getImageUrl(p.image),
+    raw: p,
   }));
 
 const initialImports: ImportReceipt[] = [
@@ -98,16 +101,19 @@ export default function InventoryPage({ search }: Props) {
   const [catFilter, setCatFilter] = useState('');
   const [stockFilter, setStockFilter] = useState('');
 
+  async function loadProducts() {
+    const productsData = await productService.getAllRaw();
+    // Newest products first — sort by id descending (higher id = created later).
+    setProducts(buildInitialProducts(productsData).sort((a, b) => b.id - a.id));
+  }
+
   useEffect(() => {
     async function loadData() {
       try {
-        const [productsData, categoriesData] = await Promise.all([
-          productService.getAll(),
-          categoryService.getAll(),
+        await Promise.all([
+          loadProducts(),
+          categoryService.getAll().then(setCategories),
         ]);
-        // Newest products first — sort by id descending (higher id = created later).
-        setProducts(buildInitialProducts(productsData).sort((a, b) => b.id - a.id));
-        setCategories(categoriesData);
       } catch (err) {
         console.error(err);
       }
@@ -123,6 +129,7 @@ export default function InventoryPage({ search }: Props) {
   const [iStaff, setIStaff] = useState('Alex Nguyen');
   const [iNote, setINote] = useState('');
   const [importRows, setImportRows] = useState<ImportRow[]>([]);
+  const [importSaving, setImportSaving] = useState(false);
 
   // Checkbox selection
   const [checkedProductId, setCheckedProductId] = useState<number | null>(null);
@@ -134,6 +141,7 @@ export default function InventoryPage({ search }: Props) {
   const [adjQty, setAdjQty] = useState('');
   const [adjReason, setAdjReason] = useState('Stock count correction');
   const [adjNote, setAdjNote] = useState('');
+  const [adjustSaving, setAdjustSaving] = useState(false);
 
   const filteredProducts = () => products.filter(p => {
     const ss = stockStatus(p.stock).label;
@@ -147,12 +155,12 @@ export default function InventoryPage({ search }: Props) {
     setIDate(today);
     setIStaff('Alex Nguyen');
     setINote('');
-    setImportRows([{ id: rowIdCounter++, productName: '', productPrice: 0, qty: 1, price: 0 }]);
+    setImportRows([{ id: rowIdCounter++, productId: 0, productName: '', productPrice: 0, qty: 1, price: 0 }]);
     setImportOpen(true);
   };
 
   const addImportRow = () => {
-    setImportRows(prev => [...prev, { id: rowIdCounter++, productName: '', productPrice: 0, qty: 1, price: 0 }]);
+    setImportRows(prev => [...prev, { id: rowIdCounter++, productId: 0, productName: '', productPrice: 0, qty: 1, price: 0 }]);
   };
 
   const updateRow = (id: number, field: keyof ImportRow, value: string | number) => {
@@ -165,17 +173,36 @@ export default function InventoryPage({ search }: Props) {
 
   const importTotal = importRows.reduce((s, r) => s + r.qty * r.price, 0);
 
-  const saveImport = () => {
-    const newReceipt: ImportReceipt = {
-      id: `IMP-00${imports.length + 1}`,
-      date: '24 May 2024',
-      staff: iStaff,
-      items: importRows.length,
-      total: importTotal,
-      status: 'Completed',
-    };
-    setImports(prev => [newReceipt, ...prev]);
-    setImportOpen(false);
+  const saveImport = async () => {
+    const validRows = importRows.filter(r => r.productId && r.qty > 0);
+    if (validRows.length === 0) { alert('Please select a product for at least one row.'); return; }
+
+    setImportSaving(true);
+    try {
+      // Cộng thẳng vào tồn kho thật cho từng sản phẩm — tương tự Adjust Stock.
+      await Promise.all(validRows.map(r => {
+        const current = products.find(p => p.id === r.productId);
+        if (!current) return Promise.resolve();
+        return productService.update(r.productId, { ...current.raw, quantityInStock: current.raw.quantityInStock + r.qty });
+      }));
+
+      const newReceipt: ImportReceipt = {
+        id: `IMP-00${imports.length + 1}`,
+        date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+        staff: iStaff,
+        items: validRows.length,
+        total: importTotal,
+        status: 'Completed',
+      };
+      setImports(prev => [newReceipt, ...prev]);
+      setImportOpen(false);
+      await loadProducts();
+    } catch (err) {
+      console.error(err);
+      alert(getApiErrorMessage(err));
+    } finally {
+      setImportSaving(false);
+    }
   };
 
   const openAdjustModal = (productId?: number) => {
@@ -187,19 +214,29 @@ export default function InventoryPage({ search }: Props) {
     setAdjustOpen(true);
   };
 
-  const saveAdjust = () => {
+  const saveAdjust = async () => {
     const pid = parseInt(adjProductId);
     const qty = parseInt(adjQty) || 0;
     if (!pid || !qty) { alert('Please select a product and enter quantity'); return; }
-    setProducts(prev => prev.map(p => {
-      if (p.id !== pid) return p;
-      let newStock = p.stock;
-      if (adjType === 'add') newStock = p.stock + qty;
-      else if (adjType === 'subtract') newStock = Math.max(0, p.stock - qty);
-      else newStock = qty;
-      return { ...p, stock: newStock };
-    }));
-    setAdjustOpen(false);
+    const current = products.find(p => p.id === pid);
+    if (!current) return;
+
+    let newStock = current.stock;
+    if (adjType === 'add') newStock = current.stock + qty;
+    else if (adjType === 'subtract') newStock = Math.max(0, current.stock - qty);
+    else newStock = qty;
+
+    setAdjustSaving(true);
+    try {
+      await productService.update(pid, { ...current.raw, quantityInStock: newStock });
+      setAdjustOpen(false);
+      await loadProducts();
+    } catch (err) {
+      console.error(err);
+      alert(getApiErrorMessage(err));
+    } finally {
+      setAdjustSaving(false);
+    }
   };
 
   const PAGE_SIZE = 6;
@@ -547,11 +584,12 @@ export default function InventoryPage({ search }: Props) {
                             <select className="w-full rounded-lg px-2 py-1.5 focus:outline-none" style={{ border: '1.5px solid #c8e4d8', background: '#f4fbf7', fontSize: '13px' }}
                               onChange={e => {
                                 const opt = e.target.options[e.target.selectedIndex];
+                                updateRow(row.id, 'productId', Number(opt.dataset.pid) || 0);
                                 updateRow(row.id, 'productName', opt.text);
                                 updateRow(row.id, 'productPrice', Number(opt.value));
                               }}>
                               <option value="0">Select product…</option>
-                              {products.map(p => <option key={p.id} value={p.importPrice}>{p.name}</option>)}
+                              {products.map(p => <option key={p.id} value={p.importPrice} data-pid={p.id}>{p.name}</option>)}
                             </select>
                           </td>
                           <td className="px-2 py-2">
@@ -600,10 +638,10 @@ export default function InventoryPage({ search }: Props) {
                 {importRows.length} item{importRows.length !== 1 ? 's' : ''} · Total: <b style={{ color: '#00694c' }}>{fmt(importTotal)}</b>
               </p>
               <div className="flex gap-3">
-                <button onClick={() => setImportOpen(false)} style={{ padding: '9px 20px', border: '1.5px solid #c8e4d8', borderRadius: 8, fontSize: '14px', cursor: 'pointer', background: '#fff', color: '#3d4943' }}>Cancel</button>
-                <button onClick={saveImport} className="btn-primary" style={{ padding: '9px 20px', borderRadius: 8, fontSize: '14px', fontWeight: 700 }}>
+                <button onClick={() => setImportOpen(false)} disabled={importSaving} style={{ padding: '9px 20px', border: '1.5px solid #c8e4d8', borderRadius: 8, fontSize: '14px', cursor: 'pointer', background: '#fff', color: '#3d4943' }}>Cancel</button>
+                <button onClick={saveImport} disabled={importSaving} className="btn-primary" style={{ padding: '9px 20px', borderRadius: 8, fontSize: '14px', fontWeight: 700, opacity: importSaving ? 0.6 : 1 }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '16px', verticalAlign: 'middle', marginRight: 4 }}>save</span>
-                  Save Import
+                  {importSaving ? 'Saving…' : 'Save Import'}
                 </button>
               </div>
             </div>
@@ -674,8 +712,8 @@ export default function InventoryPage({ search }: Props) {
               </div>
             </div>
             <div className="flex justify-end gap-3 px-6 py-4 border-t" style={{ borderColor: '#c8e4d8' }}>
-              <button onClick={() => setAdjustOpen(false)} className="px-4 py-2 rounded-lg border text-on-surface-variant hover:bg-surface-container" style={{ borderColor: '#c8e4d8', fontSize: '14px' }}>Cancel</button>
-              <button onClick={saveAdjust} className="btn-primary px-4 py-2 rounded-lg text-white font-bold" style={{ fontSize: '14px' }}>Save Adjustment</button>
+              <button onClick={() => setAdjustOpen(false)} disabled={adjustSaving} className="px-4 py-2 rounded-lg border text-on-surface-variant hover:bg-surface-container" style={{ borderColor: '#c8e4d8', fontSize: '14px' }}>Cancel</button>
+              <button onClick={saveAdjust} disabled={adjustSaving} className="btn-primary px-4 py-2 rounded-lg text-white font-bold" style={{ fontSize: '14px', opacity: adjustSaving ? 0.6 : 1 }}>{adjustSaving ? 'Saving…' : 'Save Adjustment'}</button>
             </div>
           </div>
         </div>

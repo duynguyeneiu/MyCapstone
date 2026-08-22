@@ -25,6 +25,8 @@ const notifOpts: [string, string, boolean][] = [
   ["Newsletter", "Weekly picks and lifestyle content", false],
 ];
 
+const NOTIF_STORAGE_KEY = "hm-notif-prefs";
+
 /* ── Delete confirmation + success notification ── */
 interface DeleteState {
   label: string;
@@ -213,6 +215,27 @@ export default function ProfileContent() {
   const [hoverAvatar, setHoverAvatar] = useState(false);
   const [deleteState, setDeleteState] = useState<DeleteState | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  const [notifOn, setNotifOn] = useState<boolean[]>(() => {
+    try {
+      const raw = localStorage.getItem(NOTIF_STORAGE_KEY);
+      if (raw) {
+        const saved: boolean[] = JSON.parse(raw);
+        if (Array.isArray(saved) && saved.length === notifOpts.length) return saved;
+      }
+    } catch { /* ignore */ }
+    return notifOpts.map((o) => o[2]);
+  });
+
+  const toggleNotif = (index: number, on: boolean) => {
+    setNotifOn((prev) => {
+      const next = prev.map((v, i) => (i === index ? on : v));
+      try {
+        localStorage.setItem(NOTIF_STORAGE_KEY, JSON.stringify(next));
+      } catch { /* ignore */ }
+      return next;
+    });
+  };
 
   const DEFAULT_ADDRESSES = [
     {
@@ -1563,7 +1586,7 @@ export default function ProfileContent() {
                   boxShadow: "0 2px 10px rgba(0,0,0,.05)",
                 }}
               >
-                {notifOpts.map(([title, desc, checked], i) => (
+                {notifOpts.map(([title, desc], i) => (
                   <div
                     key={title}
                     style={{
@@ -1589,7 +1612,7 @@ export default function ProfileContent() {
                         {desc}
                       </p>
                     </div>
-                    <ToggleSwitch defaultOn={checked} />
+                    <ToggleSwitch defaultOn={notifOn[i]} onChange={(on) => toggleNotif(i, on)} />
                   </div>
                 ))}
               </div>

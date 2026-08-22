@@ -6,6 +6,7 @@ namespace OrderServiceAPI.Interfaces
     public interface IOrderService
     {
         Task<OrderDto> CheckoutAsync(CheckoutRequest request);
+        Task<OrderDto> CheckoutPosAsync(PosCheckoutRequest request);
         Task<List<OrderDto>> GetOrdersByUserIdAsync(int userId);
         Task<List<OrderDto>> GetAllOrdersAsync();
 
