@@ -87,11 +87,6 @@ const posCSS = `
 .checkout-btn:disabled { background: #bccac1; cursor: not-allowed; }
 `;
 
-// Rebuilds the receipt shape POSHistoryPage/ReceiptModal already render from
-// a real persisted Order — discount/vat aren't tracked separately on POS
-// orders in the backend yet, so they show as 0 here (matches what's actually
-// stored; the live checkout screen still shows its own computed VAT before
-// payment is confirmed).
 function orderToTransactionRecord(o: Order): TransactionRecord {
   const d = new Date(o.orderDate);
   return {
@@ -107,7 +102,6 @@ function orderToTransactionRecord(o: Order): TransactionRecord {
   };
 }
 
-// Settings → POS writes these two localStorage keys (see AdminSettingsPage.tsx).
 const POS_NUMS_KEY = 'hm-admin-pos-numbers';
 const POS_TOGGLES_KEY = 'hm-admin-pos-toggles';
 
@@ -127,10 +121,9 @@ function loadPosSettings(): PosSettings {
     const rawToggles = localStorage.getItem(POS_TOGGLES_KEY);
     if (rawToggles) {
       const saved: boolean[] = JSON.parse(rawToggles);
-      // index 0 = "Auto-print receipt" (see POS_TOGGLE_DEFAULTS in AdminSettingsPage.tsx)
       if (Array.isArray(saved) && typeof saved[0] === 'boolean') autoPrint = saved[0];
     }
-  } catch { /* ignore */ }
+  } catch {}
   return { lowStockThreshold, defaultDiscountPct, autoPrint };
 }
 
@@ -143,21 +136,19 @@ export default function POSPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [showCheckout, setShowCheckout] = useState(false);
+  const [cashTendered, setCashTendered] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
   const [invoiceNo, setInvoiceNo] = useState(1);
   const [clock, setClock] = useState("");
   const [posSettings, setPosSettings] = useState<PosSettings>(loadPosSettings);
   const [autoPrintPending, setAutoPrintPending] = useState(false);
 
-  // Settings → POS is a separate admin page/component — re-read on focus so
-  // a change saved there shows up here without requiring a full reload.
   useEffect(() => {
     const refresh = () => setPosSettings(loadPosSettings());
     window.addEventListener('focus', refresh);
     return () => window.removeEventListener('focus', refresh);
   }, []);
 
-  // New: history & receipt states
   const [posOrders, setPosOrders] = useState<Order[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [currentReceipt, setCurrentReceipt] = useState<TransactionRecord | null>(null);
@@ -167,7 +158,6 @@ export default function POSPage() {
 
   useEffect(() => {
     if (!autoPrintPending || !currentReceipt) return;
-    // Give the ReceiptModal a tick to actually render before printing it.
     const t = setTimeout(() => {
       window.print();
       setAutoPrintPending(false);
@@ -225,9 +215,6 @@ export default function POSPage() {
       .sort((a, b) => a.label.localeCompare(b.label)),
   ];
 
-  // A top-level tab (e.g. "Beverages") is a parent category — products are
-  // actually assigned to its child categories (e.g. "Tea & Coffee"), not the
-  // parent id itself, so roll the children's ids in when matching.
   const activeCategoryIds = activeCategory === "all"
     ? null
     : [Number(activeCategory), ...categories.filter((c) => c.parentCategoryId === Number(activeCategory)).map((c) => c.id)];
@@ -251,18 +238,13 @@ export default function POSPage() {
   };
 
   const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  // Replaces the old promo-code discount (that UI is hidden) — set in
-  // Settings → POS → "Default Discount (%)", 0 by default so nothing
-  // changes unless an admin opts in.
-  const discount = Math.round(subtotal * (posSettings.defaultDiscountPct / 100));
-  const vat = (subtotal - discount) * 0.1;
-  const total = subtotal - discount + vat;
+  const total = subtotal;
+  const cashInsufficient = paymentMethod === "Cash" && (parseInt(cashTendered) || 0) < total;
 
   const processPayment = async () => {
     const now = new Date();
     setCheckoutSaving(true);
     try {
-      // Tạo Order thật trong database — trừ tồn kho ngay tại đây.
       await orderService.checkoutPos({
         staffUserId: user ? Number(user.id) : undefined,
         paymentMethod: paymentMethod === "QR" ? "VNPay" : "Cash",
@@ -275,25 +257,22 @@ export default function POSPage() {
         time: now.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
         items: [...cart],
         subtotal,
-        discount,
-        vat,
+        discount: 0,
+        vat: 0,
         total,
         paymentMethod,
       };
       setCurrentReceipt(tx);
       setShowCheckout(false);
       if (posSettings.autoPrint) {
-        // Skip the "Payment Successful" interstitial and go straight to the
-        // printable receipt — the useEffect below fires window.print() once
-        // it's actually mounted.
         setShowSuccess(false);
         setAutoPrintPending(true);
       } else {
         setShowSuccess(true);
       }
       await Promise.all([
-        loadProducts(),   // đồng bộ lại tồn kho hiển thị sau khi trừ thật
-        loadPosOrders(),  // đơn vừa tạo sẽ xuất hiện ngay trong tab History
+        loadProducts(),
+        loadPosOrders(),
       ]);
     } catch (err) {
       console.error(err);
@@ -305,7 +284,6 @@ export default function POSPage() {
 
   const handlePrintReceipt = () => {
     setShowSuccess(false);
-    // currentReceipt stays set → ReceiptModal will open
   };
 
   const newInvoice = () => {
@@ -320,7 +298,6 @@ export default function POSPage() {
     { id: "QR", icon: "qr_code_2", label: "VNPay" },
   ];
 
-  // ── Show history page ──────────────────────────────────────
   if (showHistory) {
     return (
       <>
@@ -343,7 +320,6 @@ export default function POSPage() {
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", background: "#f2f4f6" }}>
       <style>{posCSS}</style>
-      {/* Topbar */}
       <div className="topbar">
         <div style={{ width: 32, height: 32, background: C.primary, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <Icon name="point_of_sale" size={18} style={{ color: "#fff" }} />
@@ -351,7 +327,6 @@ export default function POSPage() {
         <span className="topbar-title" style={{ flex: 1 }}>RetailPro POS</span>
         <span className="topbar-badge">In-Store</span>
 
-        {/* History button */}
         <button onClick={() => setShowHistory(true)}
           style={{ display: "flex", alignItems: "center", gap: 5, padding: "6px 12px", borderRadius: 8, border: `1.5px solid ${C.outline}`, background: "#fff", color: C.textMuted, fontSize: 12, fontWeight: 600, cursor: "pointer" }}
           onMouseEnter={e => { e.currentTarget.style.background = "#f0faf5"; e.currentTarget.style.borderColor = C.primary; e.currentTarget.style.color = C.primary; }}
@@ -374,7 +349,6 @@ export default function POSPage() {
       </div>
 
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
-        {/* Left: products */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", borderRight: `1px solid #e0e3e5`, background: "#fff" }}>
           <div style={{ padding: "12px 16px", borderBottom: `1px solid #e0e3e5` }}>
             <div style={{ position: "relative" }}>
@@ -416,7 +390,6 @@ export default function POSPage() {
           </div>
         </div>
 
-        {/* Right: cart */}
         <div style={{ width: 340, display: "flex", flexDirection: "column", background: "#fff", flexShrink: 0, overflow: "hidden" }}>
           <div style={{ padding: "14px 16px", borderBottom: `1px solid #e0e3e5`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <span style={{ fontSize: 15, fontWeight: 700 }}>Invoice #{String(invoiceNo).padStart(4, "0")}</span>
@@ -455,24 +428,7 @@ export default function POSPage() {
           </div>
 
           <div style={{ padding: "12px 16px", borderTop: `1px solid #e0e3e5`, flexShrink: 0 }}>
-            {/* Promotions feature is disabled (admin Promotions page hidden) —
-                hiding the picker here too so POS doesn't offer codes nobody can manage.
-            <div style={{ marginBottom: 10 }}>
-              <select
-                value={promoCode}
-                onChange={(e) => { setPromoCode(e.target.value); applyPromo(e.target.value); }}
-                style={{ width: "100%", border: `1.5px solid #e0e3e5`, borderRadius: 8, padding: "7px 10px", fontSize: 13, background: "#f7f9fb", outline: "none", cursor: "pointer" }}
-              >
-                <option value="">— Select promotion —</option>
-                {POS_PROMOS.map(p => (
-                  <option key={p.code} value={p.code}>
-                    {p.code} — {p.desc}
-                  </option>
-                ))}
-              </select>
-            </div>
-            */}
-            {[["Subtotal", fmt(subtotal)], ["Discount", discount > 0 ? `-${fmt(discount)}` : "—"], ["VAT (10%)", fmt(vat)]].map(([label, val]) => (
+            {[["Subtotal", fmt(subtotal)]].map(([label, val]) => (
               <div key={label} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 6 }}>
                 <span style={{ color: C.textFaint }}>{label}</span>
                 <span style={{ fontWeight: 500 }}>{val}</span>
@@ -496,7 +452,7 @@ export default function POSPage() {
                 </button>
               ))}
             </div>
-            <button onClick={() => cart.length > 0 && setShowCheckout(true)} disabled={cart.length === 0}
+            <button onClick={() => { if (cart.length > 0) { setCashTendered(""); setShowCheckout(true); } }} disabled={cart.length === 0}
               style={{ width: "100%", padding: 14, background: cart.length === 0 ? "#bccac1" : C.primary, color: "#fff", border: "none", borderRadius: 12,
                 fontSize: 15, fontWeight: 700, cursor: cart.length === 0 ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
               <Icon name="payment" size={20} style={{ color: "#fff" }} /> Checkout {cart.length > 0 ? `• ${fmt(total)}` : ""}
@@ -505,7 +461,6 @@ export default function POSPage() {
         </div>
       </div>
 
-      {/* Checkout Modal */}
       <Modal open={showCheckout} onClose={() => setShowCheckout(false)} width={420}>
         <ModalHeader title={`Checkout — ${paymentMethod}`} onClose={() => setShowCheckout(false)} />
         <div style={{ padding: 24 }}>
@@ -513,19 +468,41 @@ export default function POSPage() {
             <p style={{ fontSize: 13, color: C.textFaint }}>Total Amount</p>
             <p style={{ fontFamily: "'Hanken Grotesk',sans-serif", fontSize: 32, fontWeight: 700, color: C.primary }}>{fmt(total)}</p>
           </div>
-          {paymentMethod === "Cash" && (
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: C.textMuted, display: "block", marginBottom: 6 }}>Cash tendered</label>
-              <input type="number" placeholder="Enter amount" defaultValue={total}
-                style={{ width: "100%", border: `1.5px solid ${C.outline}`, borderRadius: 10, padding: "10px 14px", fontSize: 16, fontWeight: 700, outline: "none" }} />
-              <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                {[50000, 100000, 200000, 500000].map((v) => (
-                  <button key={v} style={{ flex: 1, padding: "6px 4px", borderRadius: 8, border: `1.5px solid ${C.outline}`,
-                    fontSize: 11, fontWeight: 600, cursor: "pointer", background: "#f7f9fb" }}>{v / 1000}K</button>
-                ))}
+          {paymentMethod === "Cash" && (() => {
+            const tendered = parseInt(cashTendered) || 0;
+            const change = tendered - total;
+            return (
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.textMuted, display: "block", marginBottom: 6 }}>Cash tendered</label>
+                <input type="number" placeholder="Enter amount" value={cashTendered}
+                  onChange={(e) => setCashTendered(e.target.value)}
+                  style={{ width: "100%", border: `1.5px solid ${C.outline}`, borderRadius: 10, padding: "10px 14px", fontSize: 16, fontWeight: 700, outline: "none" }} />
+                <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                  {[50000, 100000, 200000, 500000].map((v) => (
+                    <button key={v} onClick={() => setCashTendered((prev) => String((parseInt(prev) || 0) + v))}
+                      style={{ flex: 1, padding: "6px 4px", borderRadius: 8, border: `1.5px solid ${C.outline}`,
+                      fontSize: 11, fontWeight: 600, cursor: "pointer", background: "#f7f9fb" }}>{v / 1000}K</button>
+                  ))}
+                  <button onClick={() => setCashTendered("")}
+                    style={{ flex: 1, padding: "6px 4px", borderRadius: 8, border: `1.5px solid ${C.outline}`,
+                    fontSize: 11, fontWeight: 600, cursor: "pointer", background: "#f7f9fb", color: "#dc2626" }}>Clear</button>
+                </div>
+                {cashTendered !== "" && (
+                  change >= 0 ? (
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 12, padding: "10px 14px", background: "#f0faf5", borderRadius: 10 }}>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: C.primary }}>Change to return</span>
+                      <span style={{ fontSize: 18, fontWeight: 700, color: C.primary }}>{fmt(change)}</span>
+                    </div>
+                  ) : (
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 12, padding: "10px 14px", background: "#fee2e2", borderRadius: 10 }}>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: "#dc2626" }}>Amount short</span>
+                      <span style={{ fontSize: 16, fontWeight: 700, color: "#dc2626" }}>{fmt(Math.abs(change))}</span>
+                    </div>
+                  )
+                )}
               </div>
-            </div>
-          )}
+            );
+          })()}
           {paymentMethod === "QR" && (
             <div style={{ textAlign: "center", marginBottom: 20 }}>
               <div style={{ width: 160, height: 160, background: "#f3f4f6", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto" }}>
@@ -534,15 +511,15 @@ export default function POSPage() {
               <p style={{ fontSize: 12, color: C.textFaint, marginTop: 8 }}>Scan VNPay QR code to pay</p>
             </div>
           )}
-          <button onClick={processPayment} disabled={checkoutSaving}
-            style={{ width: "100%", padding: 14, background: checkoutSaving ? C.textFaint : C.primary, color: "#fff", border: "none", borderRadius: 12,
-              fontSize: 16, fontWeight: 700, cursor: checkoutSaving ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-            <Icon name="check_circle" size={20} style={{ color: "#fff" }} /> {checkoutSaving ? "Processing…" : "Confirm Payment"}
+          <button onClick={processPayment} disabled={checkoutSaving || cashInsufficient}
+            style={{ width: "100%", padding: 14, background: checkoutSaving || cashInsufficient ? C.textFaint : C.primary, color: "#fff", border: "none", borderRadius: 12,
+              fontSize: 16, fontWeight: 700, cursor: checkoutSaving || cashInsufficient ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+            <Icon name="check_circle" size={20} style={{ color: "#fff" }} />
+            {checkoutSaving ? "Processing…" : cashInsufficient ? "Insufficient cash" : "Confirm Payment"}
           </button>
         </div>
       </Modal>
 
-      {/* Success Modal */}
       <Modal open={showSuccess} onClose={newInvoice} width={380}>
         <div style={{ padding: 36, textAlign: "center" }}>
           <div style={{ width: 72, height: 72, borderRadius: "50%", background: "#d1fae5", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
@@ -560,7 +537,6 @@ export default function POSPage() {
         </div>
       </Modal>
 
-      {/* Receipt Modal (after payment or from history) */}
       {currentReceipt && !showSuccess && (
         <ReceiptModal
           tx={currentReceipt}

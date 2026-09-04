@@ -10,7 +10,7 @@ import { fmt } from '@/src/lib/utils';
 
 interface Props { onNav: (p: string) => void; search: string; }
 
-const STATUS_OPTIONS = ['Pending', 'Shipping', 'Delivered'];
+const STATUS_OPTIONS = ['Pending', 'Confirmed', 'Processing', 'Shipped', 'Delivered', 'Completed'];
 const CAT_COLORS = ['#e0f5ed', '#fff3d6', '#fef3c7', '#ede9fe', '#e0f2fe'];
 const CAT_TEXT_COLORS = ['#004d38', '#7a5c00', '#92400e', '#4c1d95', '#075985'];
 const CHANNEL_COLORS = ['#1d6fb8', '#f59e0b', '#16a34a', '#7c3aed', '#dc2626'];
@@ -104,7 +104,6 @@ export default function DashboardPage({ onNav, search }: Props) {
     });
   }, [lowStockProducts, categories, q]);
 
-  // Real revenue for the last 7 calendar days, derived from actual orders.
   const revenueByDay = useMemo(() => {
     const days: { label: string; total: number }[] = [];
     for (let i = 6; i >= 0; i--) {
@@ -119,8 +118,6 @@ export default function DashboardPage({ onNav, search }: Props) {
     return days;
   }, [orders]);
 
-  // Real sales-channel breakdown, grouped dynamically by whatever orderType
-  // values the backend actually returns (no assumed fixed label set).
   const channelBreakdown = useMemo(() => {
     const counts = new Map<string, number>();
     orders.forEach((o) => {
@@ -130,7 +127,6 @@ export default function DashboardPage({ onNav, search }: Props) {
     return [...counts.entries()].map(([label, count]) => ({ label, count }));
   }, [orders]);
 
-  // ── Render Chart.js charts from real data ──────────────────────────────
   useEffect(() => {
     if (loading) return;
     const script = document.createElement('script');
@@ -215,7 +211,6 @@ export default function DashboardPage({ onNav, search }: Props) {
           <div className="text-center py-20" style={{ color: '#94a3b8' }}>Loading dashboard…</div>
         ) : (
           <>
-            {/* Stats Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
               <div className="rounded-xl p-6 bg-white border flex flex-col justify-between" style={{ borderColor: '#b8e0cc', boxShadow: '0 4px 20px #00694c14' }}>
                 <div className="flex justify-between items-start">
@@ -255,7 +250,6 @@ export default function DashboardPage({ onNav, search }: Props) {
               </div>
             </div>
 
-            {/* Charts Row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
               <div className="lg:col-span-2 rounded-xl p-6 bg-white border" style={{ borderColor: '#c8e4d8' }}>
                 <h4 className="font-bold mb-4">Revenue (Last 7 Days)</h4>
@@ -302,9 +296,7 @@ export default function DashboardPage({ onNav, search }: Props) {
               </div>
             </div>
 
-            {/* Tables Row */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
-              {/* Recent Orders */}
               <div className="rounded-xl bg-white border overflow-hidden" style={{ borderColor: '#c8e4d8' }}>
                 <div className="p-6 border-b flex justify-between items-center" style={{ borderColor: '#c8e4d8' }}>
                   <h4 className="font-bold">Recent Orders</h4>
@@ -360,7 +352,6 @@ export default function DashboardPage({ onNav, search }: Props) {
                 </div>
               </div>
 
-              {/* Low Stock */}
               <div className="rounded-xl bg-white border overflow-hidden" style={{ borderColor: '#c8e4d8' }}>
                 <div className="p-6 border-b flex justify-between items-center" style={{ borderColor: '#c8e4d8' }}>
                   <h4 className="font-bold">Low Stock Alert</h4>

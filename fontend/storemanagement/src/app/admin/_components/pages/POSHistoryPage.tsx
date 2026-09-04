@@ -24,7 +24,6 @@ export default function POSHistoryPage({ history, onBack, onViewReceipt }: POSHi
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#f2f4f6' }}>
 
-      {/* Topbar */}
       <div style={{ height: 56, background: '#fff', borderBottom: '1px solid #e0e3e5', display: 'flex', alignItems: 'center', padding: '0 16px', gap: 12, flexShrink: 0 }}>
         <button onClick={onBack}
           style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: 'pointer', color: C.textMuted, fontSize: 13, fontWeight: 600, padding: '6px 10px', borderRadius: 8 }}
@@ -45,7 +44,6 @@ export default function POSHistoryPage({ history, onBack, onViewReceipt }: POSHi
 
       <div style={{ flex: 1, overflow: 'auto', padding: 20 }}>
 
-        {/* Summary cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 20 }}>
           {[
             { label: 'Total Transactions', value: String(history.length), icon: 'receipt_long', color: C.primary },
@@ -64,7 +62,6 @@ export default function POSHistoryPage({ history, onBack, onViewReceipt }: POSHi
           ))}
         </div>
 
-        {/* Transactions list */}
         {history.length === 0 ? (
           <div style={{ background: '#fff', borderRadius: 12, padding: '60px 24px', textAlign: 'center', border: '1px solid #e0e3e5' }}>
             <Icon name="receipt_long" size={48} style={{ color: '#bccac1' }} />

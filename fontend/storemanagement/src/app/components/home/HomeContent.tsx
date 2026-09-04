@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { productService } from '@/src/services/productService';
 import { categoryService } from '@/src/services/categoryService';
+import { reviewService, applyRatings } from '@/src/services/reviewService';
 import { Product, Category } from '@/src/lib/data';
 import BtnTeal from '../ui/BtnTeal';
 import BtnOutline from '../ui/BtnOutline';
@@ -19,11 +20,12 @@ export default function HomeContent() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [productsData, categoriesData] = await Promise.all([
+        const [productsData, categoriesData, reviewsData] = await Promise.all([
           productService.getAll(),
           categoryService.getAll(),
+          reviewService.getAll().catch(() => []),
         ]);
-        setProducts(productsData);
+        setProducts(applyRatings(productsData, reviewsData));
         setCategories(categoriesData);
       } catch (err) {
         console.error(err);
@@ -33,7 +35,7 @@ export default function HomeContent() {
   }, []);
 
   const featured = [...products].sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)).slice(0, 8);
-  const SHOW = 5; // cards visible at once
+  const SHOW = 5;
   const maxStep = Math.max(0, featured.length - SHOW);
   const [featStep, setFeatStep] = useState(0);
   const [featPaused, setFeatPaused] = useState(false);
@@ -55,7 +57,6 @@ export default function HomeContent() {
 
   return (
     <div>
-      {/* Hero */}
       <section style={{ display: 'block', lineHeight: 0 }}>
         <Image
           src="/image/banner.jpg"
@@ -67,7 +68,6 @@ export default function HomeContent() {
         />
       </section>
 
-      {/* Stats */}
       <section style={{ padding: '2.5rem 1.5rem', background: '#f8fafc' }}>
         <div style={{ maxWidth: 1280, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(130px,1fr))', gap: '1.25rem' }}>
           {stats.map(([v, l], i) => (
@@ -79,7 +79,6 @@ export default function HomeContent() {
         </div>
       </section>
 
-      {/* Categories */}
       <section style={{ padding: '3.5rem 1.5rem', background: '#f8fafc' }}>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '2.5rem' }}>
@@ -105,7 +104,6 @@ export default function HomeContent() {
             </div>
           </div>
 
-          {/* Sliding track — overflow hidden clips cards outside the viewport */}
           <div style={{ overflow: 'hidden', margin: '0 -0.625rem', padding: '0.75rem 0 1.25rem', borderRadius: '1.5rem', background: '#f8fafc' }}>
             <div style={{
               display: 'flex',
@@ -149,14 +147,12 @@ export default function HomeContent() {
         </div>
       </section>
 
-      {/* Featured — auto-play carousel */}
       <section
         style={{ padding: '3.5rem 1.5rem', background: '#fff' }}
         onMouseEnter={() => setFeatPaused(true)}
         onMouseLeave={() => setFeatPaused(false)}
       >
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-          {/* Header row */}
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '2rem' }}>
             <div>
               <h2 className="serif" style={{ fontSize: '2rem', fontWeight: 700 }}>Featured Products</h2>
@@ -181,7 +177,6 @@ export default function HomeContent() {
             </div>
           </div>
 
-          {/* Sliding track */}
           <div style={{ overflow: 'hidden', margin: '0 -0.5rem', padding: '0.75rem 0 1.25rem', borderRadius: '1.5rem', background: '#fff' }}>
             <div style={{
               display: 'flex',
@@ -198,7 +193,6 @@ export default function HomeContent() {
             </div>
           </div>
 
-          {/* Progress dots */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: '1.5rem' }}>
             {Array.from({ length: maxStep + 1 }, (_, i) => (
               <button
@@ -211,7 +205,6 @@ export default function HomeContent() {
         </div>
       </section>
 
-      {/* Promo Banner */}
       <section style={{ padding: '3.5rem 1.5rem', background: '#f8fafc' }}>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
           <div style={{ background: 'linear-gradient(135deg,#00694c,#003028)', borderRadius: '1.5rem', padding: '4rem 2rem', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>

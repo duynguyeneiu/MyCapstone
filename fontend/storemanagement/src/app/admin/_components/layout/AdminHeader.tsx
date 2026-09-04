@@ -46,7 +46,6 @@ export default function AdminHeader({
           borderBottom: `1.5px solid ${C.sidebarBorder}`,
         }}
       >
-        {/* Page title */}
         <div style={{ flexShrink: 0 }}>
           <h2
             style={{
@@ -63,7 +62,6 @@ export default function AdminHeader({
           )}
         </div>
 
-        {/* Search bar — only shown when onSearch is provided */}
         {onSearch && (
           <div
             style={{
@@ -119,7 +117,6 @@ export default function AdminHeader({
           </div>
         )}
 
-        {/* Right actions */}
         <div
           style={{
             display: "flex",

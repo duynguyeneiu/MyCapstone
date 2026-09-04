@@ -32,7 +32,6 @@ export default function Sidebar({
         background: "linear-gradient(180deg, #f4fbf7 0%, #fffdf5 100%)",
       }}
     >
-      {/* Brand */}
       <div style={{ padding: "0 12px", marginBottom: 28 }}>
         <h1
           style={{
@@ -52,7 +51,6 @@ export default function Sidebar({
         </p>
       </div>
 
-      {/* Nav items */}
       <nav
         style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}
       >
@@ -91,7 +89,6 @@ export default function Sidebar({
         })}
       </nav>
 
-      {/* Bottom actions */}
       <div
         style={{
           borderTop: `1px solid ${C.outline}`,
@@ -101,7 +98,6 @@ export default function Sidebar({
           gap: 2,
         }}
       >
-        {/* Home button → back to shopping site */}
         <button
           onClick={onGoHome}
           style={{
@@ -135,7 +131,6 @@ export default function Sidebar({
           <Icon name="home" size={20} /> Happy Market
         </button>
 
-        {/* Sign out */}
         {onLogout && (
           <button
             onClick={onLogout}

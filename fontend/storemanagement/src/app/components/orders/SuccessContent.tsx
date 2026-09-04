@@ -20,8 +20,7 @@ export default function SuccessContent({ orderId }: SuccessContentProps) {
     orderService.getById(id).then(setOrder).catch(err => console.error(err));
   }, [orderId]);
 
-  const sub = order?.items.reduce((s, item) => s + item.subtotal, 0) ?? 0;
-  const total = order?.totalAmount ?? sub * 1.1;
+  const total = order?.finalAmount ?? 0;
 
   return (
     <div style={{ maxWidth: 520, margin: '0 auto', padding: '5rem 1.5rem', textAlign: 'center' }}>

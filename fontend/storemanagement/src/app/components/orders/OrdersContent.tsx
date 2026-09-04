@@ -73,7 +73,6 @@ export default function OrdersContent() {
 
   return (
     <div style={{ maxWidth: 900, margin: '0 auto', padding: '2rem 1.5rem' }}>
-      {/* Detail Modal */}
       {detailOrder && (() => {
         const status = mapStatus(detailOrder.orderStatus);
         return (
@@ -90,7 +89,13 @@ export default function OrdersContent() {
             </div>
             <div style={{ padding: '1.5rem' }}>
               <p style={{ fontWeight: 600, fontSize: '.9rem', marginBottom: '1rem' }}>Order Progress</p>
-              {([['Order Placed', true], ['Payment Confirmed', status !== 'cancelled'], ['Packed & Ready', ['shipping', 'delivered'].includes(status)], ['Out for Delivery', status === 'delivered'], ['Delivered', status === 'delivered']] as [string, boolean][]).map(([l, done]) => (
+              {([
+                ['Order Placed', true],
+                ['Payment Confirmed', detailOrder.paymentMethod === 'VNPay' || status === 'delivered'],
+                ['Packed & Ready', ['shipping', 'delivered'].includes(status)],
+                ['Out for Delivery', ['shipping', 'delivered'].includes(status)],
+                ['Delivered', status === 'delivered'],
+              ] as [string, boolean][]).map(([l, done]) => (
                 <div key={l} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
                   <div style={{ width: 28, height: 28, borderRadius: '50%', background: done ? 'var(--teal)' : '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     {done
@@ -110,13 +115,17 @@ export default function OrdersContent() {
               ))}
 
               {(() => {
-                const sub = detailOrder.items.reduce((s, i) => s + i.subtotal, 0);
+                const rows: [string, string][] = [
+                  ['Subtotal', fmt(detailOrder.totalAmount)],
+                  ['Shipping', fmt(detailOrder.shippingFee)],
+                  ['Total', fmt(detailOrder.finalAmount)],
+                ];
                 return (
                   <div style={{ background: 'var(--teal-xs)', borderRadius: '0.75rem', padding: '1rem', margin: '1rem 0' }}>
-                    {[['Subtotal', fmt(sub)], ['Shipping', 'FREE'], ['Tax (10%)', fmt(sub * .1)], ['Total', fmt(sub * 1.1)]].map(([l, v], i) => (
-                      <div key={l} style={{ display: 'flex', justifyContent: 'space-between', fontWeight: i === 3 ? 700 : 400, fontSize: i === 3 ? '1rem' : '.875rem', marginBottom: i < 3 ? '0.3rem' : 0 }}>
-                        <span style={{ color: i === 3 ? '#1e293b' : '#64748b' }}>{l}</span>
-                        <span style={{ color: i === 3 ? 'var(--teal)' : l === 'Shipping' ? '#16a34a' : undefined }}>{v}</span>
+                    {rows.map(([l, v], i) => (
+                      <div key={l} style={{ display: 'flex', justifyContent: 'space-between', fontWeight: i === rows.length - 1 ? 700 : 400, fontSize: i === rows.length - 1 ? '1rem' : '.875rem', marginBottom: i < rows.length - 1 ? '0.3rem' : 0 }}>
+                        <span style={{ color: i === rows.length - 1 ? '#1e293b' : '#64748b' }}>{l}</span>
+                        <span style={{ color: i === rows.length - 1 ? 'var(--teal)' : undefined }}>{v}</span>
                       </div>
                     ))}
                   </div>
@@ -148,7 +157,6 @@ export default function OrdersContent() {
         );
       })()}
 
-      {/* View Review Modal */}
       {reviewOrder && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setReviewOrder(null)}>
           <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: '1.5rem', width: '90%', maxWidth: 520, overflow: 'hidden', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,.2)' }}>
@@ -197,7 +205,6 @@ export default function OrdersContent() {
         <BtnOutline onClick={() => router.push('/shop')}>+ New Order</BtnOutline>
       </div>
 
-      {/* Filter tabs */}
       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', background: '#fff', borderRadius: '1rem', padding: '0.5rem', boxShadow: '0 2px 8px rgba(0,0,0,.04)', width: 'fit-content', marginBottom: '1.25rem' }}>
         {(['all', 'processing', 'shipping', 'delivered', 'cancelled'] as const).map(s => (
           <button key={s} onClick={() => { setFilter(s); setCurPage(1); }}
@@ -221,7 +228,7 @@ export default function OrdersContent() {
           {paged.map(o => {
             const status = mapStatus(o.orderStatus);
             const sc = statusCfg[status];
-            const total = o.items.reduce((s, i) => s + i.subtotal, 0) * 1.1;
+            const total = o.finalAmount;
             const firstItem = o.items[0];
             const extra = o.items.length - 1;
             const pct = progressPct(status);

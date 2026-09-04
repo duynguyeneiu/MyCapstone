@@ -7,6 +7,7 @@ import ProductCard from '../ui/ProductCard';
 import BtnTeal from '../ui/BtnTeal';
 import Badge from '../ui/Badge';
 import { productService } from '@/src/services/productService';
+import { reviewService, applyRatings } from '@/src/services/reviewService';
 import { Product } from '@/src/lib/data';
 
 interface SearchContentProps {
@@ -23,8 +24,6 @@ export default function SearchContent({ initialTerm }: SearchContentProps) {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  // Reset to page 1 whenever the search term changes — adjusting state
-  // during render avoids an extra cascading effect render.
   const [prevTerm, setPrevTerm] = useState(initialTerm);
   if (prevTerm !== initialTerm) {
     setPrevTerm(initialTerm);
@@ -40,11 +39,13 @@ export default function SearchContent({ initialTerm }: SearchContentProps) {
     }
     let cancelled = false;
     setLoading(true);
-    productService
-      .getPaged({ keyword: initialTerm, page, pageSize: PAGE_SIZE })
-      .then((res) => {
+    Promise.all([
+      productService.getPaged({ keyword: initialTerm, page, pageSize: PAGE_SIZE }),
+      reviewService.getAll().catch(() => []),
+    ])
+      .then(([res, reviews]) => {
         if (cancelled) return;
-        setResults(res.items);
+        setResults(applyRatings(res.items, reviews));
         setTotalItems(res.totalItems);
         setTotalPages(Math.max(1, res.totalPages));
       })
@@ -59,7 +60,6 @@ export default function SearchContent({ initialTerm }: SearchContentProps) {
 
   return (
     <div style={{ maxWidth: 1280, margin: '0 auto', padding: '2rem 1.5rem' }}>
-      {/* Header */}
       <div style={{ marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
           <h2 className="serif" style={{ fontSize: '1.75rem', fontWeight: 700 }}>Search Results</h2>
@@ -74,7 +74,6 @@ export default function SearchContent({ initialTerm }: SearchContentProps) {
         )}
       </div>
 
-      {/* No term */}
       {!initialTerm && (
         <div style={{ textAlign: 'center', padding: '5rem 1rem' }}>
           <span style={{ fontSize: '4rem' }}>🔍</span>
@@ -86,7 +85,6 @@ export default function SearchContent({ initialTerm }: SearchContentProps) {
         </div>
       )}
 
-      {/* No results */}
       {initialTerm && !loading && results.length === 0 && (
         <div style={{ textAlign: 'center', padding: '5rem 1rem' }}>
           <span style={{ fontSize: '4rem' }}>🔍</span>
@@ -100,7 +98,6 @@ export default function SearchContent({ initialTerm }: SearchContentProps) {
         </div>
       )}
 
-      {/* Results grid */}
       {results.length > 0 && (
         <>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(180px,1fr))', gap: '1.25rem' }}>
@@ -109,7 +106,6 @@ export default function SearchContent({ initialTerm }: SearchContentProps) {
             ))}
           </div>
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '2rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>

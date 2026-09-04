@@ -1,8 +1,5 @@
 import axios from "axios";
 
-// Backend error shapes we might receive:
-// - ExceptionMiddleware (NotFound/Conflict/BadRequest): { StatusCode, Message } (PascalCase)
-// - ASP.NET model validation (400): { title, errors: { field: string[] } }
 const STATUS_FALLBACKS: Record<number, string> = {
   400: "Invalid request. Please check the form and try again.",
   404: "Item not found.",

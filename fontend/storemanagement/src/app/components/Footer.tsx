@@ -24,7 +24,6 @@ export default function Footer() {
     >
       <div style={{ maxWidth: 1280, margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: '2rem', justifyContent: 'space-between' }}>
 
-        {/* Brand */}
         <div>
           <span
             style={{ color: '#fff', fontSize: '1.25rem', fontWeight: 700, fontFamily: "'Playfair Display', serif", cursor: 'pointer' }}
@@ -47,9 +46,7 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Nav columns */}
         <div style={{ display: 'flex', gap: '3rem', flexWrap: 'wrap' }}>
-          {/* Shop */}
           <div>
             <p style={{ color: '#fff', fontWeight: 600, marginBottom: 12, fontSize: '1rem' }}>Shop</p>
             {shopLinks.map(([label, href]) => (
@@ -64,7 +61,6 @@ export default function Footer() {
             ))}
           </div>
 
-          {/* Help */}
           <div>
             <p style={{ color: '#fff', fontWeight: 600, marginBottom: 12, fontSize: '1rem' }}>Help</p>
             {['FAQ', 'Returns', 'Contact'].map(l => (
@@ -78,7 +74,6 @@ export default function Footer() {
             ))}
           </div>
 
-          {/* Account */}
           <div>
             <p style={{ color: '#fff', fontWeight: 600, marginBottom: 12, fontSize: '1rem' }}>Account</p>
             {([['My Profile', '/profile'], ['Order History', '/orders'], ['My Reviews', '/reviews'], ['Shopping Cart', '/cart']] as [string, string][]).map(([label, href]) => (
@@ -94,7 +89,6 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Contact + Newsletter */}
         <div id="footer-contact">
           <p style={{ color: '#fff', fontWeight: 600, marginBottom: 12, fontSize: '1rem' }}>Contact</p>
           {[
@@ -130,7 +124,6 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Bottom bar */}
       <div style={{ maxWidth: 1280, margin: '1.5rem auto 0', paddingTop: '1.5rem', borderTop: '1px solid #1e293b', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
         <p style={{ fontSize: '.75rem', color: '#475569' }}>© 2025 Happy Market. All rights reserved.</p>
         <div style={{ display: 'flex', gap: '1.5rem', fontSize: '.75rem' }}>

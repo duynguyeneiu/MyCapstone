@@ -17,7 +17,6 @@ import PromotionsPage from "./_components/pages/PromotionsPage";
 import AdminSettingsPage, { SEC_TOGGLES_KEY } from "./_components/pages/AdminSettingsPage";
 import { useAuth } from "../context/AuthContext";
 
-/* Shared styles injected once for all admin pages */
 const sharedAdminCSS = `
   .search-bar { background:#fff8e6; border:1.5px solid #fcd97a; border-radius:999px; display:flex; align-items:center; padding:8px 16px; gap:8px; }
   .search-bar:focus-within { border-color:#f59e0b; box-shadow:0 0 0 3px #f59e0b22; }
@@ -38,7 +37,6 @@ const sharedAdminCSS = `
   .tab-btn.tab-active { background:linear-gradient(135deg,#00694c,#00a86b); color:#fff; border-color:transparent; box-shadow:0 2px 8px #00694c33; }
   .fab { position:fixed; bottom:32px; right:32px; width:56px; height:56px; border-radius:50%; background:#00694c; color:#fff; border:none; cursor:pointer; font-size:28px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 16px #00694c55; transition:all .2s; z-index:50; }
   .fab:hover { transform:scale(1.08); box-shadow:0 6px 24px #00694c66; }
-  /* Settings-specific */
   .setting-nav-btn { display:flex; align-items:center; gap:10px; padding:10px 16px; border-radius:8px; font-size:14px; font-weight:500; color:#3d4943; cursor:pointer; transition:all .15s; width:100%; background:none; border:none; text-align:left; }
   .setting-nav-btn:hover { background:#e8f5ee; }
   .setting-nav-btn.snav-active { background:#fff3d6; color:#00694c; font-weight:700; border-left:3px solid #f59e0b; }
@@ -88,10 +86,6 @@ export default function AdminPage() {
     }
   }, [user, router]);
 
-  // "Auto logout after inactivity" (Settings → Security) — enforced here so
-  // it applies across the whole admin area, not just while Settings itself
-  // is open. Reads the same localStorage key AdminSettingsPage writes to;
-  // index 2 is that specific toggle (see SEC_TOGGLE_DEFAULTS there).
   useEffect(() => {
     if (!user) return;
     let enabled = true;
@@ -101,9 +95,7 @@ export default function AdminPage() {
         const saved: boolean[] = JSON.parse(raw);
         if (Array.isArray(saved) && typeof saved[2] === "boolean") enabled = saved[2];
       }
-    } catch {
-      /* ignore */
-    }
+    } catch {}
     if (!enabled) return;
 
     const AUTO_LOGOUT_MS = 30 * 60 * 1000;
@@ -135,7 +127,6 @@ export default function AdminPage() {
     router.push("/");
   };
 
-  /* ── STAFF: POS only ──────────────────────────────────────────────────── */
   if (user.role === "staff") {
     return (
       <div
@@ -190,7 +181,6 @@ export default function AdminPage() {
     );
   }
 
-  /* ── ADMIN: waiting for the real auth check above to confirm role ──────── */
   if (!rpLoggedIn) {
     return (
       <>
@@ -202,11 +192,9 @@ export default function AdminPage() {
     );
   }
 
-  /* ── ADMIN: Full shell ────────────────────────────────────────────────── */
   const pageTitle =
     NAV_ITEMS.find((n) => n.page === activePage)?.label ?? "Dashboard";
 
-  /* POS gets full-screen treatment (no sidebar/header) */
   if (activePage === "pos") {
     return (
       <div
@@ -284,7 +272,6 @@ export default function AdminPage() {
     >
       <style>{globalStyle + sharedAdminCSS}</style>
 
-      {/* Shared sidebar — rendered once for all pages */}
       <AdminSidebar
         activePage={activePage}
         onNav={(p) => setActivePage(p)}
@@ -293,7 +280,6 @@ export default function AdminPage() {
         onLogout={handleLogout}
       />
 
-      {/* Right column: header + scrollable content */}
       <div
         style={{
           flex: 1,
@@ -344,7 +330,6 @@ export default function AdminPage() {
           {activePage === "orders" && <AdminOrdersPage search={search} />}
           {activePage === "inventory" && <InventoryPage search={search} />}
           {activePage === "users" && <AdminUsersPage search={search} />}
-          {/* {activePage === 'promotions' && <PromotionsPage     search={search} />} */}
           {activePage === "settings" && <AdminSettingsPage onNav={handleNav} />}
         </main>
       </div>

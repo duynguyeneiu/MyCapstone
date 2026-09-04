@@ -15,14 +15,12 @@ export default function LoginRegisterPage({ defaultTab = "login" }: Props) {
   const { login, startRegister } = useAuth();
   const [tab, setTab] = useState<Tab>(defaultTab);
 
-  // Login form
   const [loginPhone, setLoginPhone] = useState("");
   const [loginPass, setLoginPass] = useState("");
   const [showLoginPass, setShowLoginPass] = useState(false);
   const [loginError, setLoginError] = useState("");
   const [loginLoading, setLoginLoading] = useState(false);
 
-  // Register form
   const [regName, setRegName] = useState("");
   const [regPhone, setRegPhone] = useState("");
   const [regPass, setRegPass] = useState("");
@@ -100,7 +98,6 @@ export default function LoginRegisterPage({ defaultTab = "login" }: Props) {
         fontFamily: "'DM Sans', sans-serif",
       }}
     >
-      {/* Left – Branding */}
       <div
         style={{
           flex: 1,
@@ -174,7 +171,6 @@ export default function LoginRegisterPage({ defaultTab = "login" }: Props) {
         </div>
       </div>
 
-      {/* Right – Form */}
       <div
         style={{
           width: "min(480px, 100%)",
@@ -188,7 +184,6 @@ export default function LoginRegisterPage({ defaultTab = "login" }: Props) {
         }}
       >
         <div style={{ width: "100%", maxWidth: 380 }}>
-          {/* Tabs */}
           <div
             style={{
               display: "flex",
@@ -226,7 +221,6 @@ export default function LoginRegisterPage({ defaultTab = "login" }: Props) {
             ))}
           </div>
 
-          {/* ── LOGIN FORM ── */}
           {tab === "login" && (
             <div style={{ animation: "fadeIn .3s ease" }}>
               <h2
@@ -318,6 +312,11 @@ export default function LoginRegisterPage({ defaultTab = "login" }: Props) {
                   </label>
                   <button
                     type="button"
+                    onClick={() =>
+                      setLoginError(
+                        "Password reset isn't available yet — please contact support.",
+                      )
+                    }
                     style={{
                       background: "none",
                       border: "none",
@@ -433,7 +432,6 @@ export default function LoginRegisterPage({ defaultTab = "login" }: Props) {
             </div>
           )}
 
-          {/* ── REGISTER FORM ── */}
           {tab === "register" && (
             <div style={{ animation: "fadeIn .3s ease" }}>
               <h2

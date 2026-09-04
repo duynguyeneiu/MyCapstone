@@ -14,6 +14,8 @@ export interface Order {
   userId: number;
   orderDate: string;
   totalAmount: number;
+  shippingFee: number;
+  finalAmount: number;
   orderType: string;
   receiverName: string;
   receiverPhone: string;

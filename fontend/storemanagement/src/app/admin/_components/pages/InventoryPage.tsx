@@ -103,7 +103,6 @@ export default function InventoryPage({ search }: Props) {
 
   async function loadProducts() {
     const productsData = await productService.getAllRaw();
-    // Newest products first — sort by id descending (higher id = created later).
     setProducts(buildInitialProducts(productsData).sort((a, b) => b.id - a.id));
   }
 
@@ -123,7 +122,6 @@ export default function InventoryPage({ search }: Props) {
 
   const categoryName = (id: number) => categories.find(c => c.id === id)?.name ?? '—';
 
-  // Import modal
   const [importOpen, setImportOpen] = useState(false);
   const [iDate, setIDate] = useState('');
   const [iStaff, setIStaff] = useState('Alex Nguyen');
@@ -131,10 +129,8 @@ export default function InventoryPage({ search }: Props) {
   const [importRows, setImportRows] = useState<ImportRow[]>([]);
   const [importSaving, setImportSaving] = useState(false);
 
-  // Checkbox selection
   const [checkedProductId, setCheckedProductId] = useState<number | null>(null);
 
-  // Adjust modal
   const [adjustOpen, setAdjustOpen] = useState(false);
   const [adjProductId, setAdjProductId] = useState('');
   const [adjType, setAdjType] = useState<'add' | 'subtract' | 'set'>('add');
@@ -179,7 +175,6 @@ export default function InventoryPage({ search }: Props) {
 
     setImportSaving(true);
     try {
-      // Cộng thẳng vào tồn kho thật cho từng sản phẩm — tương tự Adjust Stock.
       await Promise.all(validRows.map(r => {
         const current = products.find(p => p.id === r.productId);
         if (!current) return Promise.resolve();
@@ -250,7 +245,6 @@ export default function InventoryPage({ search }: Props) {
     <>
       <style>{pageCSS}</style>
       <div className="p-8 space-y-6">
-          {/* Stats */}
           {(() => {
             const totalValue = products.reduce((s, p) => s + p.stock * p.importPrice, 0);
             const lowCnt = products.filter(p => p.stock > 0 && p.stock <= 10).length;
@@ -289,7 +283,6 @@ export default function InventoryPage({ search }: Props) {
             );
           })()}
 
-          {/* Tabs + Table */}
           <div className="bg-surface-container-lowest border rounded-xl overflow-hidden" style={{ borderColor: '#c8e4d8' }}>
             <div className="flex gap-2 px-6 py-3 border-b" style={{ borderColor: '#c8e4d8' }}>
               {(['stock', 'import', 'transactions'] as const).map(tab => (
@@ -299,7 +292,6 @@ export default function InventoryPage({ search }: Props) {
               ))}
             </div>
 
-            {/* Stock Overview Tab */}
             {activeTab === 'stock' && (
               <>
                 <div className="p-6 border-b flex items-center justify-between gap-3 flex-wrap" style={{ borderColor: '#c8e4d8' }}>
@@ -422,7 +414,6 @@ export default function InventoryPage({ search }: Props) {
               </>
             )}
 
-            {/* Import Receipts Tab */}
             {activeTab === 'import' && (
               <>
                 <div className="p-6 border-b flex items-center justify-between" style={{ borderColor: '#c8e4d8' }}>
@@ -463,7 +454,6 @@ export default function InventoryPage({ search }: Props) {
               </>
             )}
 
-            {/* Transactions Tab */}
             {activeTab === 'transactions' && (
               <>
                 <div className="p-6 border-b" style={{ borderColor: '#c8e4d8' }}>
@@ -504,13 +494,11 @@ export default function InventoryPage({ search }: Props) {
           </div>
         </div>
 
-      {/* Import Stock Modal */}
       {importOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)' }}
           onClick={e => { if (e.target === e.currentTarget) setImportOpen(false); }}>
           <div className="rounded-2xl w-[620px] max-w-[95vw] max-h-[90vh] overflow-y-auto" style={{ background: '#ffffff', border: '2px solid #00a86b', boxShadow: '0 24px 64px rgba(0,0,0,0.28), 0 4px 20px rgba(0,105,76,0.15)' }}>
 
-            {/* Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b" style={{ borderColor: '#b2e8d0', background: 'linear-gradient(135deg,#f0fdf7 0%,#e6f9f0 100%)' }}>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#00694c,#00a86b)' }}>
@@ -525,7 +513,6 @@ export default function InventoryPage({ search }: Props) {
             </div>
 
             <div className="p-6 space-y-5">
-              {/* Row 1: Date + Staff */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#3d4943', marginBottom: 5 }}>
@@ -547,7 +534,6 @@ export default function InventoryPage({ search }: Props) {
                 </div>
               </div>
 
-              {/* Items table */}
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <label style={{ fontSize: '12px', fontWeight: 600, color: '#3d4943' }}>
@@ -622,7 +608,6 @@ export default function InventoryPage({ search }: Props) {
                 </div>
               </div>
 
-              {/* Note */}
               <div>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#3d4943', marginBottom: 5 }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: 4 }}>notes</span>
@@ -632,7 +617,6 @@ export default function InventoryPage({ search }: Props) {
               </div>
             </div>
 
-            {/* Footer */}
             <div className="flex items-center justify-between px-6 py-4 border-t" style={{ borderColor: '#b2e8d0', background: '#fafffe' }}>
               <p style={{ fontSize: '12px', color: '#6b7280' }}>
                 {importRows.length} item{importRows.length !== 1 ? 's' : ''} · Total: <b style={{ color: '#00694c' }}>{fmt(importTotal)}</b>
@@ -649,7 +633,6 @@ export default function InventoryPage({ search }: Props) {
         </div>
       )}
 
-      {/* Adjust Stock Modal */}
       {adjustOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)' }}
           onClick={e => { if (e.target === e.currentTarget) setAdjustOpen(false); }}>

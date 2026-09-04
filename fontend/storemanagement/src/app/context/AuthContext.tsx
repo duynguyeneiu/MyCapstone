@@ -83,12 +83,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem("hm-user", JSON.stringify(userData));
       setUser(userData);
       return { success: true };
-    } catch (err) {
-      let message = "Invalid phone number or password";
-      if (axios.isAxiosError(err) && typeof err.response?.data === "string") {
-        message = err.response.data;
-      }
-      return { success: false, error: message };
+    } catch {
+      return { success: false, error: "Invalid phone number or password" };
     }
   };
 

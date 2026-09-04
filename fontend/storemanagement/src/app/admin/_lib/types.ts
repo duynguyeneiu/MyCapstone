@@ -1,4 +1,3 @@
-// ─── THEME / DESIGN TOKENS ───────────────────────────────────────────────────
 export const C = {
   primary: "#00694c",
   primaryDark: "#00513a",
@@ -53,7 +52,6 @@ export const NAV_ITEMS: { page: Page; icon: string; label: string }[] = [
   { page: "categories", icon: "category", label: "Categories" },
   { page: "orders", icon: "receipt_long", label: "Orders" },
   { page: "inventory", icon: "inventory", label: "Inventory" },
-  // { page: "promotions", icon: "sell", label: "Promotions" },
   { page: "users", icon: "people", label: "Users" },
   { page: "settings", icon: "settings", label: "Settings" },
 ];

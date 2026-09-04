@@ -36,7 +36,6 @@ export default function QRModal({ method, total, onClose, onConfirm }: QRModalPr
         }
       }
     }
-    /* centre logo placeholder */
     ctx.fillStyle = '#fff'; ctx.fillRect(68, 68, 44, 44);
     ctx.fillStyle = '#b91c1c'; ctx.fillRect(72, 72, 36, 36);
     ctx.fillStyle = '#fff';
@@ -53,7 +52,6 @@ export default function QRModal({ method, total, onClose, onConfirm }: QRModalPr
         onClick={e => e.stopPropagation()}
         style={{ background: '#fff', borderRadius: '1.5rem', padding: '2rem', width: '90%', maxWidth: 380, boxShadow: '0 20px 60px rgba(0,0,0,.2)', textAlign: 'center' }}
       >
-        {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 6 }}>
           <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#b91c1c' }}>qr_code_2</span>
@@ -64,14 +62,12 @@ export default function QRModal({ method, total, onClose, onConfirm }: QRModalPr
           Open VNPay app → scan QR → confirm payment
         </p>
 
-        {/* QR canvas */}
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
           <div style={{ padding: '0.75rem', border: '4px solid #b91c1c', borderRadius: '1rem' }}>
             <canvas ref={canvasRef} width={180} height={180} />
           </div>
         </div>
 
-        {/* Amount */}
         <div style={{ background: '#fee2e2', borderRadius: '0.75rem', padding: '0.75rem', marginBottom: '1rem' }}>
           <p style={{ fontSize: '.75rem', color: '#b91c1c' }}>Amount to Pay</p>
           <p className="serif" style={{ fontSize: '1.75rem', fontWeight: 700, color: '#b91c1c' }}>{fmt(total)}</p>

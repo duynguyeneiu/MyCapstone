@@ -2,9 +2,8 @@ import { Product } from "./data";
 
 export const fmt = (n: number) => n.toLocaleString("vi-VN") + " VND";
 
-// Backend có thể trả ảnh dưới nhiều dạng khác nhau:
-// http://192.168.1.10:5001/images/sweet1.png | sweet1.png | images/sweet1.png | /image/sweet1.png ...
-// Hàm này chuẩn hoá về: `${baseUrl}/images/<fileName>`
+export const SHIPPING_FEE = 30000;
+
 export const getImageUrl = (image: string | null | undefined): string => {
   if (!image) return "";
 

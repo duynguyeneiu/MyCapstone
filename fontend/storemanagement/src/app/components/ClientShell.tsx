@@ -8,7 +8,6 @@ import Footer from './Footer';
 import ToastDisplay from './ui/ToastDisplay';
 import { useAuth } from '../context/AuthContext';
 
-// Pages accessible without login (exact match or prefix)
 const PUBLIC_PREFIXES = ['/login', '/register', '/shop', '/search', '/product'];
 
 function isPublicPath(pathname: string) {
@@ -24,7 +23,6 @@ export default function ClientShell({ children }: { children: React.ReactNode })
   const isPublic   = isPublicPath(pathname);
   const isAuthPage = pathname === '/login' || pathname === '/register';
 
-  // Protected pages: redirect to /login if not logged in
   useEffect(() => {
     if (isAdmin || isPublic) return;
     if (!user) {
@@ -32,19 +30,14 @@ export default function ClientShell({ children }: { children: React.ReactNode })
     }
   }, [user, isAdmin, isPublic, router, pathname]);
 
-  // Admin pages — handled by their own layout
   if (isAdmin) return <>{children}</>;
 
-  // Auth pages (login / register) — no Navbar/Footer, just the form
   if (isAuthPage) return <>{children}</>;
 
-  // Protected pages: unauthenticated → render nothing while redirecting
   if (!isPublic && !user) return null;
-
 
   const showCategoryBar = pathname === '/' || pathname.startsWith('/shop');
 
-  // Homepage (public) + logged-in client pages → full shell
   return (
     <>
       <div style={{ position: 'sticky', top: 0, zIndex: 50 }}>

@@ -86,7 +86,6 @@ export default function AdminCategoriesPage({ search }: Props) {
         categoryService.getAll(),
       ]);
       setProducts(productsData);
-      // Newest categories first — sort by id descending (higher id = created later).
       setCategories(buildCategories(categoriesData, productsData).sort((a, b) => b.id - a.id));
     } catch (err) {
       console.error(err);
@@ -125,8 +124,6 @@ export default function AdminCategoriesPage({ search }: Props) {
     }
     setSaving(true);
     try {
-      // The "Parent Category" select stores the parent's name (not id) — look
-      // the id up from the currently loaded categories before sending to the API.
       const parentCategoryId = form.parent
         ? (categories.find((c) => c.name === form.parent)?.id ?? null)
         : null;
@@ -194,7 +191,6 @@ export default function AdminCategoriesPage({ search }: Props) {
   return (
     <>
       <div className="p-8 space-y-6">
-        {/* Stats */}
         {(() => {
           const activeCnt = categories.filter(
             (c) => c.status === "Active",
@@ -345,7 +341,6 @@ export default function AdminCategoriesPage({ search }: Props) {
           );
         })()}
 
-        {/* Table */}
         <div
           className="bg-surface-container-lowest border rounded-xl overflow-hidden"
           style={{ borderColor: "#c8e4d8" }}
@@ -731,7 +726,6 @@ export default function AdminCategoriesPage({ search }: Props) {
         </div>
       </div>
 
-      {/* Add/Edit Modal */}
       {formOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center"
@@ -752,7 +746,6 @@ export default function AdminCategoriesPage({ search }: Props) {
                 "0 20px 60px rgba(0,0,0,0.25), 0 4px 16px rgba(0,105,76,0.12)",
             }}
           >
-            {/* Header */}
             <div
               className="flex items-center justify-between p-6 border-b"
               style={{ borderColor: "#c8e4d8" }}
@@ -791,9 +784,7 @@ export default function AdminCategoriesPage({ search }: Props) {
               </button>
             </div>
 
-            {/* Body */}
             <div className="p-6 space-y-4">
-              {/* Name + Status */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
@@ -836,7 +827,6 @@ export default function AdminCategoriesPage({ search }: Props) {
                 </div>
               </div>
 
-              {/* Parent Category */}
               <div>
                 <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
                   Parent Category
@@ -860,7 +850,6 @@ export default function AdminCategoriesPage({ search }: Props) {
                 </select>
               </div>
 
-              {/* Description */}
               <div>
                 <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
                   Description
@@ -882,7 +871,6 @@ export default function AdminCategoriesPage({ search }: Props) {
               </div>
             </div>
 
-            {/* Footer */}
             <div
               className="flex justify-end gap-3 px-6 py-4 border-t"
               style={{ borderColor: "#c8e4d8" }}
@@ -913,7 +901,6 @@ export default function AdminCategoriesPage({ search }: Props) {
         </div>
       )}
 
-      {/* Delete Modal */}
       {delOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center"

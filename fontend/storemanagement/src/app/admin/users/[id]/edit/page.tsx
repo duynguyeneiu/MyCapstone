@@ -6,7 +6,6 @@ import { userService, ApiUser } from '@/src/services/userService'
 
 interface SelectItem { value: string; text: string }
 
-// TODO: no /api/Roles endpoint yet — hardcoded to match seeded RoleId values
 const roleOptions: SelectItem[] = [
   { value: '1', text: 'Admin' },
   { value: '2', text: 'Staff' },

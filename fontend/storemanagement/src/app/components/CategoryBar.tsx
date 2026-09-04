@@ -26,7 +26,6 @@ export default function CategoryBar() {
       zIndex: 40,
     }}>
       <div style={{ display: 'flex', gap: '0.5rem', maxWidth: 1280, margin: '0 auto' }}>
-        {/* All Products — always present, not tied to any category id */}
         <div style={{ position: 'relative' }}>
           <button
             onClick={() => router.push('/shop')}
@@ -78,7 +77,6 @@ export default function CategoryBar() {
                 )}
               </button>
 
-              {/* Dropdown — outer div sits flush with wrapper bottom so hover bridge is seamless */}
               {isHovered && subs.length > 0 && (
                 <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: 100, minWidth: 200 }}>
                   <div style={{

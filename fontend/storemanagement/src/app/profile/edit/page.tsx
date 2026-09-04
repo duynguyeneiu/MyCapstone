@@ -14,10 +14,9 @@ interface UserForm {
   avatar: string
 }
 
-// TODO: lấy thông tin user hiện tại từ session / API
 const mockUser: UserForm = {
   userId: 1,
-  fullname: 'Nguyễn Văn A',
+  fullname: 'John Doe',
   description: '',
   phone: '',
   email: 'user@example.com',
@@ -42,11 +41,6 @@ export default function EditProfilePage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    // TODO: upload image + gọi API update profile
-    // const formData = new FormData()
-    // Object.entries(form).forEach(([k, v]) => formData.append(k, String(v)))
-    // if (fileRef.current?.files?.[0]) formData.append('ImageFile', fileRef.current.files[0])
-    // await fetch(`/api/users/${form.userId}`, { method: 'PUT', body: formData })
     console.log('Update profile:', form)
     router.push('/profile')
   }

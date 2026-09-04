@@ -3,8 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { reviewService, ApiReview, unwrapComment, maskName } from '@/src/services/reviewService';
 
-// ─── Mini star renderer ───────────────────────────────────────────────────────
-
 function StarDisplay({ n, size = 14 }: { n: number; size?: number }) {
   return (
     <span style={{ display: 'inline-flex', gap: 1 }}>
@@ -23,8 +21,6 @@ function formatDate(iso?: string) {
   if (isNaN(d.getTime())) return '';
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
-
-// ─── Main component ───────────────────────────────────────────────────────────
 
 interface Props { productId: number; }
 
@@ -59,7 +55,6 @@ export default function ReviewSection({ productId }: Props) {
   const goTo = (p: number) => setCurPage(Math.max(1, Math.min(totalPages, p)));
   const pickStar = (s: number | null) => { setFilterStar(s); setCurPage(1); };
 
-  // Windowed page numbers
   let lo = Math.max(1, safePage - 2);
   let hi = Math.min(totalPages, safePage + 2);
   if (hi - lo < 4) { if (lo === 1) hi = Math.min(totalPages, lo + 4); else lo = Math.max(1, hi - 4); }
@@ -82,10 +77,8 @@ export default function ReviewSection({ productId }: Props) {
         </div>
       ) : (
         <>
-          {/* ── Rating summary card ── */}
           <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', background: '#fff', borderRadius: '1.25rem', padding: '1.5rem 1.75rem', boxShadow: '0 2px 10px rgba(0,0,0,.05)', marginBottom: '1.5rem', alignItems: 'center' }}>
 
-            {/* Big score */}
             <div style={{ textAlign: 'center', minWidth: 110, flexShrink: 0 }}>
               <div className="serif" style={{ fontSize: '3.75rem', fontWeight: 700, color: '#1e293b', lineHeight: 1 }}>
                 {avgDisplay}
@@ -100,7 +93,6 @@ export default function ReviewSection({ productId }: Props) {
 
             <div style={{ width: 1, height: 80, background: '#f1f5f9', flexShrink: 0 }} />
 
-            {/* Bar chart */}
             <div style={{ flex: 1, minWidth: 200, display: 'flex', flexDirection: 'column', gap: 7 }}>
               {[5, 4, 3, 2, 1].map(star => {
                 const cnt = counts[star - 1];
@@ -126,7 +118,6 @@ export default function ReviewSection({ productId }: Props) {
             </div>
           </div>
 
-          {/* ── Filter pills ── */}
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: '1.25rem' }}>
             {([null, 5, 4, 3, 2, 1] as (number | null)[]).map(s => {
               const active = filterStar === s;
@@ -142,7 +133,6 @@ export default function ReviewSection({ productId }: Props) {
             })}
           </div>
 
-          {/* ── Review cards ── */}
           {paged.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '3rem', background: '#fff', borderRadius: '1.25rem', color: '#94a3b8' }}>
               No reviews for this star level.
@@ -165,7 +155,6 @@ export default function ReviewSection({ productId }: Props) {
                 const color = AVATAR_COLORS[rev.userId % AVATAR_COLORS.length];
                 return (
                   <div key={rev.reviewId} style={{ background: '#fff', borderRadius: '1.25rem', padding: '1.25rem 1.5rem', boxShadow: '0 2px 8px rgba(0,0,0,.05)' }}>
-                    {/* Header */}
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', marginBottom: '0.75rem' }}>
                       <div style={{ width: 42, height: 42, borderRadius: '50%', background: color, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '.85rem', flexShrink: 0 }}>
                         {initials}
@@ -180,7 +169,6 @@ export default function ReviewSection({ productId }: Props) {
                         </div>
                       </div>
                     </div>
-                    {/* Body */}
                     {commentText && (
                       <p style={{ color: '#4b5563', fontSize: '.875rem', lineHeight: 1.65 }}>{commentText}</p>
                     )}
@@ -190,7 +178,6 @@ export default function ReviewSection({ productId }: Props) {
             </div>
           )}
 
-          {/* ── Pagination ── */}
           {totalPages > 1 && (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: '1.25rem' }}>
               <button onClick={() => goTo(safePage - 1)} disabled={safePage === 1}

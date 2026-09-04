@@ -115,7 +115,6 @@ export default function PromotionsPage({ search }: Props) {
   const goTo = (p: number) => setCurPage(Math.max(1, Math.min(p, totalPages)));
   const deletePromo = promos.find(p => p.id === deleteId);
 
-  // Live preview values
   const previewCode = form.code.toUpperCase() || 'CODE';
   const previewDiscount = form.type === 'Percentage'
     ? `${form.value || 0}% off`
@@ -128,7 +127,6 @@ export default function PromotionsPage({ search }: Props) {
     <>
       <style>{pageCSS}</style>
       <div className="p-8 space-y-6">
-          {/* Stats */}
           <div className="grid grid-cols-4 gap-5">
             <div className="stat-card bg-surface-container-lowest border rounded-xl p-6 flex flex-col justify-between" style={{ borderColor: '#b8e0cc', boxShadow: '0 0 0 1px #00694c1a,0 4px 20px #00694c14' }}>
               <div className="flex justify-between items-start">
@@ -160,7 +158,6 @@ export default function PromotionsPage({ search }: Props) {
             </div>
           </div>
 
-          {/* Table Card */}
           <div className="bg-surface-container-lowest border rounded-xl overflow-hidden" style={{ borderColor: '#c8e4d8' }}>
             <div className="p-6 border-b flex items-center justify-between gap-3 flex-wrap" style={{ borderColor: '#c8e4d8' }}>
               <div className="flex items-center gap-3">
@@ -271,7 +268,6 @@ export default function PromotionsPage({ search }: Props) {
           </div>
         </div>
 
-      {/* Add/Edit Modal */}
       {formOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)' }}
           onClick={e => { if (e.target === e.currentTarget) setFormOpen(false); }}>
@@ -325,7 +321,6 @@ export default function PromotionsPage({ search }: Props) {
                   <option>Inactive</option>
                 </select>
               </div>
-              {/* Live Preview */}
               <div className="rounded-xl p-4" style={{ background: '#fffdf0', border: '1.5px dashed #f59e0b' }}>
                 <p className="font-label-sm text-label-sm text-on-surface-variant mb-2">Preview</p>
                 <div className="flex items-center gap-3">
@@ -347,7 +342,6 @@ export default function PromotionsPage({ search }: Props) {
         </div>
       )}
 
-      {/* Delete Modal */}
       {delOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)' }}
           onClick={e => { if (e.target === e.currentTarget) setDelOpen(false); }}>

@@ -52,7 +52,6 @@ export default function Navbar() {
           gap: "1rem",
         }}
       >
-        {/* Logo */}
         <button
           onClick={() => router.push("/")}
           style={{
@@ -85,7 +84,6 @@ export default function Navbar() {
           </span>
         </button>
 
-        {/* Search bar */}
         <div
           style={{
             flex: 1,
@@ -146,7 +144,6 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Nav links */}
         <div
           style={{
             display: "flex",
@@ -197,7 +194,6 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Cart + User */}
         <div
           style={{
             display: "flex",
@@ -206,7 +202,6 @@ export default function Navbar() {
             marginLeft: "auto",
           }}
         >
-          {/* Not logged in → Login / Register buttons */}
           {!user && (
             <>
               <button
@@ -258,7 +253,6 @@ export default function Navbar() {
             </>
           )}
 
-          {/* Admin panel button — admin accounts only */}
           {user?.role === "admin" && (
             <button
               onClick={() => router.push("/admin")}
@@ -296,7 +290,6 @@ export default function Navbar() {
             </button>
           )}
 
-          {/* Cart (logged in) */}
           {user && (
             <button
               onClick={() => router.push("/cart")}
@@ -349,7 +342,6 @@ export default function Navbar() {
             </button>
           )}
 
-          {/* User avatar + dropdown (logged in) */}
           {user && (
             <div style={{ position: "relative" }}>
               <button
@@ -385,19 +377,6 @@ export default function Navbar() {
                 >
                   {initials}
                 </div>
-                {/* <span
-                  style={{
-                    fontSize: ".8rem",
-                    fontWeight: 600,
-                    color: "var(--teal-dk)",
-                    maxWidth: 100,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {user?.name.split(" ")[0] ?? "Guest"}
-                </span> */}
                 <span
                   className="material-symbols-outlined"
                   style={{
@@ -410,7 +389,6 @@ export default function Navbar() {
                 </span>
               </button>
 
-              {/* Dropdown */}
               {showDropdown && (
                 <div
                   style={{
@@ -427,7 +405,6 @@ export default function Navbar() {
                     animation: "fadeUp .15s ease",
                   }}
                 >
-                  {/* User info */}
                   <div
                     style={{
                       padding: "0.5rem 0.75rem",
@@ -523,7 +500,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Close dropdown on outside click */}
       {showDropdown && (
         <div
           style={{ position: "fixed", inset: 0, zIndex: 199 }}

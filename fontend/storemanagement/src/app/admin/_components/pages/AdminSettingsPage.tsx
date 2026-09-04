@@ -51,10 +51,6 @@ function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) =>
   );
 }
 
-// Toggle rows below are declared with their real default `on` values here,
-// then any saved localStorage override is applied on top when the state is
-// created — keeps the defaults readable in one place while still letting a
-// saved choice win.
 const NOTIF_DEFAULTS: ToggleItem[] = [
   { label: 'New order placed',         desc: 'Alert when a new order is received',               on: true  },
   { label: 'Order status update',      desc: 'When an order status changes',                     on: true  },
@@ -92,7 +88,7 @@ function loadToggleStates(key: string, defaults: ToggleItem[]): ToggleItem[] {
         return defaults.map((d, i) => ({ ...d, on: saved[i] }));
       }
     }
-  } catch { /* ignore */ }
+  } catch {}
   return defaults;
 }
 
@@ -104,34 +100,25 @@ export default function AdminSettingsPage({ onNav }: Props) {
   const [activeSection, setActiveSection] = useState<Section>('store');
   const [toast, setToast] = useState<{ msg: string; visible: boolean; fading: boolean }>({ msg: '', visible: false, fading: false });
 
-  // Notification toggles — persisted per-browser (no per-account API exists yet)
   const [notifs, setNotifs] = useState<ToggleItem[]>(() => loadToggleStates(NOTIF_KEY, NOTIF_DEFAULTS));
 
-  // Payment method toggles — left as UI-only: these represent store-wide
-  // config (affects real checkout/POS for every user), not something safe
-  // to fake via localStorage on one browser.
   const [payMethods, setPayMethods] = useState<ToggleItem[]>([
     { label: 'Cash',          desc: 'Accept cash payments at POS',            on: true },
     { label: 'VNPay',         desc: 'Online payment gateway',                 on: true },
     { label: 'COD',           desc: 'Cash on delivery for online orders',     on: true },
   ]);
 
-  // POS toggles — persisted per-machine (a POS terminal's own hardware/behavior config)
   const [posToggles, setPosToggles] = useState<ToggleItem[]>(() => loadToggleStates(POS_TOGGLES_KEY, POS_TOGGLE_DEFAULTS));
   const [posNums, setPosNums] = useState<PosNumbers>(() => {
     try {
       const raw = localStorage.getItem(POS_NUMS_KEY);
       if (raw) return { ...POS_NUMS_DEFAULT, ...JSON.parse(raw) };
-    } catch { /* ignore */ }
+    } catch {}
     return POS_NUMS_DEFAULT;
   });
 
-  // Security toggles — persisted per-machine; "Auto logout" is actually
-  // enforced app-wide in admin/page.tsx (reads the same localStorage key),
-  // since this settings screen isn't always mounted.
   const [secToggles, setSecToggles] = useState<ToggleItem[]>(() => loadToggleStates(SEC_TOGGLES_KEY, SEC_TOGGLE_DEFAULTS));
 
-  // My Profile — wired to the same real endpoints the customer Profile page uses.
   const [apiUser, setApiUser] = useState<ApiUser | null>(null);
   const [profileForm, setProfileForm] = useState({ fullName: '', phone: '', email: '' });
   const [profileSaving, setProfileSaving] = useState(false);
@@ -151,19 +138,19 @@ export default function AdminSettingsPage({ onNav }: Props) {
   }, [user]);
 
   useEffect(() => {
-    try { localStorage.setItem(NOTIF_KEY, JSON.stringify(notifs.map((n) => n.on))); } catch { /* ignore */ }
+    try { localStorage.setItem(NOTIF_KEY, JSON.stringify(notifs.map((n) => n.on))); } catch {}
   }, [notifs]);
 
   useEffect(() => {
-    try { localStorage.setItem(POS_TOGGLES_KEY, JSON.stringify(posToggles.map((n) => n.on))); } catch { /* ignore */ }
+    try { localStorage.setItem(POS_TOGGLES_KEY, JSON.stringify(posToggles.map((n) => n.on))); } catch {}
   }, [posToggles]);
 
   useEffect(() => {
-    try { localStorage.setItem(POS_NUMS_KEY, JSON.stringify(posNums)); } catch { /* ignore */ }
+    try { localStorage.setItem(POS_NUMS_KEY, JSON.stringify(posNums)); } catch {}
   }, [posNums]);
 
   useEffect(() => {
-    try { localStorage.setItem(SEC_TOGGLES_KEY, JSON.stringify(secToggles.map((n) => n.on))); } catch { /* ignore */ }
+    try { localStorage.setItem(SEC_TOGGLES_KEY, JSON.stringify(secToggles.map((n) => n.on))); } catch {}
   }, [secToggles]);
 
   const showToast = (msg: string) => {
@@ -184,7 +171,7 @@ export default function AdminSettingsPage({ onNav }: Props) {
     try {
       await userService.updateMyInfo({
         fullName: profileForm.fullName,
-        email: profileForm.email,
+        email: profileForm.email.trim() || undefined,
         gender: apiUser.gender ?? undefined,
         address: apiUser.address ?? undefined,
       });
@@ -234,7 +221,6 @@ export default function AdminSettingsPage({ onNav }: Props) {
       <style>{pageCSS}</style>
       <div className="p-8 space-y-6">
           <div className="flex gap-5">
-            {/* Settings Nav */}
             <div className="w-56 flex-shrink-0">
               <div className="rounded-xl p-3 sticky top-24" style={{ background: '#f4fbf7', border: '1px solid #d4f0e4' }}>
                 <p className="text-on-surface-variant px-3 mb-2" style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.05em' }}>General</p>
@@ -255,10 +241,8 @@ export default function AdminSettingsPage({ onNav }: Props) {
               </div>
             </div>
 
-            {/* Content */}
             <div className="flex-1 min-w-0">
 
-              {/* Store Info */}
               {activeSection === 'store' && (
                 <>
                   <div className="section-card">
@@ -302,7 +286,6 @@ export default function AdminSettingsPage({ onNav }: Props) {
                 </>
               )}
 
-              {/* My Profile */}
               {activeSection === 'profile' && (
                 <>
                   <div className="section-card">
@@ -375,7 +358,6 @@ export default function AdminSettingsPage({ onNav }: Props) {
                 </>
               )}
 
-              {/* Notifications */}
               {activeSection === 'notifications' && (
                 <>
                   <div className="section-card">
@@ -411,7 +393,6 @@ export default function AdminSettingsPage({ onNav }: Props) {
                 </>
               )}
 
-              {/* Payment */}
               {activeSection === 'payment' && (
                 <>
                   <div className="section-card">
@@ -458,7 +439,6 @@ export default function AdminSettingsPage({ onNav }: Props) {
                 </>
               )}
 
-              {/* POS */}
               {activeSection === 'pos' && (
                 <>
                   <div className="section-card">
@@ -484,13 +464,8 @@ export default function AdminSettingsPage({ onNav }: Props) {
                         <input className="form-input" type="number" min="1" value={posNums.lowStockThreshold}
                           onChange={(e) => setPosNums((n) => ({ ...n, lowStockThreshold: Math.max(1, parseInt(e.target.value) || 1) }))} />
                       </div>
-                      <div>
-                        <label className="field-label">Default Discount (%)</label>
-                        <input className="form-input" type="number" min="0" max="100" value={posNums.defaultDiscountPct}
-                          onChange={(e) => setPosNums((n) => ({ ...n, defaultDiscountPct: Math.min(100, Math.max(0, parseInt(e.target.value) || 0)) }))} />
-                      </div>
                     </div>
-                    <p style={{ fontSize: '12px', color: '#3d4943', marginTop: 8 }}>These two apply live in the POS screen (low-stock warnings and the default discount on new carts). Printer Name / Paper Width are cosmetic only — the browser&apos;s print dialog always lets the cashier pick the real printer.</p>
+                    <p style={{ fontSize: '12px', color: '#3d4943', marginTop: 8 }}>This applies live in the POS screen (low-stock warnings). Printer Name / Paper Width are cosmetic only — the browser&apos;s print dialog always lets the cashier pick the real printer.</p>
                   </div>
                   <div className="flex justify-end gap-3">
                     <button className="cancel-btn">Cancel</button>
@@ -499,7 +474,6 @@ export default function AdminSettingsPage({ onNav }: Props) {
                 </>
               )}
 
-              {/* Security */}
               {activeSection === 'security' && (
                 <>
                   <div className="section-card">
@@ -546,7 +520,6 @@ export default function AdminSettingsPage({ onNav }: Props) {
           </div>
         </div>
 
-      {/* Toast */}
       {toast.visible && (
         <div style={{ position: 'fixed', bottom: 32, right: 32, background: '#191c1e', color: '#fff', padding: '12px 20px', borderRadius: 10, fontSize: 14, fontWeight: 500, zIndex: 999, display: 'flex', alignItems: 'center', gap: 8, opacity: toast.fading ? 0 : 1, transition: 'opacity .3s' }}>
           <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#4ade80' }}>check_circle</span>

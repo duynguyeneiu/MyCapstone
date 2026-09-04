@@ -152,7 +152,6 @@ export default function LoginPage({ onNav }: Props) {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, currentStaff]);
 
   useEffect(() => {
@@ -161,14 +160,12 @@ export default function LoginPage({ onNav }: Props) {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, adminUser, adminPass]);
 
   return (
     <div style={{ fontFamily: 'Inter,sans-serif', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px', background: '#f2f4f6' }}>
       <style>{pageCSS}</style>
 
-      {/* Screen 1: Select Staff */}
       {screen === 'select' && (
         <div style={{ width: '100%', maxWidth: '680px' }}>
           <div style={{ textAlign: 'center', marginBottom: '32px' }}>
@@ -207,7 +204,6 @@ export default function LoginPage({ onNav }: Props) {
         </div>
       )}
 
-      {/* Screen 2: PIN Entry */}
       {screen === 'pin' && (
         <div style={{ width: '100%', maxWidth: '680px' }}>
           <button className="back-btn" onClick={() => setScreen('select')}>
@@ -239,7 +235,6 @@ export default function LoginPage({ onNav }: Props) {
         </div>
       )}
 
-      {/* Screen 3: Admin Login */}
       {screen === 'admin' && (
         <div style={{ width: '100%', maxWidth: '680px' }}>
           <button className="back-btn" onClick={() => setScreen('select')}>

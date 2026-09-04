@@ -1,33 +1,20 @@
-/* Material Symbols Outlined */
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   user-select: none;
 }
 
-/* ============================================================
-   MALLORIE COSMETIC – GLOBAL CSS
-   Tổng hợp từ: style.css · profile.css · orderdetail.css · AdminStyle.css
-   + Inline dashboard CSS từ Admin/Dashboard.cshtml
-   ============================================================ */
-
-/* ============================================================
-   AQUAMARKET – CSS VARS & ANIMATIONS
-   ============================================================ */
 :root {
-  /* Primary – Forest Green (from categories.html) */
-  --teal:    #00694c;   /* primary green  */
-  --teal-lt: #e0f5ed;   /* light green container (badges, hover bg) */
-  --teal-dk: #004d38;   /* dark green (hover, text on light) */
-  --teal-xs: #f4fbf7;   /* surface / page bg */
+  --teal:    #00694c;
+  --teal-lt: #e0f5ed;
+  --teal-dk: #004d38;
+  --teal-xs: #f4fbf7;
 
-  /* Secondary – Amber (from categories.html) */
-  --amber:        #f59e0b;   /* amber primary */
-  --amber-dk:     #b47b10;   /* amber dark (text, icons) */
-  --amber-xs:     #fff3d6;   /* amber light container */
-  --amber-border: #fcd97a;   /* amber border */
+  --amber:        #f59e0b;
+  --amber-dk:     #b47b10;
+  --amber-xs:     #fff3d6;
+  --amber-border: #fcd97a;
 }
 
-/* Scoped font + input styles for AquaMarket pages */
 .aqua-page {
   font-family: 'DM Sans', sans-serif;
   min-height: 100vh;
@@ -78,7 +65,6 @@
   box-shadow: 0 2px 6px rgba(13,148,136,.4);
 }
 
-/* Animations */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(22px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -97,7 +83,6 @@
   to   { opacity: 0; transform: translateX(-50%) translateY(3rem); }
 }
 
-/* === Brand Colors (CSS variables) ========================= */
 @import 'bootstrap/dist/css/bootstrap.min.css';
 
 :root {
@@ -110,9 +95,6 @@
   --color-footer-bg: #faedef;
 }
 
-/* ============================================================
-   SPINNER
-   ============================================================ */
 #spinner {
   opacity: 0;
   visibility: hidden;
@@ -125,9 +107,6 @@
   opacity: 1;
 }
 
-/* ============================================================
-   BACK TO TOP
-   ============================================================ */
 .back-to-top {
   position: fixed;
   right: 30px;
@@ -149,9 +128,6 @@
   border-color: var(--teal-dk) !important;
 }
 
-/* ============================================================
-   BUTTON
-   ============================================================ */
 .btn {
   font-weight: 600;
   transition: .5s;
@@ -182,7 +158,6 @@
 }
 .fa-shopping-bag.text-primary { color: #fff !important; }
 
-/* === btn-primary / warning / danger overrides ============= */
 .btn.btn-primary {
   color: #fff !important;
   background-color: #deb5bb;
@@ -215,9 +190,6 @@
   color: #fff !important;
 }
 
-/* ============================================================
-   BOOTSTRAP COLOR OVERRIDES
-   ============================================================ */
 .text-primary     { color: #b46776 !important; }
 .bg-primary       { background-color: #b46776 !important; }
 .text-secondary   { color: #b46776 !important; }
@@ -231,9 +203,6 @@ a.btn-link        { color: #deb5bb !important; }
 .btn-outline-secondary { border-color: #deb5bb; }
 .btn-outline-secondary:hover { background-color: #deb5bb; }
 
-/* ============================================================
-   TOPBAR
-   ============================================================ */
 .fixed-top {
   transition: 0.5s;
   background: #fff;
@@ -260,9 +229,6 @@ a.btn-link        { color: #deb5bb !important; }
   transition: 0.5s;
 }
 
-/* ============================================================
-   NAVBAR
-   ============================================================ */
 .navbar .navbar-nav .nav-link {
   padding: 10px 15px;
   font-size: 18px;
@@ -322,9 +288,6 @@ a.btn-link        { color: #deb5bb !important; }
   border-radius: 20px;
 }
 
-/* ============================================================
-   HERO / PAGE HEADER
-   ============================================================ */
 .hero-header {
   background: linear-gradient(rgba(248, 223, 173, 0.1), rgba(248, 223, 173, 0.1)),
               url(/images/Banner/Banner.jpg) center center / cover no-repeat;
@@ -374,14 +337,10 @@ a.btn-link        { color: #deb5bb !important; }
 
 .cosmetic-banner img { max-height: 550px; object-fit: cover; }
 
-/* breadcrumb */
 .breadcrumb.justify-content-center.mb-0 { font-size: 20px; }
 .link-home { color: #ffb8c3; }
 .text-center.text-white.display-6 { font-size: 65px; }
 
-/* ============================================================
-   FEATURES SECTION
-   ============================================================ */
 .featurs .featurs-item .featurs-icon {
   position: relative;
   width: 120px;
@@ -397,9 +356,6 @@ a.btn-link        { color: #deb5bb !important; }
   transform: rotate(45deg);
 }
 
-/* ============================================================
-   PRODUCT CARDS  (fruite / vesitable)
-   ============================================================ */
 .fruite .fruite-categorie .fruite-name { line-height: 40px; }
 .fruite .fruite-categorie .fruite-name a { transition: 0.5s; }
 .fruite .fruite-categorie .fruite-name a:hover { color: #f1cdd4; }
@@ -432,7 +388,6 @@ a.btn-link        { color: #deb5bb !important; }
 .fruite .fruite-item .fruite-img img:hover { transform: scale(1.3); }
 .fruite-item .p-4.border { border: none !important; }
 
-/* product name text */
 .product-name {
   overflow: hidden;
   display: -webkit-box;
@@ -441,7 +396,6 @@ a.btn-link        { color: #deb5bb !important; }
   font-size: 0.95rem;
 }
 
-/* vesitable / best sellers */
 .vesitable .vesitable-item {
   height: 100%;
   transition: 0.5s;
@@ -478,9 +432,6 @@ a.btn-link        { color: #deb5bb !important; }
 .vesitable .owl-nav .owl-prev:hover,
 .vesitable .owl-nav .owl-next:hover { background: #f1cdd4; color: #fff; }
 
-/* ============================================================
-   PAGINATION
-   ============================================================ */
 .pagination { display: inline-block; }
 .pagination a {
   color: #2d2d2d;
@@ -504,9 +455,6 @@ a.btn-link        { color: #deb5bb !important; }
 a.rounded.active { color: #fff !important; }
 a.rounded        { color: #b46776 !important; }
 
-/* ============================================================
-   FOOTER
-   ============================================================ */
 .footer { margin-top: 100px; }
 .footer .footer-item .btn-link {
   line-height: 35px;
@@ -522,18 +470,11 @@ a.rounded        { color: #b46776 !important; }
   font-weight: bold;
 }
 
-/* ============================================================
-   PRODUCT DETAIL PAGE
-   ============================================================ */
 .books-detail { margin-top: 120px; }
 .detail-page  { margin-top: 120px; }
 
-/* ============================================================
-   PROFILE PAGE  (profile.css)
-   ============================================================ */
 .image-profile { margin-top: 150px; }
 
-/* --- Order History table inside profile --- */
 .oh-container {
   max-width: 1100px;
   margin: 24px auto;
@@ -643,9 +584,6 @@ a.rounded        { color: #b46776 !important; }
   .oh-actions { grid-template-columns: 1fr; }
 }
 
-/* ============================================================
-   ORDER DETAIL PAGE  (orderdetail.css)
-   ============================================================ */
 .od-wrap {
   --od-pink: #e9a8b5;
   --od-pink-soft: #fde8ee;
@@ -721,9 +659,6 @@ a.rounded        { color: #b46776 !important; }
   box-shadow: 0 14px 30px rgba(233,168,181,.6);
 }
 
-/* ============================================================
-   LOGIN / REGISTER PAGE
-   ============================================================ */
 header.login {
   position: fixed;
   top: 20px;
@@ -769,7 +704,6 @@ body.login {
   margin-right: 200px;
 }
 
-/* Login / Register wrapper */
 .login-page-wrapper {
   display: flex;
   justify-content: flex-end;
@@ -884,9 +818,6 @@ body.login {
 .login-register p a { color: #b46776; text-decoration: none; font-weight: 600; }
 .login-register p a:hover { text-decoration: underline; }
 
-/* ============================================================
-   ADMIN STYLES  (AdminStyle.css)
-   ============================================================ */
 .logo { width: 100px; height: 100px; }
 
 header i { padding-top: 42px; font-size: 22px; margin: 0 5px; }
@@ -895,7 +826,6 @@ header i { padding-top: 42px; font-size: 22px; margin: 0 5px; }
 
 .admin-content-wrap { margin-top: 180px; }
 
-/* Admin sidebar */
 .admin-sidebar {
   position: sticky;
   top: 190px;
@@ -913,26 +843,19 @@ header i { padding-top: 42px; font-size: 22px; margin: 0 5px; }
   color: #b46776;
 }
 
-/* Admin list / table */
 .blank { height: 20px; }
 .List table td > img { height: 50px; }
 .List table td, .List table tbody th { vertical-align: middle; }
 
-/* Create / Edit forms */
 .Create label, .EditProduct label { font-weight: bold; }
 .Create h3, .EditProduct h3 { text-align: center; }
 .EditProduct img { margin-top: 20px; max-width: 50%; height: auto; }
 
-/* brand / user images */
 img.brand-img { width: 400px; }
 img.user-img  { width: 450px; }
 
-/* EditUser */
 .EditUser h3 { margin-bottom: 24px; }
 
-/* ============================================================
-   DASHBOARD  (inline CSS từ Dashboard.cshtml)
-   ============================================================ */
 .tm-content-row { justify-content: space-between; margin-left: -20px; margin-right: -20px; }
 .tm-block-col   { margin-bottom: 30px; }
 .tm-bg-primary-dark { background-color: #fff; }
@@ -949,7 +872,6 @@ img.user-img  { width: 450px; }
 .tm-block-title { font-size: 1.1rem; font-weight: 700; color: #000; margin-bottom: 30px; }
 .tm-small { font-size: 90%; }
 
-/* KPI cards */
 .kpi-row .tm-block {
   position: relative;
   min-height: 80px;
@@ -988,7 +910,6 @@ img.user-img  { width: 450px; }
 .kpi-row .col-lg-3:nth-child(3) i { color: #9D66CC; background: rgba(157,102,204,.16); }
 .kpi-row .col-lg-3:nth-child(4) i { color: #DB9C3F; background: rgba(219,156,63,.18); }
 
-/* Notification list */
 .tm-notification-items { overflow-y: scroll; height: 90%; }
 .tm-notification-item {
   padding: 15px;
@@ -1015,14 +936,12 @@ img.user-img  { width: 450px; }
 .tm-gray-circle { width: 80px; height: 80px; background-color: #aaa; border-radius: 50%; flex-shrink: 0; overflow: hidden; }
 .media-body { flex: 1; }
 
-/* Orders table in dashboard */
 .tm-orders-scroll { height: 90%; overflow-y: auto; overflow-x: auto; }
 .tm-status-circle { display: inline-block; margin-right: 5px; vertical-align: middle; width: 5px; height: 5px; border-radius: 50%; margin-top: -3px; }
 .moving    { background-color: #9be64d; box-shadow: 0 0 8px #9be64d, inset 0 0 8px #9be64d; }
 .pending   { background-color: #efc54b; box-shadow: 0 0 8px #efc54b, inset 0 0 8px #efc54b; }
 .cancelled { background-color: #da534f; box-shadow: 0 0 8px #da534f, inset 0 0 8px #da534f; }
 
-/* Status action buttons */
 .tm-status-cell { min-width: 240px; }
 .tm-status-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 .tm-status-btn {

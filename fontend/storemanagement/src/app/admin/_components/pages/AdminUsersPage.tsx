@@ -58,8 +58,6 @@ export default function AdminUsersPage({ search }: Props) {
   const customers = useMemo(() => users.filter((u) => !isStaffRole(u)), [users]);
   const staff = useMemo(() => users.filter(isStaffRole), [users]);
 
-  // Status values are derived from real data rather than assumed, since the
-  // backend doesn't document a fixed enum for User.status.
   const statusOptions = useMemo(
     () => [...new Set(users.map((u) => u.status).filter(Boolean))],
     [users]
@@ -150,7 +148,6 @@ export default function AdminUsersPage({ search }: Props) {
           <div className="text-center py-20" style={{ color: '#94a3b8' }}>Loading users…</div>
         ) : (
           <>
-            {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
               <div className="rounded-xl p-6 bg-white border" style={{ borderColor: '#b8e0cc', boxShadow: '0 4px 20px #00694c14' }}>
                 <div className="flex justify-between items-start">
@@ -178,7 +175,6 @@ export default function AdminUsersPage({ search }: Props) {
               </div>
             </div>
 
-            {/* Tabs + table */}
             <div className="rounded-xl bg-white border overflow-hidden" style={{ borderColor: '#c8e4d8' }}>
               <div className="flex gap-2 px-6 py-3 border-b" style={{ borderColor: '#c8e4d8' }}>
                 <button className={`usr-tab${tab === 'customers' ? ' tab-active' : ''}`} onClick={() => switchTab('customers')}>Customers</button>
@@ -297,7 +293,6 @@ export default function AdminUsersPage({ search }: Props) {
         )}
       </div>
 
-      {/* Lock/unlock confirm modal */}
       {lockTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.55)' }}
           onClick={(e) => { if (e.target === e.currentTarget && !lockBusy) setLockTarget(null); }}>

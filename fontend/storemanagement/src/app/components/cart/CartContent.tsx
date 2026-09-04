@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { fmt } from '@/src/lib/utils';
+import { fmt, SHIPPING_FEE } from '@/src/lib/utils';
 import { useCart } from '../../context/CartContext';
 import BtnTeal from '../ui/BtnTeal';
 import BtnOutline from '../ui/BtnOutline';
@@ -12,8 +12,7 @@ export default function CartContent() {
   const { cart, totalAmount, updateQty, removeItem } = useCart();
 
   const sub = totalAmount;
-  const tax = sub * 0.1;
-  const total = sub + tax;
+  const total = sub + SHIPPING_FEE;
 
   if (cart.length === 0) {
     return (
@@ -62,10 +61,10 @@ export default function CartContent() {
         <div style={{ width: 280, flexShrink: 0 }}>
           <div style={{ background: '#fff', borderRadius: '1.25rem', padding: '1.5rem', boxShadow: '0 2px 12px rgba(0,0,0,.06)', position: 'sticky', top: 76 }}>
             <h3 className="serif" style={{ fontWeight: 700, fontSize: '1.1rem', marginBottom: '1.25rem' }}>Order Summary</h3>
-            {[['Subtotal', fmt(sub)], ['Shipping', 'FREE'], ['Tax (10%)', fmt(tax)]].map(([l, v]) => (
+            {[['Subtotal', fmt(sub)], ['Shipping', fmt(SHIPPING_FEE)]].map(([l, v]) => (
               <div key={l} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.875rem', marginBottom: '0.5rem' }}>
                 <span style={{ color: '#64748b' }}>{l}</span>
-                <span style={{ fontWeight: 500, color: l === 'Shipping' ? '#16a34a' : undefined }}>{v}</span>
+                <span style={{ fontWeight: 500 }}>{v}</span>
               </div>
             ))}
             <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '1rem', marginTop: '0.5rem', display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: '1.1rem' }}>

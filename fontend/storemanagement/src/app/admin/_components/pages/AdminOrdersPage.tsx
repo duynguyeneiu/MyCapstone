@@ -10,6 +10,7 @@ const fmt = (n: number) => new Intl.NumberFormat("vi-VN").format(n) + " VND";
 
 const statusConfig: Record<string, { bg: string; color: string }> = {
   Pending: { bg: "#fff3d6", color: "#7a5c00" },
+  Confirmed: { bg: "#dbeafe", color: "#1e40af" },
   Processing: { bg: "#fff3d6", color: "#b47b10" },
   Shipped: { bg: "#e0f5ed", color: "#004d38" },
   Delivered: { bg: "#e0f5ed", color: "#004d38" },
@@ -41,6 +42,8 @@ interface Order {
   channel: string;
   payment: string;
   amount: number;
+  subtotal: number;
+  shippingFee: number;
   discount: number;
   status: string;
   items: OrderItem[];
@@ -57,7 +60,9 @@ function mapApiOrder(o: ApiOrder): Order {
     rawDate: o.orderDate,
     channel: o.orderType === "ONLINE" ? "Online" : "POS",
     payment: o.paymentMethod,
-    amount: o.totalAmount,
+    amount: o.finalAmount,
+    subtotal: o.totalAmount,
+    shippingFee: o.shippingFee,
     discount: 0,
     status: o.orderStatus,
     items: o.items.map((i) => ({ name: i.productName, qty: i.quantity, price: i.unitPrice })),
@@ -138,13 +143,9 @@ export default function AdminOrdersPage({ search }: Props) {
   for (let i = lo; i <= hi; i++) pageNums.push(i);
 
   const currentOrder = orders.find((o) => o.id === currentOrderId);
-  const subtotal = currentOrder
-    ? currentOrder.items.reduce((s, i) => s + i.qty * i.price, 0)
-    : 0;
-  const vat = currentOrder
-    ? Math.round((subtotal - currentOrder.discount) * 0.1)
-    : 0;
-  const total = subtotal - (currentOrder?.discount || 0) + vat;
+  const subtotal = currentOrder?.subtotal ?? 0;
+  const shippingFee = currentOrder?.shippingFee ?? 0;
+  const total = currentOrder?.amount ?? 0;
 
   const today = new Date().toDateString();
   const ordersToday = orders.filter((o) => new Date(o.rawDate).toDateString() === today).length;
@@ -155,7 +156,6 @@ export default function AdminOrdersPage({ search }: Props) {
   return (
     <>
       <div className="p-8 space-y-6">
-          {/* Stats */}
           <div className="grid grid-cols-4 gap-5">
             <div
               className="stat-card bg-surface-container-lowest border rounded-xl p-6 flex flex-col justify-between"
@@ -290,7 +290,6 @@ export default function AdminOrdersPage({ search }: Props) {
             </div>
           </div>
 
-          {/* Table */}
           <div
             className="bg-surface-container-lowest border rounded-xl overflow-hidden"
             style={{ borderColor: "#c8e4d8" }}
@@ -308,6 +307,7 @@ export default function AdminOrdersPage({ search }: Props) {
                   <option value="">All Status</option>
                   <optgroup label="── Online ──">
                     <option>Pending</option>
+                    <option>Confirmed</option>
                     <option>Processing</option>
                     <option>Shipped</option>
                     <option>Delivered</option>
@@ -549,7 +549,6 @@ export default function AdminOrdersPage({ search }: Props) {
             >
               {totalPages > 1 && (
                 <div className="flex items-center gap-1">
-                  {/* Prev */}
                   <button
                     onClick={() => goTo(safePage - 1)}
                     disabled={safePage === 1}
@@ -588,7 +587,6 @@ export default function AdminOrdersPage({ search }: Props) {
                     </>
                   )}
 
-                  {/* Next */}
                   <button
                     onClick={() => goTo(safePage + 1)}
                     disabled={safePage === totalPages}
@@ -605,7 +603,6 @@ export default function AdminOrdersPage({ search }: Props) {
           </div>
         </div>
 
-      {/* Detail Modal */}
       {detailOpen && currentOrder && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center"
@@ -644,7 +641,6 @@ export default function AdminOrdersPage({ search }: Props) {
               </button>
             </div>
             <div className="p-6 space-y-4">
-              {/* Customer info */}
               <div
                 className="rounded-xl p-4"
                 style={{ background: "#f4fbf7", border: "1px solid #c8e4d8" }}
@@ -700,7 +696,6 @@ export default function AdminOrdersPage({ search }: Props) {
                   </div>
                 </div>
               </div>
-              {/* Order items */}
               <div>
                 <p
                   className="font-bold text-on-surface mb-2"
@@ -746,7 +741,6 @@ export default function AdminOrdersPage({ search }: Props) {
                   </tbody>
                 </table>
               </div>
-              {/* Totals */}
               <div
                 className="rounded-xl p-4 space-y-2"
                 style={{ background: "#f4fbf7", border: "1px solid #c8e4d8" }}
@@ -773,8 +767,8 @@ export default function AdminOrdersPage({ search }: Props) {
                   className="flex justify-between"
                   style={{ fontSize: "13px" }}
                 >
-                  <span className="text-on-surface-variant">VAT (10%)</span>
-                  <span className="text-on-surface">{fmt(vat)}</span>
+                  <span className="text-on-surface-variant">Shipping</span>
+                  <span className="text-on-surface">{fmt(shippingFee)}</span>
                 </div>
                 <div
                   className="flex justify-between border-t pt-2"
@@ -794,7 +788,6 @@ export default function AdminOrdersPage({ search }: Props) {
                   </span>
                 </div>
               </div>
-              {/* Payment & Channel */}
               <div className="grid grid-cols-2 gap-3">
                 <div
                   className="rounded-xl p-4"
@@ -831,7 +824,6 @@ export default function AdminOrdersPage({ search }: Props) {
                   </p>
                 </div>
               </div>
-              {/* Update Status */}
               <div>
                 <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
                   Update Order Status
@@ -848,6 +840,7 @@ export default function AdminOrdersPage({ search }: Props) {
                 >
                   <optgroup label="── Online ──">
                     <option>Pending</option>
+                    <option>Confirmed</option>
                     <option>Processing</option>
                     <option>Shipped</option>
                     <option>Delivered</option>

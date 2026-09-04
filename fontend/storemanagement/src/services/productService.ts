@@ -41,10 +41,6 @@ export interface ApiProductRaw {
   updatedAt?: string | null;
 }
 
-// ======================================================
-// MAP PRODUCT
-// ======================================================
-
 const mapProduct = (
   p: ApiProduct,
 ): Product => ({
@@ -53,8 +49,6 @@ const mapProduct = (
   description: p.description ?? "",
   price: p.salePrice,
   quantity: p.quantityInStock,
-
-  // URL ảnh backend
   image: getImageUrl(p.image),
 
   categoryId: p.categoryId,
@@ -64,10 +58,6 @@ const mapProduct = (
   status: p.status,
 });
 
-// ======================================================
-// PAGED PRODUCTS
-// ======================================================
-
 export interface PagedProducts {
   items: Product[];
   totalItems: number;
@@ -75,10 +65,6 @@ export interface PagedProducts {
   pageSize: number;
   totalPages: number;
 }
-
-// ======================================================
-// PRODUCT SERVICE
-// ======================================================
 
 export const productService = {
   async getAll(): Promise<Product[]> {

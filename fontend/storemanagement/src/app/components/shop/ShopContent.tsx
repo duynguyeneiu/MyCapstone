@@ -6,6 +6,7 @@ import { getPageNums } from "@/src/lib/utils";
 import ProductCard from "../ui/ProductCard";
 import { productService } from "@/src/services/productService";
 import { categoryService } from "@/src/services/categoryService";
+import { reviewService, applyRatings } from "@/src/services/reviewService";
 import { Product, Category } from "@/src/lib/data";
 
 interface ShopContentProps {
@@ -29,7 +30,6 @@ function sortProducts(items: Product[], sortBy: SortOption): Product[] {
   const sorted = [...items];
   switch (sortBy) {
     case "default":
-      // Keep the order returned by the backend — no client-side sorting.
       break;
     case "name-asc":
       sorted.sort((a, b) => a.name.localeCompare(b.name));
@@ -61,7 +61,6 @@ export default function ShopContent({
   const [categoriesLoaded, setCategoriesLoaded] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>("default");
 
-  // category and subcategory are URL-driven — read directly from props
   const category = initCategory;
   const subcategory = initSubcategory;
 
@@ -73,9 +72,6 @@ export default function ShopContent({
       .finally(() => setCategoriesLoaded(true));
   }, []);
 
-  // Reset to page 1 whenever the URL-driven category/subcategory changes.
-  // Adjusting state during render (rather than in an effect) avoids an
-  // extra cascading render — see https://react.dev/learn/you-might-not-need-an-effect
   const [prevFilters, setPrevFilters] = useState({ category, subcategory, sortBy });
   if (
     prevFilters.category !== category ||
@@ -93,9 +89,6 @@ export default function ShopContent({
     async function loadProducts() {
       setLoading(true);
       try {
-        // Sorting must hold across the whole filtered catalog (not just the
-        // current page), so fetch every matching item up front and paginate
-        // client-side after sorting.
         let allItems: Product[];
 
         if (subcategory !== "all") {
@@ -105,9 +98,6 @@ export default function ShopContent({
           });
           allItems = result.items;
         } else if (category !== "all") {
-          // Backend only scopes by a single category id — a top-level category
-          // groups several leaf categories that products are actually assigned
-          // to, so roll the parent + its children up client-side.
           const childIds = categories
             .filter((c) => c.parentCategoryId === Number(category))
             .map((c) => c.id);
@@ -121,8 +111,10 @@ export default function ShopContent({
           allItems = result.items;
         }
 
+        const reviews = await reviewService.getAll().catch(() => []);
         if (cancelled) return;
-        const sorted = sortProducts(allItems, sortBy);
+        const rated = applyRatings(allItems, reviews);
+        const sorted = sortProducts(rated, sortBy);
         const start = (page - 1) * ITEMS_PER_PAGE;
         setProducts(sorted.slice(start, start + ITEMS_PER_PAGE));
         setTotalItems(sorted.length);
@@ -156,7 +148,6 @@ export default function ShopContent({
   return (
     <div style={{ maxWidth: 1280, margin: "0 auto", padding: "2rem 1.5rem" }}>
       <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
-        {/* ── Sidebar ── */}
         <aside style={{ width: 240, flexShrink: 0 }}>
           <div
             style={{
@@ -179,7 +170,6 @@ export default function ShopContent({
               Filters
             </h3>
 
-            {/* Category + Subcategory — hierarchical */}
             <div>
               <p
                 style={{
@@ -192,7 +182,6 @@ export default function ShopContent({
                 Category
               </p>
 
-              {/* All Products */}
               <label
                 style={{
                   display: "flex",
@@ -221,7 +210,6 @@ export default function ShopContent({
                   );
                   return (
                     <div key={c.id}>
-                      {/* Category row */}
                       <label
                         style={{
                           display: "flex",
@@ -252,7 +240,6 @@ export default function ShopContent({
                           {c.name}
                         </span>
                       </label>
-                      {/* Subcategory rows — always visible, indented */}
                       {childCategories.map((s) => (
                         <label
                           key={s.id}
@@ -300,7 +287,6 @@ export default function ShopContent({
           </div>
         </aside>
 
-        {/* ── Product Grid ── */}
         <main style={{ flex: 1, minWidth: 0 }}>
           <div
             style={{
@@ -330,7 +316,6 @@ export default function ShopContent({
                 {totalItems} product{totalItems !== 1 ? "s" : ""}
               </span>
 
-              {/* Sort box */}
               <div
                 style={{
                   display: "flex",
@@ -394,7 +379,6 @@ export default function ShopContent({
                 ))}
               </div>
 
-              {/* Pagination */}
               {totalPages > 1 && (
                 <div
                   style={{
@@ -411,7 +395,6 @@ export default function ShopContent({
                       gap: "0.375rem",
                     }}
                   >
-                    {/* Prev */}
                     <button
                       onClick={() => setPage((p) => Math.max(1, p - 1))}
                       disabled={page === 1}
@@ -439,7 +422,6 @@ export default function ShopContent({
                       </span>
                     </button>
 
-                    {/* Page numbers */}
                     {getPageNums(page, totalPages).map((n, i) =>
                       n === "…" ? (
                         <span
@@ -481,7 +463,6 @@ export default function ShopContent({
                       ),
                     )}
 
-                    {/* Next */}
                     <button
                       onClick={() =>
                         setPage((p) => Math.min(totalPages, p + 1))

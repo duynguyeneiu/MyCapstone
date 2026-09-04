@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { PaymentMethod } from "@/src/lib/data";
-import { fmt } from "@/src/lib/utils";
+import { fmt, SHIPPING_FEE } from "@/src/lib/utils";
 import { useCart } from "../../context/CartContext";
 import { useOrders } from "../../context/OrderContext";
 import { useAuth } from "../../context/AuthContext";
@@ -14,8 +14,7 @@ import Badge from "../ui/Badge";
 import QRModal from "../ui/QRModal";
 
 interface ShipForm {
-  firstName: string;
-  lastName: string;
+  fullName: string;
   email: string;
   phone: string;
   address: string;
@@ -34,7 +33,6 @@ export default function CheckoutContent() {
   const [placeError, setPlaceError] = useState<string | null>(null);
 
   const [ship, setShip] = useState<ShipForm>(() => {
-    /* Try to read default saved address from profile */
     let savedAddr = { address: '', city: '' };
     try {
       const raw = localStorage.getItem('hm-addresses');
@@ -43,13 +41,11 @@ export default function CheckoutContent() {
         const def = list.find(a => a.def) ?? list[0];
         if (def) savedAddr = { address: def.addr, city: def.city };
       }
-    } catch { /* ignore */ }
+    } catch {}
 
-    if (!user) return { firstName: '', lastName: '', email: '', phone: '', note: '', ...savedAddr };
-    const parts = user.name.trim().split(/\s+/);
+    if (!user) return { fullName: '', email: '', phone: '', note: '', ...savedAddr };
     return {
-      firstName: parts[0] || '',
-      lastName:  parts.slice(1).join(' ') || '',
+      fullName:  user.name || '',
       email:     user.email || '',
       phone:     user.phone || '',
       note:      '',
@@ -60,10 +56,6 @@ export default function CheckoutContent() {
     Partial<Record<keyof ShipForm, string>>
   >({});
 
-  // AuthContext's `user` is a lightweight object (login() never captures
-  // email) — backfill from the full profile so Shipping Information starts
-  // with everything already on file, same source ProfileContent uses.
-  // Only fills fields still blank, so it never clobbers what the user typed.
   useEffect(() => {
     if (!user) return;
     userService
@@ -71,11 +63,7 @@ export default function CheckoutContent() {
       .then((u) => {
         setShip((s) => ({
           ...s,
-          firstName: s.firstName || u.fullName?.trim().split(/\s+/)[0] || "",
-          lastName:
-            s.lastName ||
-            u.fullName?.trim().split(/\s+/).slice(1).join(" ") ||
-            "",
+          fullName: s.fullName || u.fullName || "",
           email: s.email || u.email || "",
           phone: s.phone || u.phone || "",
           address: s.address || u.address || "",
@@ -85,8 +73,7 @@ export default function CheckoutContent() {
   }, [user]);
 
   const sub = totalAmount;
-  const tax = sub * 0.1;
-  const total = sub + tax;
+  const total = sub + SHIPPING_FEE;
 
   const payOpts: {
     id: PaymentMethod;
@@ -124,17 +111,11 @@ export default function CheckoutContent() {
   };
   const shipFields: FieldDef[] = [
     {
-      label: "First Name",
-      key: "firstName",
+      label: "Full Name",
+      key: "fullName",
       type: "text",
-      ph: "John",
-      required: true,
-    },
-    {
-      label: "Last Name",
-      key: "lastName",
-      type: "text",
-      ph: "Doe",
+      ph: "John Doe",
+      span: 2,
       required: true,
     },
     {
@@ -143,7 +124,6 @@ export default function CheckoutContent() {
       type: "email",
       ph: "john@example.com",
       span: 2,
-      required: true,
     },
     {
       label: "Phone",
@@ -161,18 +141,14 @@ export default function CheckoutContent() {
       span: 2,
       required: true,
     },
-    { label: "City / Province", key: "city", type: "text", ph: "Ho Chi Minh City",                       span: 2, required: true },
     { label: "Delivery Note",   key: "note", type: "text", ph: "e.g. Leave at door, ring bell twice…",  span: 2 },
   ];
 
   const validateShipping = (): boolean => {
     const errs: Partial<Record<keyof ShipForm, string>> = {};
-    if (!ship.firstName.trim()) errs.firstName = "First name is required";
-    if (!ship.lastName.trim())  errs.lastName  = "Last name is required";
-    if (!ship.email.trim())     errs.email     = "Email is required";
+    if (!ship.fullName.trim())  errs.fullName  = "Full name is required";
     if (!ship.phone.trim())     errs.phone     = "Phone number is required";
     if (!ship.address.trim())   errs.address   = "Address is required";
-    if (!ship.city.trim())      errs.city      = "City / Province is required";
     setShipErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -182,9 +158,9 @@ export default function CheckoutContent() {
     setPlacing(true);
     try {
       const order = await placeOrder({
-        receiverName: `${ship.firstName} ${ship.lastName}`.trim(),
+        receiverName: ship.fullName.trim(),
         receiverPhone: ship.phone,
-        shippingAddress: `${ship.address}, ${ship.city}`,
+        shippingAddress: ship.address,
         paymentMethod: payment === "vnpay" ? "VNPay" : "COD",
       });
 
@@ -195,12 +171,10 @@ export default function CheckoutContent() {
         });
         if (payment === "vnpay") {
           await paymentService.updateStatus(paymentRecord.paymentId, {
-            status: "Paid",
+            status: "Completed",
           });
         }
       } catch (payErr) {
-        // Order already placed successfully — don't block the user on a
-        // payment-record failure, just log it for later investigation.
         console.error(payErr);
       }
 
@@ -246,7 +220,6 @@ export default function CheckoutContent() {
         Complete your order details below
       </p>
 
-      {/* Steps */}
       <div
         style={{
           display: "flex",
@@ -309,7 +282,6 @@ export default function CheckoutContent() {
             gap: "1.25rem",
           }}
         >
-          {/* Shipping */}
           <div
             style={{
               background: "#fff",
@@ -392,7 +364,6 @@ export default function CheckoutContent() {
             </div>
           </div>
 
-          {/* Payment */}
           <div
             style={{
               background: "#fff",
@@ -505,7 +476,6 @@ export default function CheckoutContent() {
           </div>
         </div>
 
-        {/* Summary sidebar */}
         <div style={{ width: 280, flexShrink: 0 }}>
           <div
             style={{
@@ -588,8 +558,7 @@ export default function CheckoutContent() {
             </div>
             {[
               ["Subtotal", fmt(sub)],
-              ["Shipping", "FREE"],
-              ["Tax", fmt(tax)],
+              ["Shipping", fmt(SHIPPING_FEE)],
             ].map(([l, v]) => (
               <div
                 key={l}
@@ -601,14 +570,7 @@ export default function CheckoutContent() {
                 }}
               >
                 <span style={{ color: "#64748b" }}>{l}</span>
-                <span
-                  style={{
-                    color: l === "Shipping" ? "#16a34a" : undefined,
-                    fontWeight: 500,
-                  }}
-                >
-                  {v}
-                </span>
+                <span style={{ fontWeight: 500 }}>{v}</span>
               </div>
             ))}
             <div

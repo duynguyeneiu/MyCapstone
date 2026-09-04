@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ProfileTab } from "@/src/lib/data";
+import { initials } from "@/src/lib/utils";
 import Badge from "../ui/Badge";
 import BtnTeal from "../ui/BtnTeal";
 import BtnOutline from "../ui/BtnOutline";
@@ -12,7 +13,6 @@ import { userService, ApiUser } from "@/src/services/userService";
 
 const navItems: { id: ProfileTab; icon: string; label: string }[] = [
   { id: "info", icon: "person", label: "Personal Info" },
-  // { id: "address", icon: "location_on", label: "Addresses" },
   { id: "security", icon: "lock", label: "Security" },
   { id: "notif", icon: "notifications", label: "Notifications" },
 ];
@@ -27,7 +27,6 @@ const notifOpts: [string, string, boolean][] = [
 
 const NOTIF_STORAGE_KEY = "hm-notif-prefs";
 
-/* ── Delete confirmation + success notification ── */
 interface DeleteState {
   label: string;
   onConfirm: () => void;
@@ -223,7 +222,7 @@ export default function ProfileContent() {
         const saved: boolean[] = JSON.parse(raw);
         if (Array.isArray(saved) && saved.length === notifOpts.length) return saved;
       }
-    } catch { /* ignore */ }
+    } catch {}
     return notifOpts.map((o) => o[2]);
   });
 
@@ -232,37 +231,25 @@ export default function ProfileContent() {
       const next = prev.map((v, i) => (i === index ? on : v));
       try {
         localStorage.setItem(NOTIF_STORAGE_KEY, JSON.stringify(next));
-      } catch { /* ignore */ }
+      } catch {}
       return next;
     });
   };
 
-  const DEFAULT_ADDRESSES = [
-    {
-      id: 1,
-      type: "Home",
-      name: "John Doe",
-      addr: "123 Nguyen Hue Street, District 1",
-      city: "Ho Chi Minh City, 70000",
-      def: true,
-    },
-    {
-      id: 2,
-      type: "Office",
-      name: "John Doe",
-      addr: "456 Le Loi Blvd, Floor 12",
-      city: "District 3, Ho Chi Minh City, 70000",
-      def: false,
-    },
-  ];
-  const [addresses, setAddresses] = useState(() => {
+  interface SavedAddress {
+    id: number;
+    type: string;
+    name: string;
+    addr: string;
+    city: string;
+    def: boolean;
+  }
+  const [addresses, setAddresses] = useState<SavedAddress[]>(() => {
     try {
       const stored = localStorage.getItem("hm-addresses");
-      if (stored) return JSON.parse(stored) as typeof DEFAULT_ADDRESSES;
-    } catch {
-      /* ignore */
-    }
-    return DEFAULT_ADDRESSES;
+      if (stored) return JSON.parse(stored) as SavedAddress[];
+    } catch {}
+    return [];
   });
   const [showAddAddr, setShowAddAddr] = useState(false);
   const [addrForm, setAddrForm] = useState({
@@ -322,7 +309,6 @@ export default function ProfileContent() {
   const [pwForm, setPwForm] = useState({ current: "", next: "", confirm: "" });
   const [pwError, setPwError] = useState("");
 
-  /* Load the real logged-in user's profile */
   useEffect(() => {
     if (!user) return;
     userService
@@ -345,7 +331,7 @@ export default function ProfileContent() {
     try {
       await userService.updateMyInfo({
         fullName: form.fullName,
-        email: form.email,
+        email: form.email.trim() || undefined,
         gender: form.gender,
         address: form.address,
       });
@@ -381,16 +367,12 @@ export default function ProfileContent() {
     }
   };
 
-  /* Persist addresses to localStorage so checkout can pre-fill */
   useEffect(() => {
     try {
       localStorage.setItem("hm-addresses", JSON.stringify(addresses));
-    } catch {
-      /* ignore */
-    }
+    } catch {}
   }, [addresses]);
 
-  /* Auto-dismiss success toast after 5 s */
   useEffect(() => {
     if (!successMsg) return;
     const t = setTimeout(() => setSuccessMsg(null), 5000);
@@ -399,10 +381,6 @@ export default function ProfileContent() {
 
   const showSuccess = (msg: string) => setSuccessMsg(msg);
 
-  const confirmDelete = (label: string, onConfirm: () => void) =>
-    setDeleteState({ label, onConfirm });
-
-  /* Avatar upload */
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) setAvatarUrl(URL.createObjectURL(file));
@@ -410,7 +388,6 @@ export default function ProfileContent() {
 
   return (
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: "2rem 1.5rem" }}>
-      {/* Modals */}
       {deleteState && (
         <DeleteModal state={deleteState} onClose={() => setDeleteState(null)} />
       )}
@@ -421,7 +398,6 @@ export default function ProfileContent() {
         />
       )}
 
-      {/* Add Address Modal */}
       {showAddAddr && (
         <div
           style={{
@@ -450,7 +426,6 @@ export default function ProfileContent() {
               overflow: "hidden",
             }}
           >
-            {/* Header */}
             <div
               style={{
                 display: "flex",
@@ -512,7 +487,6 @@ export default function ProfileContent() {
               </button>
             </div>
 
-            {/* Body */}
             <div
               style={{
                 padding: "1.5rem",
@@ -521,7 +495,6 @@ export default function ProfileContent() {
                 gap: "1rem",
               }}
             >
-              {/* Address type */}
               <div>
                 <label
                   style={{
@@ -576,7 +549,6 @@ export default function ProfileContent() {
                 </div>
               </div>
 
-              {/* Full name */}
               <div>
                 <label
                   style={{
@@ -613,7 +585,6 @@ export default function ProfileContent() {
                 )}
               </div>
 
-              {/* Street */}
               <div>
                 <label
                   style={{
@@ -650,7 +621,6 @@ export default function ProfileContent() {
                 )}
               </div>
 
-              {/* City */}
               <div>
                 <label
                   style={{
@@ -687,7 +657,6 @@ export default function ProfileContent() {
                 )}
               </div>
 
-              {/* Set as default */}
               <label
                 style={{
                   display: "flex",
@@ -736,7 +705,6 @@ export default function ProfileContent() {
               </label>
             </div>
 
-            {/* Footer */}
             <div
               style={{
                 display: "flex",
@@ -779,7 +747,6 @@ export default function ProfileContent() {
       )}
 
       <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
-        {/* ── Sidebar ── */}
         <aside style={{ width: 232, flexShrink: 0 }}>
           <div
             style={{
@@ -789,7 +756,6 @@ export default function ProfileContent() {
               boxShadow: "0 2px 12px rgba(0,0,0,.05)",
             }}
           >
-            {/* Avatar with edit on hover */}
             <div
               style={{
                 textAlign: "center",
@@ -811,7 +777,6 @@ export default function ProfileContent() {
                 onClick={() => fileRef.current?.click()}
                 title="Change profile photo"
               >
-                {/* Circle */}
                 <div
                   style={{
                     width: 88,
@@ -846,12 +811,11 @@ export default function ProfileContent() {
                         fontSize: "1.6rem",
                       }}
                     >
-                      JD
+                      {initials(form.fullName) || "?"}
                     </div>
                   )}
                 </div>
 
-                {/* Hover overlay */}
                 {hoverAvatar && (
                   <div
                     style={{
@@ -873,7 +837,6 @@ export default function ProfileContent() {
                   </div>
                 )}
 
-                {/* Edit badge (bottom-right) */}
                 <div
                   style={{
                     position: "absolute",
@@ -917,22 +880,6 @@ export default function ProfileContent() {
               <p style={{ color: "#64748b", fontSize: ".8rem" }}>
                 {form.email || apiUser?.username || ""}
               </p>
-              <Badge
-                style={{
-                  marginTop: "0.5rem",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 4,
-                }}
-              >
-                <span
-                  className="material-symbols-outlined"
-                  style={{ fontSize: "14px", color: "inherit" }}
-                >
-                  star
-                </span>
-                Gold Member
-              </Badge>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -1063,68 +1010,9 @@ export default function ProfileContent() {
               </button>
             </div>
           </div>
-
-          {/* Stats */}
-          {/* <div
-            style={{
-              background: "#fff",
-              borderRadius: "1.25rem",
-              padding: "1rem",
-              boxShadow: "0 2px 12px rgba(0,0,0,.05)",
-              marginTop: "1rem",
-            }}
-          >
-            <p
-              style={{
-                fontWeight: 600,
-                fontSize: ".875rem",
-                marginBottom: "0.75rem",
-              }}
-            >
-              Account Stats
-            </p>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "0.75rem",
-              }}
-            >
-              {[
-                ["12", "Orders"],
-                ["8", "Reviews"],
-                ["3", "Wishlist"],
-                ["842.000₫", "Spent"],
-              ].map(([v, l]) => (
-                <div
-                  key={l}
-                  style={{
-                    background: "var(--teal-xs)",
-                    borderRadius: "0.75rem",
-                    padding: "0.75rem",
-                    textAlign: "center",
-                  }}
-                >
-                  <p
-                    className="serif"
-                    style={{
-                      fontSize: "1.25rem",
-                      fontWeight: 700,
-                      color: "var(--teal)",
-                    }}
-                  >
-                    {v}
-                  </p>
-                  <p style={{ fontSize: ".75rem", color: "#64748b" }}>{l}</p>
-                </div>
-              ))}
-            </div>
-          </div> */}
         </aside>
 
-        {/* ── Main content ── */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          {/* PERSONAL INFO */}
           {tab === "info" && (
             <div
               style={{
@@ -1355,134 +1243,6 @@ export default function ProfileContent() {
             </div>
           )}
 
-          {/* ADDRESSES */}
-          {/* {tab === "address" && (
-            <div>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: "1rem",
-                }}
-              >
-                <h2
-                  className="serif"
-                  style={{ fontSize: "1.35rem", fontWeight: 700 }}
-                >
-                  Saved Addresses
-                </h2>
-                <BtnTeal
-                  onClick={() => setShowAddAddr(true)}
-                  style={{ fontSize: ".875rem", padding: "0.5rem 1.2rem" }}
-                >
-                  + Add Address
-                </BtnTeal>
-              </div>
-              {addresses.map((a) => (
-                <div
-                  key={a.id}
-                  style={{
-                    background: "#fff",
-                    borderRadius: "1.25rem",
-                    padding: "1.25rem",
-                    boxShadow: "0 2px 10px rgba(0,0,0,.05)",
-                    border: `2px solid ${a.def ? "var(--teal)" : "#e2e8f0"}`,
-                    marginBottom: "0.75rem",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                    }}
-                  >
-                    <div>
-                      <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-                        <Badge>{a.type}</Badge>
-                        {a.def && (
-                          <Badge
-                            style={{ background: "#dcfce7", color: "#166534" }}
-                          >
-                            Default
-                          </Badge>
-                        )}
-                      </div>
-                      <p style={{ fontWeight: 600, fontSize: ".9rem" }}>
-                        {a.name}
-                      </p>
-                      <p style={{ color: "#64748b", fontSize: ".875rem" }}>
-                        {a.addr}
-                      </p>
-                      <p style={{ color: "#64748b", fontSize: ".875rem" }}>
-                        {a.city}
-                      </p>
-                    </div>
-                    <div
-                      style={{ display: "flex", gap: 8, alignItems: "center" }}
-                    >
-                      {!a.def && (
-                        <span
-                          style={{
-                            fontSize: ".8rem",
-                            color: "var(--teal)",
-                            cursor: "pointer",
-                          }}
-                        >
-                          Set Default
-                        </span>
-                      )}
-                      <span
-                        style={{
-                          fontSize: ".8rem",
-                          color: "var(--teal)",
-                          cursor: "pointer",
-                        }}
-                      >
-                        Edit
-                      </span>
-                      <button
-                        onClick={() =>
-                          confirmDelete(a.type, () => {
-                            setAddresses((prev) =>
-                              prev.filter((x) => x.id !== a.id),
-                            );
-                            showSuccess("Address deleted successfully");
-                          })
-                        }
-                        style={{
-                          fontSize: ".8rem",
-                          color: "#ef4444",
-                          cursor: "pointer",
-                          background: "none",
-                          border: "none",
-                          padding: 0,
-                        }}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              {addresses.length === 0 && (
-                <div
-                  style={{
-                    textAlign: "center",
-                    padding: "3rem",
-                    background: "#fff",
-                    borderRadius: "1.25rem",
-                    boxShadow: "0 2px 10px rgba(0,0,0,.05)",
-                  }}
-                >
-                  <p style={{ color: "#94a3b8" }}>No saved addresses.</p>
-                </div>
-              )}
-            </div>
-          )} */}
-
-          {/* SECURITY */}
           {tab === "security" && (
             <div>
               <h2
@@ -1552,20 +1312,9 @@ export default function ProfileContent() {
                   Update Password
                 </BtnTeal>
               </div>
-              {/* <div style={{ background: '#fff', borderRadius: '1.25rem', padding: '1.5rem', boxShadow: '0 2px 10px rgba(0,0,0,.05)' }}>
-                <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>Two-Factor Authentication</h3>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <p style={{ fontWeight: 500, fontSize: '.9rem' }}>Authenticator App</p>
-                    <p style={{ color: '#64748b', fontSize: '.8rem' }}>Extra security layer</p>
-                  </div>
-                  <ToggleSwitch defaultOn={false} />
-                </div>
-              </div> */}
             </div>
           )}
 
-          {/* NOTIFICATIONS */}
           {tab === "notif" && (
             <div>
               <h2

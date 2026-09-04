@@ -17,7 +17,6 @@ import StarRow from "../ui/StarRow";
 import BtnTeal from "../ui/BtnTeal";
 import BtnOutline from "../ui/BtnOutline";
 
-/* ── Shared confirmation modal ── */
 interface DeleteState {
   label: string;
   onConfirm: () => void;
@@ -250,17 +249,10 @@ export default function ReviewsContent() {
   const confirmDelete = (label: string, onConfirm: () => void) =>
     setDeleteState({ label, onConfirm });
 
-  // ── Tính toán dynamic ──────────────────────────────────────────
   const myReviews = user
     ? allReviews.filter((r) => r.userId === Number(user.id))
     : [];
 
-  // 1. Tất cả sản phẩm từ đơn hàng ĐÃ HOÀN TẤT — phải khớp đúng điều kiện
-  // backend dùng để xác minh "đã mua" trước khi cho tạo review
-  // (ReviewsService.CreateAsync -> OrderRepository.GetPurchasedOrderIdAsync
-  // chỉ chấp nhận OrderStatus === "Completed"). Nếu liệt kê thêm
-  // "delivered"/"paid" ở đây, nút Write Review sẽ hiện nhưng submit sẽ
-  // luôn bị backend từ chối 403.
   const deliveredPids = [
     ...new Set(
       orders
@@ -269,16 +261,13 @@ export default function ReviewsContent() {
     ),
   ];
 
-  // 2. Sản phẩm đã được review (không được review lại)
   const reviewedPids = new Set(myReviews.map((r) => r.productId));
 
-  // 3. Sản phẩm chờ review = đã giao NHƯNG chưa review
   const pendingPids = deliveredPids.filter((pid) => !reviewedPids.has(pid));
 
   const hasDeliveredOrders = deliveredPids.length > 0;
   const displayStar = hoverStar || star;
 
-  // Submit review (create or edit)
   const resetForm = () => {
     setPicked(null);
     setEditingReviewId(null);
@@ -350,7 +339,6 @@ export default function ReviewsContent() {
     });
   };
 
-  // My Reviews pagination
   const MINE_PAGE_SIZE = 5;
   const mineTotalPages = Math.max(
     1,
@@ -370,7 +358,6 @@ export default function ReviewsContent() {
   const minePageNums: number[] = [];
   for (let i = mLo; i <= mHi; i++) minePageNums.push(i);
 
-  //Tab labels
   const tabs: { id: ReviewTab; icon: string; label: string }[] = [
     {
       id: "pending",
@@ -402,7 +389,6 @@ export default function ReviewsContent() {
         </p>
       </div>
 
-      {/* Tabs */}
       <div
         style={{
           display: "flex",
@@ -446,10 +432,8 @@ export default function ReviewsContent() {
         ))}
       </div>
 
-      {/* PENDING TAB */}
       {tab === "pending" && (
         <div>
-          {/* Chưa mua gì */}
           {!hasDeliveredOrders && (
             <div
               style={{
@@ -493,7 +477,6 @@ export default function ReviewsContent() {
             </div>
           )}
 
-          {/* Đã mua nhưng đã review hết */}
           {hasDeliveredOrders && pendingPids.length === 0 && (
             <div
               style={{
@@ -527,7 +510,6 @@ export default function ReviewsContent() {
             </div>
           )}
 
-          {/* Danh sách chờ review */}
           {pendingPids.length > 0 && (
             <div>
               <p
@@ -623,10 +605,8 @@ export default function ReviewsContent() {
         </div>
       )}
 
-      {/* ── WRITE TAB ───────────────────────────────────────────── */}
       {tab === "write" && (
         <div>
-          {/* Chưa có đơn hàng delivered và không phải đang edit */}
           {!hasDeliveredOrders && !picked && (
             <div
               style={{
@@ -670,7 +650,6 @@ export default function ReviewsContent() {
             </div>
           )}
 
-          {/* Đã review hết rồi */}
           {hasDeliveredOrders && pendingPids.length === 0 && !picked && (
             <div
               style={{
@@ -704,7 +683,6 @@ export default function ReviewsContent() {
             </div>
           )}
 
-          {/* Chọn sản phẩm để review */}
           {hasDeliveredOrders && pendingPids.length > 0 && !picked && (
             <div
               style={{
@@ -802,7 +780,6 @@ export default function ReviewsContent() {
             </div>
           )}
 
-          {/* Form review (create hoặc edit) */}
           {picked && (
             <div
               style={{
@@ -812,7 +789,6 @@ export default function ReviewsContent() {
                 boxShadow: "0 2px 10px rgba(0,0,0,.05)",
               }}
             >
-              {/* Product header */}
               <div
                 style={{
                   display: "flex",
@@ -873,7 +849,6 @@ export default function ReviewsContent() {
                 </button>
               </div>
 
-              {/* Rating */}
               <div style={{ marginBottom: "1.25rem" }}>
                 <p
                   style={{
@@ -909,7 +884,6 @@ export default function ReviewsContent() {
                 </p>
               </div>
 
-              {/* Comment */}
               <div style={{ marginBottom: "1rem" }}>
                 <label
                   style={{
@@ -939,7 +913,6 @@ export default function ReviewsContent() {
                 </p>
               </div>
 
-              {/* Show / hide account name */}
               <div
                 style={{
                   display: "flex",
@@ -971,7 +944,6 @@ export default function ReviewsContent() {
                 </label>
               </div>
 
-              {/* Submit */}
               {(!star || !comment.trim()) && (
                 <p
                   style={{
@@ -1025,7 +997,6 @@ export default function ReviewsContent() {
         </div>
       )}
 
-      {/* ── MY REVIEWS TAB ──────────────────────────────────────── */}
       {tab === "mine" && (
         <div>
           {myReviews.length === 0 ? (

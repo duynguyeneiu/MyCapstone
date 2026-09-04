@@ -16,10 +16,6 @@ const CAT_TEXT_COLORS = ["#004d38", "#7a5c00", "#92400e", "#4c1d95", "#075985"];
 
 const fmt = (n: number) => n.toLocaleString('vi-VN') + ' VND';
 
-// Backend may return a bare filename or a full URL (sometimes with a stale/
-// unreachable host baked in) — getImageUrl() normalizes either into a URL
-// that actually resolves against the current API host. Same helper the
-// customer-facing pages use, so admin previews match what shoppers see.
 const toDisplayImage = (filename: string | null) => getImageUrl(filename);
 const toRawImage = (display: string): string | null => {
   const fileName = display.replace(/\\/g, "/").split("/").pop();
@@ -41,9 +37,6 @@ interface AdminProduct {
   raw: ApiProductRaw;
 }
 
-// Backend doesn't expose an aggregate rating on the product list endpoint,
-// so the average is computed here from the real reviews — products with no
-// reviews yet simply keep the 0 fallback.
 const buildRatingMap = (reviews: ApiReview[]): Map<number, number> => {
   const byProduct = new Map<number, number[]>();
   for (const r of reviews) {
@@ -107,8 +100,6 @@ export default function AdminProductsPage({ search }: Props) {
         reviewService.getAll(),
       ]);
       const ratings = buildRatingMap(reviewsData);
-      // Newest products first — the list endpoint doesn't reliably return
-      // createdAt, so fall back to id descending (higher id = created later).
       setProducts(toAdmin(productsData, ratings).sort((a, b) => b.id - a.id));
       setCategories(categoriesData);
     } catch (err) {
@@ -269,7 +260,6 @@ export default function AdminProductsPage({ search }: Props) {
   return (
     <>
       <div className="p-8 space-y-6">
-          {/* Stats */}
           <div className="grid grid-cols-4 gap-5">
             <div
               className="stat-card bg-surface-container-lowest border rounded-xl p-6 flex flex-col justify-between"
@@ -404,7 +394,6 @@ export default function AdminProductsPage({ search }: Props) {
             </div>
           </div>
 
-          {/* Table Card */}
           <div
             className="bg-surface-container-lowest border rounded-xl overflow-hidden"
             style={{ borderColor: "#c8e4d8" }}
@@ -665,7 +654,6 @@ export default function AdminProductsPage({ search }: Props) {
             >
               {totalPages > 1 && (
                 <div className="flex items-center gap-1">
-                  {/* Prev */}
                   <button
                     onClick={() => goTo(safePage - 1)}
                     disabled={safePage === 1}
@@ -695,7 +683,6 @@ export default function AdminProductsPage({ search }: Props) {
                     </span>
                   </button>
 
-                  {/* First page shortcut */}
                   {lo > 1 && (
                     <>
                       <button
@@ -733,7 +720,6 @@ export default function AdminProductsPage({ search }: Props) {
                     </>
                   )}
 
-                  {/* Page numbers */}
                   {pageNums.map((n) => (
                     <button
                       key={n}
@@ -764,7 +750,6 @@ export default function AdminProductsPage({ search }: Props) {
                     </button>
                   ))}
 
-                  {/* Last page shortcut */}
                   {hi < totalPages && (
                     <>
                       {hi < totalPages - 1 && (
@@ -802,7 +787,6 @@ export default function AdminProductsPage({ search }: Props) {
                     </>
                   )}
 
-                  {/* Next */}
                   <button
                     onClick={() => goTo(safePage + 1)}
                     disabled={safePage === totalPages}
@@ -837,7 +821,6 @@ export default function AdminProductsPage({ search }: Props) {
           </div>
         </div>
 
-      {/* Add / Edit Modal */}
       {formOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center"
@@ -873,7 +856,6 @@ export default function AdminProductsPage({ search }: Props) {
             </div>
             <div className="p-6 space-y-4">
 
-              {/* Image URL + preview */}
               <div>
                 <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
                   Image URL
@@ -897,7 +879,6 @@ export default function AdminProductsPage({ search }: Props) {
                 </div>
               </div>
 
-              {/* Name + Code */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
@@ -927,7 +908,6 @@ export default function AdminProductsPage({ search }: Props) {
                 </div>
               </div>
 
-              {/* Category */}
               <div>
                 <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
                   Category <span style={{ color: "#dc2626" }}>*</span>
@@ -945,7 +925,6 @@ export default function AdminProductsPage({ search }: Props) {
                 </select>
               </div>
 
-              {/* Import Price + Sale Price */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
@@ -977,7 +956,6 @@ export default function AdminProductsPage({ search }: Props) {
                 </div>
               </div>
 
-              {/* Stock + Status */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
@@ -1009,7 +987,6 @@ export default function AdminProductsPage({ search }: Props) {
                 </div>
               </div>
 
-              {/* Description */}
               <div>
                 <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
                   Description
@@ -1048,7 +1025,6 @@ export default function AdminProductsPage({ search }: Props) {
         </div>
       )}
 
-      {/* Delete Modal */}
       {delOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center"

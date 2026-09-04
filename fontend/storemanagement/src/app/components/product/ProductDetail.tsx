@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { productService } from "@/src/services/productService";
 import { categoryService } from "@/src/services/categoryService";
+import { reviewService, ApiReview, applyRatings } from "@/src/services/reviewService";
 import { Product, Category } from "@/src/lib/data";
 import { fmt, disc } from "@/src/lib/utils";
 import { useCart } from "../../context/CartContext";
@@ -25,28 +26,30 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
   const [p, setP] = useState<Product | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [related, setRelated] = useState<Product[]>([]);
+  const [reviews, setReviews] = useState<ApiReview[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
       setLoading(true);
       try {
-        const [productData, categoriesData, allProducts] = await Promise.all([
+        const [productData, categoriesData, allProducts, allReviews] = await Promise.all([
           productService.getById(productId),
           categoryService.getAll(),
           productService.getAll(),
+          reviewService.getAll().catch(() => []),
         ]);
         setP(productData);
         setCategories(categoriesData);
-        setRelated(
-          (allProducts as Product[])
-            .filter(
-              (r) =>
-                r.categoryId === productData.categoryId &&
-                r.id !== productData.id,
-            )
-            .slice(0, 4),
-        );
+        setReviews(allReviews.filter((r) => r.productId === productData.id));
+        const relatedRaw = (allProducts as Product[])
+          .filter(
+            (r) =>
+              r.categoryId === productData.categoryId &&
+              r.id !== productData.id,
+          )
+          .slice(0, 4);
+        setRelated(applyRatings(relatedRaw, allReviews));
       } catch (err) {
         console.error(err);
       } finally {
@@ -70,6 +73,10 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
   const d = disc(p);
   const categoryName =
     categories.find((c) => c.id === p.categoryId)?.name ?? "";
+  const reviewCount = reviews.length;
+  const avgRating = reviewCount
+    ? reviews.reduce((s, r) => s + r.rating, 0) / reviewCount
+    : 0;
 
   const handleAdd = () => {
     for (let i = 0; i < qty; i++) addToCart(p.id);
@@ -82,7 +89,6 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
 
   return (
     <div style={{ maxWidth: 1280, margin: "0 auto", padding: "2rem 1.5rem" }}>
-      {/* Breadcrumb */}
       <div
         style={{
           display: "flex",
@@ -155,9 +161,9 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
               marginBottom: "1.25rem",
             }}
           >
-            <StarRow rating={p.rating ?? 0} size="text-lg" />
+            <StarRow rating={avgRating} size="text-lg" />
             <span style={{ fontSize: ".875rem", color: "#64748b" }}>
-              {p.rating ?? 0} ({p.reviews ?? 0} reviews)
+              {avgRating.toFixed(1)} ({reviewCount} reviews)
             </span>
           </div>
           <div

@@ -12,10 +12,8 @@ export default function VerifyPage() {
   const [loading, setLoading] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Redirect away if there's no pending registration
   useEffect(() => {
     if (pendingPhone === null) {
-      // Give a tick for context to hydrate from localStorage
       const t = setTimeout(() => {
         if (pendingPhone === null) router.replace('/register');
       }, 500);
@@ -70,7 +68,6 @@ export default function VerifyPage() {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg,#f0fdf4,#dcfce7)', fontFamily: "'DM Sans', sans-serif", padding: '2rem' }}>
       <div style={{ background: '#fff', borderRadius: '1.5rem', padding: '3rem 2.5rem', width: '100%', maxWidth: 420, boxShadow: '0 20px 60px rgba(0,0,0,.1)', textAlign: 'center' }}>
 
-        {/* Icon */}
         <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg,#00694c,#00a86b)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
           <span className="material-symbols-outlined" style={{ fontSize: '32px', color: '#fff' }}>smartphone</span>
         </div>
@@ -87,12 +84,10 @@ export default function VerifyPage() {
           </p>
         )}
 
-        {/* Demo hint */}
         <div style={{ background: '#fff8e1', border: '1px solid #ffe082', borderRadius: 10, padding: '0.65rem 1rem', marginBottom: '1.75rem', fontSize: 13, color: '#7c5900' }}>
           Demo code: <strong>12345</strong>
         </div>
 
-        {/* OTP inputs */}
         <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginBottom: '1.5rem' }} onPaste={handlePaste}>
           {digits.map((d, i) => (
             <input

@@ -24,7 +24,6 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
     <section className="container py-5 od-wrap">
       <div className="od-card">
 
-        {/* Header */}
         <div className="od-header">
           <div>
             <h5>Order #{order.orderNumber}</h5>
@@ -36,7 +35,6 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           </div>
         </div>
 
-        {/* Items */}
         <div className="od-section">
           <h6>Items</h6>
           {order.items.map((item, idx) => (
@@ -50,7 +48,6 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           ))}
         </div>
 
-        {/* Summary */}
         <div className="od-section">
           <h6>Summary</h6>
           <div className="od-summary">
@@ -67,14 +64,12 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           </div>
         </div>
 
-        {/* Shipping */}
         <div className="od-section od-shipping">
           <h6>Shipping Information</h6>
           <p>{order.receiverName} – {order.receiverPhone}</p>
           <p>{order.shippingAddress}</p>
         </div>
 
-        {/* Action */}
         <div className="od-section od-action">
           <Link href="/profile" className="od-btn-back">← Back</Link>
         </div>

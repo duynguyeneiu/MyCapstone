@@ -52,7 +52,6 @@ export default function ReceiptModal({ tx, onClose, onNewInvoice, cashierName }:
     >
       <div style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 380, maxHeight: '90vh', overflow: 'auto', boxShadow: '0 24px 60px rgba(0,0,0,.25)', animation: 'pop .2s ease' }}>
 
-        {/* Header */}
         <div style={{ background: C.primary, padding: '20px 24px', textAlign: 'center', borderRadius: '16px 16px 0 0' }}>
           <p style={{ fontFamily: "'Hanken Grotesk',sans-serif", fontSize: 20, fontWeight: 700, color: '#fff', margin: 0 }}>
             🛍 Happy Market
@@ -60,10 +59,8 @@ export default function ReceiptModal({ tx, onClose, onNewInvoice, cashierName }:
           <p style={{ fontSize: 11, color: '#b8e0cc', marginTop: 2 }}>Official Receipt</p>
         </div>
 
-        {/* Receipt body */}
         <div style={{ padding: '20px 24px', fontFamily: "'Inter', sans-serif" }}>
 
-          {/* Invoice info */}
           <div style={{ textAlign: 'center', marginBottom: 12 }}>
             <p style={{ fontSize: 18, fontWeight: 700, color: C.primary }}>
               Invoice #{String(tx.invoiceNo).padStart(4, '0')}
@@ -74,7 +71,6 @@ export default function ReceiptModal({ tx, onClose, onNewInvoice, cashierName }:
 
           <Divider dashed />
 
-          {/* Items */}
           <div style={{ marginBottom: 4 }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: '#6d7a73', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 8 }}>Items</p>
             {tx.items.map((item) => (
@@ -92,7 +88,6 @@ export default function ReceiptModal({ tx, onClose, onNewInvoice, cashierName }:
 
           <Divider dashed />
 
-          {/* Totals */}
           <Row label="Subtotal" value={fmt(tx.subtotal)} />
           {tx.discount > 0 && <Row label="Discount" value={`-${fmt(tx.discount)}`} color="#059669" />}
           <Row label="VAT (10%)" value={fmt(tx.vat)} />
@@ -101,7 +96,6 @@ export default function ReceiptModal({ tx, onClose, onNewInvoice, cashierName }:
 
           <Divider dashed />
 
-          {/* Payment */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
             <span style={{ fontSize: 12, color: '#6d7a73' }}>Payment method</span>
             <span style={{ fontSize: 13, fontWeight: 700, background: C.primaryBg, color: C.primary, borderRadius: 99, padding: '3px 10px' }}>
@@ -109,14 +103,12 @@ export default function ReceiptModal({ tx, onClose, onNewInvoice, cashierName }:
             </span>
           </div>
 
-          {/* Thank you */}
           <div style={{ textAlign: 'center', padding: '12px 0 4px', borderTop: '1px dashed #ccc' }}>
             <p style={{ fontSize: 14, fontWeight: 600, color: '#191c1e' }}>Thank you for shopping!</p>
             <p style={{ fontSize: 11, color: '#6d7a73', marginTop: 2 }}>Happy Market – Fresh Finds Delivered Daily</p>
           </div>
         </div>
 
-        {/* Actions */}
         <div style={{ padding: '12px 24px 20px', display: 'flex', gap: 10, borderTop: '1px solid #f1f5f9' }}>
           {onNewInvoice && (
             <button onClick={onNewInvoice}

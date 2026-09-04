@@ -7,6 +7,7 @@ import { fmt, disc } from "@/src/lib/utils";
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
 import Badge from "./Badge";
+import StarRow from "./StarRow";
 
 interface ProductCardProps {
   p: Product;
@@ -47,7 +48,6 @@ export default function ProductCard({ p, categoryName }: ProductCardProps) {
           "0 4px 24px rgba(0,0,0,.10)";
       }}
     >
-      {/* IMAGE */}
       <div
         style={{
           background: "var(--teal-xs)",
@@ -83,44 +83,13 @@ export default function ProductCard({ p, categoryName }: ProductCardProps) {
             No image
           </div>
         )}
-
-        {/* {d > 0 && (
-          <span
-            style={{
-              position:
-                "absolute",
-              top: 8,
-              right: 8,
-              background:
-                "#fef9c3",
-              color: "#854d0e",
-              borderRadius:
-                9999,
-              padding:
-                ".15rem .6rem",
-              fontSize:
-                ".72rem",
-              fontWeight: 600,
-            }}
-          >
-            -{d}%
-          </span>
-        )} */}
       </div>
 
-      {/* PRODUCT INFO */}
       <div
         style={{
           padding: "1rem",
         }}
       >
-        {/* <Badge>
-          {categoryName
-            .split("-")
-            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-            .join(" ")}
-        </Badge> */}
-
         <p
           style={{
             fontWeight: 600,
@@ -158,9 +127,21 @@ export default function ProductCard({ p, categoryName }: ProductCardProps) {
             >
               {fmt(p.price)}
             </span>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+                marginTop: 4,
+              }}
+            >
+              <StarRow rating={p.rating ?? 0} size="text-sm" />
+              <span style={{ fontSize: ".7rem", color: "#94a3b8" }}>
+                ({p.reviews ?? 0})
+              </span>
+            </div>
           </div>
 
-          {/* ADD TO CART */}
           <button
             onClick={(e) => {
               e.stopPropagation();
