@@ -58,6 +58,54 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "UserService.API.Controllers.AuthController",
+    "Method": "ResetPassword",
+    "RelativePath": "api/Auth/reset-password",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "UserService.API.DTOs.ResetPasswordRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "UserService.API.Controllers.OtpController",
+    "Method": "Send",
+    "RelativePath": "api/Otp/send",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "UserService.API.DTOs.Otp.SendOtpRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "UserService.API.Controllers.OtpController",
+    "Method": "Verify",
+    "RelativePath": "api/Otp/verify",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "UserService.API.DTOs.Otp.VerifyOtpRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "UserService.API.Controllers.UserController",
     "Method": "GetAll",
     "RelativePath": "api/User",

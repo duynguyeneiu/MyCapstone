@@ -8,7 +8,7 @@ import Footer from './Footer';
 import ToastDisplay from './ui/ToastDisplay';
 import { useAuth } from '../context/AuthContext';
 
-const PUBLIC_PREFIXES = ['/login', '/register', '/shop', '/search', '/product'];
+const PUBLIC_PREFIXES = ['/login', '/register', '/forgot-password', '/shop', '/search', '/product'];
 
 function isPublicPath(pathname: string) {
   return pathname === '/' || PUBLIC_PREFIXES.some(p => pathname === p || pathname.startsWith(p + '/') || pathname.startsWith(p + '?'));
@@ -21,7 +21,7 @@ export default function ClientShell({ children }: { children: React.ReactNode })
 
   const isAdmin    = pathname.startsWith('/admin');
   const isPublic   = isPublicPath(pathname);
-  const isAuthPage = pathname === '/login' || pathname === '/register';
+  const isAuthPage = pathname === '/login' || pathname === '/register' || pathname === '/forgot-password';
 
   useEffect(() => {
     if (isAdmin || isPublic) return;

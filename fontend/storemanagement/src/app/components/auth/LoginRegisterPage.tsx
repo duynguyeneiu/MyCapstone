@@ -312,11 +312,7 @@ export default function LoginRegisterPage({ defaultTab = "login" }: Props) {
                   </label>
                   <button
                     type="button"
-                    onClick={() =>
-                      setLoginError(
-                        "Password reset isn't available yet — please contact support.",
-                      )
-                    }
+                    onClick={() => router.push("/forgot-password")}
                     style={{
                       background: "none",
                       border: "none",

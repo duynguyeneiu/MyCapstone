@@ -6,11 +6,12 @@ namespace UserService.API.Interfaces
     {
         Task<LoginResponse?> LoginAsync(LoginRequest dto);
 
-        Task<RegisterResponseDto?> RegisterAsync(
-       RegisterRequestDto request);
-
+        Task<RegisterResult> RegisterAsync(RegisterRequestDto request);
+        Task<bool> IsPhoneRegisteredAsync(string phone);
         Task<bool> ChangePasswordAsync(
     int userId,
     ChangePasswordRequestDto request);
+
+        Task<ResetPasswordError> ResetPasswordAsync(ResetPasswordRequestDto request);
     }
 }

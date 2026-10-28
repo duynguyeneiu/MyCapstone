@@ -79,6 +79,37 @@
         }
       }
     },
+    "/api/Auth/reset-password": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Auth/change-password": {
       "put": {
         "tags": [
@@ -99,6 +130,68 @@
             "application/*+json": {
               "schema": {
                 "$ref": "#/components/schemas/ChangePasswordRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Otp/send": {
+      "post": {
+        "tags": [
+          "Otp"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendOtpRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendOtpRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendOtpRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Otp/verify": {
+      "post": {
+        "tags": [
+          "Otp"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyOtpRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyOtpRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyOtpRequestDto"
               }
             }
           }
@@ -439,11 +532,19 @@
         },
         "additionalProperties": false
       },
+      "OtpPurpose": {
+        "enum": [
+          "Register",
+          "ForgotPassword"
+        ],
+        "type": "string"
+      },
       "RegisterRequestDto": {
         "required": [
           "fullName",
           "password",
-          "phone"
+          "phone",
+          "verificationToken"
         ],
         "type": "object",
         "properties": {
@@ -461,6 +562,55 @@
           "password": {
             "minLength": 6,
             "type": "string"
+          },
+          "verificationToken": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResetPasswordRequestDto": {
+        "required": [
+          "confirmNewPassword",
+          "newPassword",
+          "phone",
+          "verificationToken"
+        ],
+        "type": "object",
+        "properties": {
+          "phone": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "newPassword": {
+            "minLength": 6,
+            "type": "string"
+          },
+          "confirmNewPassword": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "verificationToken": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SendOtpRequestDto": {
+        "required": [
+          "phone",
+          "purpose"
+        ],
+        "type": "object",
+        "properties": {
+          "phone": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "purpose": {
+            "$ref": "#/components/schemas/OtpPurpose"
           }
         },
         "additionalProperties": false
@@ -535,6 +685,29 @@
           }
         },
         "additionalProperties": false
+      },
+      "VerifyOtpRequestDto": {
+        "required": [
+          "code",
+          "phone",
+          "purpose"
+        ],
+        "type": "object",
+        "properties": {
+          "phone": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "purpose": {
+            "$ref": "#/components/schemas/OtpPurpose"
+          },
+          "code": {
+            "maxLength": 6,
+            "minLength": 6,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
       }
     },
     "securitySchemes": {
@@ -554,6 +727,9 @@
   "tags": [
     {
       "name": "Auth"
+    },
+    {
+      "name": "Otp"
     },
     {
       "name": "User"

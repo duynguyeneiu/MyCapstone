@@ -3,4 +3,19 @@
 GET {{UserService.API_HostAddress}}/weatherforecast/
 Accept: application/json
 
-###
+
+### eSMS sandbox test
+POST https://rest.esms.vn/MainService.svc/json/SendMultipleMessage_V4_post_json/
+Content-Type: application/json
+
+{
+  "ApiKey": "3AE3C0664EF2E36B8CBEF58FCD1F12",
+  "SecretKey": "6B90A82B628B6FF8F4E599BFC94406",
+  "Phone": "0866183141",
+  "Content": "HappyMart: Ma xac thuc cua ban la 123456. Hieu luc 5 phut.",
+  "Brandname": "Baotrixemay",
+  "SmsType": "2",
+  "IsUnicode": "0",
+  "Sandbox": "1",
+  "RequestId": "test-004"
+}

@@ -3,6 +3,8 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import userApi from "@/src/lib/userApi";
+import { getApiErrorMessage } from "@/src/lib/apiError";
+import { authService, getRetryAfterSeconds } from "@/src/services/authService";
 
 export type UserRole = "client" | "admin" | "staff";
 
@@ -14,15 +16,21 @@ export interface User {
   role: UserRole;
 }
 
+// Chỉ giữ trong React state (bộ nhớ), KHÔNG lưu localStorage vì có mật khẩu
 interface PendingRegistration {
   name: string;
   phone: string;
   password: string;
+  resendAt: number; // thời điểm (ms) được phép gửi lại OTP
+  verificationToken?: string; // giữ lại nếu verify xong nhưng register lỗi, để thử lại không cần OTP mới
 }
+
+type ActionResult = { success: boolean; error?: string };
 
 interface AuthContextValue {
   user: User | null;
   pendingPhone: string | null;
+  pendingResendAt: number | null;
   login: (
     phone: string,
     password: string,
@@ -31,14 +39,11 @@ interface AuthContextValue {
     name: string,
     phone: string,
     password: string,
-  ) => Promise<{ success: boolean; error?: string }>;
-  completeRegister: (
-    otp: string,
-  ) => Promise<{ success: boolean; error?: string }>;
+  ) => Promise<ActionResult>;
+  resendRegisterOtp: () => Promise<ActionResult>;
+  completeRegister: (otp: string) => Promise<ActionResult>;
   logout: () => void;
 }
-
-const DEMO_OTP = "12345";
 
 function mapRole(roleName: string | undefined): UserRole {
   switch (roleName?.toLowerCase()) {
@@ -61,8 +66,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const saved = localStorage.getItem("hm-user");
       if (saved) setUser(JSON.parse(saved));
-      const savedPending = localStorage.getItem("hm-pending");
-      if (savedPending) setPending(JSON.parse(savedPending));
+      // Dọn dữ liệu cũ: phiên bản trước lưu cả mật khẩu vào localStorage
+      localStorage.removeItem("hm-pending");
     } catch {}
   }, []);
 
@@ -88,38 +93,106 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Bước 1: gửi OTP tới SĐT (chưa tạo tài khoản)
   const startRegister = async (
     name: string,
     phone: string,
     password: string,
-  ): Promise<{ success: boolean; error?: string }> => {
+  ): Promise<ActionResult> => {
     try {
-      await userApi.post("/Auth/register", { fullName: name, phone, password });
-      const pendingData = { name, phone, password };
-      setPending(pendingData);
-      localStorage.setItem("hm-pending", JSON.stringify(pendingData));
+      const data = await authService.sendOtp(phone, "Register");
+      setPending({
+        name,
+        phone,
+        password,
+        resendAt: Date.now() + data.retryAfterSeconds * 1000,
+      });
       return { success: true };
     } catch (err) {
-      let message = "Registration failed";
-      if (axios.isAxiosError(err) && typeof err.response?.data === "string") {
-        message = err.response.data;
+      // 429: mã đã được gửi gần đây -> vẫn cho sang trang nhập mã
+      const retryAfter = getRetryAfterSeconds(err);
+      if (retryAfter > 0) {
+        setPending({
+          name,
+          phone,
+          password,
+          resendAt: Date.now() + retryAfter * 1000,
+        });
+        return { success: true };
       }
-      return { success: false, error: message };
+      return {
+        success: false,
+        error: getApiErrorMessage(err, "Could not send verification code"),
+      };
     }
   };
 
-  const completeRegister = async (
-    otp: string,
-  ): Promise<{ success: boolean; error?: string }> => {
+  const resendRegisterOtp = async (): Promise<ActionResult> => {
     if (!pending) return { success: false, error: "No pending registration" };
-    if (otp !== DEMO_OTP)
-      return { success: false, error: "Incorrect verification code" };
+    try {
+      const data = await authService.sendOtp(pending.phone, "Register");
+      setPending({
+        ...pending,
+        resendAt: Date.now() + data.retryAfterSeconds * 1000,
+      });
+      return { success: true };
+    } catch (err) {
+      const retryAfter = getRetryAfterSeconds(err);
+      if (retryAfter > 0) {
+        setPending({ ...pending, resendAt: Date.now() + retryAfter * 1000 });
+      }
+      return {
+        success: false,
+        error: getApiErrorMessage(err, "Could not resend verification code"),
+      };
+    }
+  };
+
+  // Bước 2: verify OTP -> nhận token -> tạo tài khoản -> đăng nhập
+  const completeRegister = async (otp: string): Promise<ActionResult> => {
+    if (!pending)
+      return {
+        success: false,
+        error: "Registration session expired. Please fill in the form again.",
+      };
+
+    try {
+      let token = pending.verificationToken;
+
+      if (!token) {
+        const verified = await authService.verifyOtp(
+          pending.phone,
+          "Register",
+          otp,
+        );
+        if (!verified.verificationToken)
+          return { success: false, error: verified.message };
+
+        token = verified.verificationToken;
+        setPending({ ...pending, verificationToken: token });
+      }
+
+      await authService.register({
+        fullName: pending.name,
+        phone: pending.phone,
+        password: pending.password,
+        verificationToken: token,
+      });
+    } catch (err) {
+      // 400 = OTP sai hoặc token hết hạn -> bỏ token, lần sau phải verify lại
+      if (axios.isAxiosError(err) && err.response?.status === 400) {
+        setPending({ ...pending, verificationToken: undefined });
+      }
+      return {
+        success: false,
+        error: getApiErrorMessage(err, "Verification failed"),
+      };
+    }
 
     const result = await login(pending.phone, pending.password);
     if (!result.success) return result;
 
     setPending(null);
-    localStorage.removeItem("hm-pending");
     return { success: true };
   };
 
@@ -134,8 +207,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         pendingPhone: pending?.phone ?? null,
+        pendingResendAt: pending?.resendAt ?? null,
         login,
         startRegister,
+        resendRegisterOtp,
         completeRegister,
         logout,
       }}
