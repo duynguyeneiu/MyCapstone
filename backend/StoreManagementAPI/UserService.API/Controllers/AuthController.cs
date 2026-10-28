@@ -62,19 +62,54 @@ namespace UserService.API.Controllers
         public async Task<IActionResult> Register(
     [FromBody] RegisterRequestDto request)
         {
-            var result =
-                await _authService.RegisterAsync(request);
+            var result = await _authService.RegisterAsync(request);
 
-            if (result == null)
+            return result.Error switch
             {
-                return Conflict(new
-                {
-                    message = "Số điện thoại đã được đăng ký."
-                });
-            }
+                RegisterError.None =>
+                    Ok(result.Data),
 
-            return Ok(result);
+                RegisterError.PhoneExists =>
+                    Conflict(new { message = "Số điện thoại đã được đăng ký." }),
+
+                RegisterError.InvalidPhone =>
+                    BadRequest(new { message = "Số điện thoại không hợp lệ." }),
+
+                RegisterError.InvalidVerification =>
+                    BadRequest(new { message = "Phiên xác thực OTP không hợp lệ hoặc đã hết hạn. Vui lòng xác thực lại." }),
+
+                _ =>
+                    StatusCode(500, new { message = "Không thể tạo tài khoản." })
+            };
         }
+
+
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword(
+    [FromBody] ResetPasswordRequestDto request)
+        {
+            var error = await _authService.ResetPasswordAsync(request);
+
+            return error switch
+            {
+                ResetPasswordError.None =>
+                    Ok(new { message = "Đặt lại mật khẩu thành công." }),
+
+                ResetPasswordError.InvalidPhone =>
+                    BadRequest(new { message = "Số điện thoại không hợp lệ." }),
+
+                ResetPasswordError.UserNotFound =>
+                    NotFound(new { message = "Số điện thoại chưa được đăng ký." }),
+
+                ResetPasswordError.InvalidVerification =>
+                    BadRequest(new { message = "Phiên xác thực OTP không hợp lệ hoặc đã hết hạn. Vui lòng xác thực lại." }),
+
+                _ =>
+                    StatusCode(500, new { message = "Không thể đặt lại mật khẩu." })
+            };
+        }
+
 
         [Authorize]
         [HttpPut("change-password")]

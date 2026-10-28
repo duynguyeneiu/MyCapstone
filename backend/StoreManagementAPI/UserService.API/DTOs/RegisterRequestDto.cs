@@ -16,5 +16,8 @@ namespace UserService.API.DTOs
         [Required]
         [MinLength(6)]
         public string Password { get; set; } = null!;
+
+        [Required]
+        public string VerificationToken { get; set; } = null!;
     }
 }

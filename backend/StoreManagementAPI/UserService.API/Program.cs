@@ -5,6 +5,8 @@ using Microsoft.OpenApi;
 using System.Text;
 using UserService.API.Data;
 using UserService.API.Interfaces;
+using UserService.API.Models.Otp;
+using UserService.API.Models.Sms;
 using UserService.API.Repositories;
 using UserService.API.Services;
 
@@ -89,6 +91,29 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UsersService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+
+// OTP / SMS
+builder.Services.AddMemoryCache();
+
+
+if (string.Equals(builder.Configuration["Sms:Provider"], "Esms",
+        StringComparison.OrdinalIgnoreCase))
+{
+    builder.Services.Configure<EsmsOptions>(
+        builder.Configuration.GetSection("Sms:Esms"));
+    builder.Services.AddHttpClient("esms");
+    builder.Services.AddSingleton<ISmsSender, EsmsSmsSender>();
+}
+else
+{
+    builder.Services.AddSingleton<ISmsSender, ConsoleSmsSender>();
+}
+
+
+
+builder.Services.Configure<OtpOptions>(
+    builder.Configuration.GetSection("Otp"));
+builder.Services.AddSingleton<IOtpService, OtpService>();
 
 // =====================================================
 // JWT Authentication
