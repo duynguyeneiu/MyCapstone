@@ -17,5 +17,7 @@ namespace OrderServiceAPI.Interfaces
         Task<int?> GetPurchasedOrderIdAsync(
     int userId,
     int productId);
+
+        Task UpdatePaymentStatusAsync(int orderId, string paymentStatus);
     }
 }

@@ -113,41 +113,76 @@
         }
       }
     },
-    "/api/Payment/{id}/status": {
-      "put": {
+    "/api/Payment/vnpay/create": {
+      "post": {
         "tags": [
           "Payment"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
         ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdatePaymentStatusDto"
+                "$ref": "#/components/schemas/CreateVnPayRequest"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdatePaymentStatusDto"
+                "$ref": "#/components/schemas/CreateVnPayRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdatePaymentStatusDto"
+                "$ref": "#/components/schemas/CreateVnPayRequest"
               }
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Payment/vnpay-ipn": {
+      "get": {
+        "tags": [
+          "Payment"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Payment/vnpay-return": {
+      "get": {
+        "tags": [
+          "Payment"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Payment/txn/{txnRef}": {
+      "get": {
+        "tags": [
+          "Payment"
+        ],
+        "parameters": [
+          {
+            "name": "txnRef",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -176,19 +211,15 @@
         },
         "additionalProperties": false
       },
-      "UpdatePaymentStatusDto": {
+      "CreateVnPayRequest": {
         "required": [
-          "status"
+          "orderId"
         ],
         "type": "object",
         "properties": {
-          "status": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "transactionCode": {
-            "type": "string",
-            "nullable": true
+          "orderId": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false

@@ -29,5 +29,14 @@ namespace PaymentService.API.Services
             return await response.Content
                 .ReadFromJsonAsync<OrderDto>();
         }
+
+        public async Task UpdatePaymentStatusAsync(int orderId, string paymentStatus)
+        {
+            var response = await _httpClient.PutAsJsonAsync(
+                $"api/Order/{orderId}/payment-status",
+                new { paymentStatus });
+
+            response.EnsureSuccessStatusCode();
+        }
     }
 }

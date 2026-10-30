@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ReviewService.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1a253315be2c7c9c99073c622131b0174943d2df")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8c330667407868a60b9b11ab97ff3f40e64bb2b7")]
 [assembly: System.Reflection.AssemblyProductAttribute("ReviewService.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ReviewService.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -17,5 +17,14 @@ namespace PaymentService.API.Interfaces
         void Delete(Payment payment);
 
         Task SaveChangesAsync();
+
+        Task<Payment?> GetByTxnRefAsync(string txnRef);
+
+        Task<int> UpdatePendingStatusAsync(
+            string txnRef,
+            string status,
+            string? transactionCode,
+            string? responseCode,
+            string? bankCode);
     }
 }

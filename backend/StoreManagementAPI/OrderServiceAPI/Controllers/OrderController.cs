@@ -101,5 +101,16 @@ namespace OrderServiceAPI.Controllers
                 orderId = orderId.Value
             });
         }
+
+        [HttpPut("{orderId:int}/payment-status")]
+        public async Task<IActionResult> UpdatePaymentStatus(
+    int orderId,
+    UpdatePaymentStatusRequest request)
+        {
+            await _orderService.UpdatePaymentStatusAsync(
+                orderId, request.PaymentStatus);
+
+            return NoContent();
+        }
     }
 }

@@ -23,7 +23,14 @@ export interface Product {
   reviews?: number;
 }
 
-export type PaymentMethod = "vnpay" | "cod";
+export type PaymentMethod = "vnpay" | "momo" | "cod";
+
+// UI id → value stored in backend (ORDER.PaymentMethod / PAYMENT.PaymentMethod)
+export const PAYMENT_METHOD_API: Record<PaymentMethod, string> = {
+  vnpay: "VNPay",
+  momo: "MoMo",
+  cod: "COD",
+};
 export type ProfileTab = "info" | "address" | "security" | "notif";
 export type ReviewTab = "write" | "mine" | "pending";
 

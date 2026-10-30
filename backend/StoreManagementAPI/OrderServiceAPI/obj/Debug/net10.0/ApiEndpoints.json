@@ -149,6 +149,27 @@
   },
   {
     "ContainingType": "OrderServiceAPI.Controllers.OrderController",
+    "Method": "UpdatePaymentStatus",
+    "RelativePath": "api/Order/{orderId}/payment-status",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "orderId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "OrderServiceAPI.DTOs.Order.UpdatePaymentStatusRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "OrderServiceAPI.Controllers.OrderController",
     "Method": "UpdateStatus",
     "RelativePath": "api/Order/{orderId}/status",
     "HttpMethod": "PUT",

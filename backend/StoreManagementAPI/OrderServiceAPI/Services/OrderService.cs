@@ -294,6 +294,19 @@ namespace OrderServiceAPI.Services
             await _orderRepository.SaveChangesAsync();
         }
 
+        public async Task UpdatePaymentStatusAsync(int orderId, string paymentStatus)
+        {
+            var order = await _orderRepository.GetOrderByIdAsync(orderId);
+
+            if (order == null)
+                throw new Exception("Order not found.");
+
+            order.PaymentStatus = paymentStatus;
+            order.UpdatedAt = DateTime.Now;
+
+            await _orderRepository.SaveChangesAsync();
+        }
+
         public async Task<int?> GetPurchasedOrderIdAsync(
     int userId,
     int productId)
