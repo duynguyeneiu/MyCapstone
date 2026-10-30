@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PaymentService.API.Data;
 using PaymentService.API.Interfaces;
+using PaymentService.API.Models;
 using PaymentService.API.Repositories;
 using PaymentService.API.Services;
 
@@ -35,6 +36,11 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<
     IPaymentService,
     PaymentsService>();
+
+builder.Services.Configure<VnPayOptions>(
+    builder.Configuration.GetSection("VnPay"));
+
+builder.Services.AddScoped<IVnPayService, VnPayService>();
 
 builder.Services.AddHttpClient<
     IOrderServiceClient,

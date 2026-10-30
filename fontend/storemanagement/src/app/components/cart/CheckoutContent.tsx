@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { PaymentMethod } from "@/src/lib/data";
+import { PaymentMethod, PAYMENT_METHOD_API } from "@/src/lib/data";
 import { fmt, SHIPPING_FEE } from "@/src/lib/utils";
 import { useCart } from "../../context/CartContext";
 import { useOrders } from "../../context/OrderContext";
@@ -11,7 +11,6 @@ import { paymentService } from "@/src/services/paymentService";
 import { userService } from "@/src/services/userService";
 import BtnTeal from "../ui/BtnTeal";
 import Badge from "../ui/Badge";
-import QRModal from "../ui/QRModal";
 
 interface ShipForm {
   fullName: string;
@@ -28,7 +27,6 @@ export default function CheckoutContent() {
   const { placeOrder } = useOrders();
   const { user } = useAuth();
   const [payment, setPayment] = useState<PaymentMethod>("vnpay");
-  const [showQR, setShowQR] = useState(false);
   const [placing, setPlacing] = useState(false);
   const [placeError, setPlaceError] = useState<string | null>(null);
 
@@ -86,10 +84,18 @@ export default function CheckoutContent() {
     {
       id: "vnpay",
       label: "VNPay",
-      sub: "Scan QR via VNPay app",
-      icon: "qr_code_2",
+      sub: "Pay via VNPay gateway",
+      icon: "credit_card",
       iconBg: "#fee2e2",
       iconColor: "#b91c1c",
+    },
+    {
+      id: "momo",
+      label: "MoMo",
+      sub: "Pay via MoMo gateway",
+      icon: "account_balance_wallet",
+      iconBg: "#fce7f3",
+      iconColor: "#a50064",
     },
     {
       id: "cod",
@@ -161,24 +167,32 @@ export default function CheckoutContent() {
         receiverName: ship.fullName.trim(),
         receiverPhone: ship.phone,
         shippingAddress: ship.address,
-        paymentMethod: payment === "vnpay" ? "VNPay" : "COD",
+        paymentMethod: PAYMENT_METHOD_API[payment],
       });
+      refreshCart();
+
+      if (payment === "vnpay" || payment === "momo") {
+        try {
+          const { paymentUrl } = payment === "vnpay"
+            ? await paymentService.createVnPay(order.orderId)
+            : await paymentService.createMoMo(order.orderId);
+          // External page → window.location, not router.push
+          window.location.href = paymentUrl;
+        } catch (payErr) {
+          console.error(payErr);
+          setPlaceError(
+            `Order #${order.orderNumber} was created but ${PAYMENT_METHOD_API[payment]} payment could not be started.`
+          );
+        }
+        return;
+      }
 
       try {
-        const paymentRecord = await paymentService.create({
-          orderId: order.orderId,
-          paymentMethod: payment === "vnpay" ? "VNPay" : "COD",
-        });
-        if (payment === "vnpay") {
-          await paymentService.updateStatus(paymentRecord.paymentId, {
-            status: "Completed",
-          });
-        }
+        await paymentService.create({ orderId: order.orderId, paymentMethod: "COD" });
       } catch (payErr) {
         console.error(payErr);
       }
 
-      refreshCart();
       router.push(`/orders/success?id=${order.orderId}`);
     } catch (err) {
       console.error(err);
@@ -190,26 +204,11 @@ export default function CheckoutContent() {
 
   const handleSubmit = () => {
     if (!validateShipping()) return;
-    if (payment === "vnpay") {
-      setShowQR(true);
-    } else {
-      handlePlaceOrder();
-    }
+    handlePlaceOrder();
   };
 
   return (
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: "2.5rem 1.5rem" }}>
-      {showQR && (
-        <QRModal
-          method={payment}
-          total={total}
-          onClose={() => setShowQR(false)}
-          onConfirm={() => {
-            setShowQR(false);
-            handlePlaceOrder();
-          }}
-        />
-      )}
       <h1
         className="serif"
         style={{ fontSize: "2rem", fontWeight: 700, marginBottom: "0.5rem" }}
@@ -450,28 +449,6 @@ export default function CheckoutContent() {
                   )}
                 </label>
               ))}
-
-              {payment === "vnpay" && (
-                <BtnTeal
-                  onClick={() => setShowQR(true)}
-                  style={{
-                    width: "100%",
-                    padding: "0.75rem",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 8,
-                  }}
-                >
-                  <span
-                    className="material-symbols-outlined"
-                    style={{ fontSize: "18px" }}
-                  >
-                    qr_code_scanner
-                  </span>
-                  Tap to View VNPay QR Code
-                </BtnTeal>
-              )}
             </div>
           </div>
         </div>

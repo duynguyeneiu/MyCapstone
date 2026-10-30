@@ -59,5 +59,35 @@ namespace PaymentService.API.Repositories
         {
             await _context.SaveChangesAsync();
         }
+
+        public async Task<Payment?> GetByTxnRefAsync(string txnRef)
+        {
+            return await _context.Payments
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.TxnRef == txnRef);
+        }
+
+        // UPDATE ... WHERE TxnRef = @ref AND Status = 'Pending'
+        // Trả về số dòng bị ảnh hưởng: 0 = đã xử lý trước đó
+        public async Task<int> UpdatePendingStatusAsync(
+            string txnRef,
+            string status,
+            string? transactionCode,
+            string? responseCode,
+            string? bankCode)
+        {
+            var now = DateTime.Now;
+            DateTime? paymentDate = status == "Completed" ? now : null;
+
+            return await _context.Payments
+                .Where(p => p.TxnRef == txnRef && p.Status == "Pending")
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(p => p.Status, status)
+                    .SetProperty(p => p.TransactionCode, transactionCode)
+                    .SetProperty(p => p.ResponseCode, responseCode)
+                    .SetProperty(p => p.BankCode, bankCode)
+                    .SetProperty(p => p.PaymentDate, paymentDate)
+                    .SetProperty(p => p.UpdatedAt, now));
+        }
     }
 }

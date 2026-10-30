@@ -1,4 +1,5 @@
-﻿using PaymentService.API.Models;
+﻿using PaymentService.API.DTOs;
+using PaymentService.API.Models;
 
 namespace PaymentService.API.Interfaces
 {
@@ -14,11 +15,14 @@ namespace PaymentService.API.Interfaces
      int orderId,
      string paymentMethod);
 
-        Task<bool> UpdateStatusAsync(
-            int paymentId,
-            string status,
-            string? transactionCode = null);
+       
 
         Task<bool> DeleteAsync(int paymentId);
+
+        Task<VnPayIpnResponse> ProcessVnPayIpnAsync(IQueryCollection query);
+
+        Task<Payment?> GetByTxnRefAsync(string txnRef);
     }
+
+
 }

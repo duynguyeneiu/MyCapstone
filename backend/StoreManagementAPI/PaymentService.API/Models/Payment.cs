@@ -39,4 +39,19 @@ public partial class Payment
 
     [Column(TypeName = "datetime")]
     public DateTime? UpdatedAt { get; set; }
+
+    [StringLength(50)]
+    [Unicode(false)]
+    public string TxnRef { get; set; } = null!;
+
+    [StringLength(10)]
+    [Unicode(false)]
+    public string? ResponseCode { get; set; }
+
+    [StringLength(20)]
+    [Unicode(false)]
+    public string? BankCode { get; set; }
+
+    [Column(TypeName = "datetime")]
+    public DateTime? ExpiredAt { get; set; }
 }

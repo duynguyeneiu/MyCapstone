@@ -3,10 +3,22 @@ import api from "../lib/paymentApi";
 export interface ApiPayment {
   paymentId: number;
   orderId: number;
+  amount: number;
   paymentMethod: string;
-  status: string;
+  status: string; // Pending | Completed | Failed | Cancelled
+  txnRef: string;
   transactionCode?: string | null;
+  responseCode?: string | null;
+  bankCode?: string | null;
+  paymentDate?: string | null;
   createdAt?: string;
+}
+
+// Same response shape for VNPay and MoMo
+export interface OnlinePaymentResponse {
+  paymentId: number;
+  txnRef: string;
+  paymentUrl: string;
 }
 
 export const paymentService = {
@@ -20,8 +32,14 @@ export const paymentService = {
     return res.data;
   },
 
-  async getByOrder(orderId: number): Promise<ApiPayment> {
-    const res = await api.get<ApiPayment>(`/Payment/order/${orderId}`);
+  // Backend returns an ARRAY (one order can have several payment attempts)
+  async getByOrder(orderId: number): Promise<ApiPayment[]> {
+    const res = await api.get<ApiPayment[]>(`/Payment/order/${orderId}`);
+    return res.data;
+  },
+
+  async getByTxnRef(txnRef: string): Promise<ApiPayment> {
+    const res = await api.get<ApiPayment>(`/Payment/txn/${encodeURIComponent(txnRef)}`);
     return res.data;
   },
 
@@ -30,8 +48,14 @@ export const paymentService = {
     return res.data;
   },
 
-  async updateStatus(id: number, data: { status: string; transactionCode?: string }): Promise<void> {
-    await api.put(`/Payment/${id}/status`, data);
+  async createVnPay(orderId: number): Promise<OnlinePaymentResponse> {
+    const res = await api.post<OnlinePaymentResponse>("/Payment/vnpay/create", { orderId });
+    return res.data;
+  },
+
+  async createMoMo(orderId: number): Promise<OnlinePaymentResponse> {
+    const res = await api.post<OnlinePaymentResponse>("/Payment/momo/create", { orderId });
+    return res.data;
   },
 
   async delete(id: number): Promise<void> {

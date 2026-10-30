@@ -29,6 +29,8 @@ type ActionResult = { success: boolean; error?: string };
 
 interface AuthContextValue {
   user: User | null;
+  // true once the saved session has been read from localStorage
+  authReady: boolean;
   pendingPhone: string | null;
   pendingResendAt: number | null;
   login: (
@@ -60,6 +62,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [authReady, setAuthReady] = useState(false);
   const [pending, setPending] = useState<PendingRegistration | null>(null);
 
   useEffect(() => {
@@ -69,6 +72,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Dọn dữ liệu cũ: phiên bản trước lưu cả mật khẩu vào localStorage
       localStorage.removeItem("hm-pending");
     } catch {}
+    // Báo cho ClientShell biết đã đọc xong session, lúc này mới được kiểm tra đăng nhập
+    setAuthReady(true);
   }, []);
 
   const login = async (
@@ -206,6 +211,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        authReady,
         pendingPhone: pending?.phone ?? null,
         pendingResendAt: pending?.resendAt ?? null,
         login,

@@ -17,24 +17,25 @@ function isPublicPath(pathname: string) {
 export default function ClientShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, authReady } = useAuth();
 
   const isAdmin    = pathname.startsWith('/admin');
   const isPublic   = isPublicPath(pathname);
   const isAuthPage = pathname === '/login' || pathname === '/register' || pathname === '/forgot-password';
 
   useEffect(() => {
-    if (isAdmin || isPublic) return;
+    // Chờ AuthContext đọc xong localStorage, tránh đẩy về /login khi vừa tải lại trang
+    if (!authReady || isAdmin || isPublic) return;
     if (!user) {
       router.push('/login');
     }
-  }, [user, isAdmin, isPublic, router, pathname]);
+  }, [user, authReady, isAdmin, isPublic, router, pathname]);
 
   if (isAdmin) return <>{children}</>;
 
   if (isAuthPage) return <>{children}</>;
 
-  if (!isPublic && !user) return null;
+  if (!isPublic && (!authReady || !user)) return null;
 
   const showCategoryBar = pathname === '/' || pathname.startsWith('/shop');
 
