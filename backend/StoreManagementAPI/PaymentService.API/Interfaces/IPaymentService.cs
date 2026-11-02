@@ -20,8 +20,10 @@ namespace PaymentService.API.Interfaces
         Task<bool> DeleteAsync(int paymentId);
 
         Task<VnPayIpnResponse> ProcessVnPayIpnAsync(IQueryCollection query);
+        Task<bool> ProcessMoMoIpnAsync(MoMoIpnRequest ipn);
 
         Task<Payment?> GetByTxnRefAsync(string txnRef);
+
     }
 
 

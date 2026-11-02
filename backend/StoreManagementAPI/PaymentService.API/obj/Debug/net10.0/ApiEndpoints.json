@@ -59,6 +59,54 @@
   },
   {
     "ContainingType": "PaymentService.API.Controllers.PaymentController",
+    "Method": "MoMoIpn",
+    "RelativePath": "api/Payment/momo-ipn",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "ipn",
+        "Type": "PaymentService.API.DTOs.MoMoIpnRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PaymentService.API.Controllers.PaymentController",
+    "Method": "MoMoReturn",
+    "RelativePath": "api/Payment/momo-return",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "orderId",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PaymentService.API.Controllers.PaymentController",
+    "Method": "CreateMoMo",
+    "RelativePath": "api/Payment/momo/create",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "PaymentService.API.DTOs.CreateMoMoRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PaymentService.API.Controllers.PaymentController",
     "Method": "GetByOrderId",
     "RelativePath": "api/Payment/order/{orderId}",
     "HttpMethod": "GET",
