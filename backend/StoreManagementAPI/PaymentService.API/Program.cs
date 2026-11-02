@@ -41,6 +41,10 @@ builder.Services.Configure<VnPayOptions>(
     builder.Configuration.GetSection("VnPay"));
 
 builder.Services.AddScoped<IVnPayService, VnPayService>();
+builder.Services.Configure<MoMoOptions>(
+    builder.Configuration.GetSection("MoMo"));
+
+builder.Services.AddHttpClient<IMoMoService, MoMoService>();
 
 builder.Services.AddHttpClient<
     IOrderServiceClient,

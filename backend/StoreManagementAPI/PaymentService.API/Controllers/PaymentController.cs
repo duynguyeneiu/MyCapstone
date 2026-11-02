@@ -15,15 +15,19 @@ namespace PaymentService.API.Controllers
         private readonly IPaymentService _paymentService;
         private readonly IVnPayService _vnPayService;
         private readonly VnPayOptions _vnPayOptions;
+        private readonly IMoMoService _moMoService;
+
 
         public PaymentController(
             IPaymentService paymentService,
             IVnPayService vnPayService,
-            IOptions<VnPayOptions> vnPayOptions)
+            IOptions<VnPayOptions> vnPayOptions,
+            IMoMoService moMoService)
         {
             _paymentService = paymentService;
             _vnPayService = vnPayService;
             _vnPayOptions = vnPayOptions.Value;
+            _moMoService = moMoService;
         }
 
         [HttpGet]
@@ -195,6 +199,59 @@ namespace PaymentService.API.Controllers
             }
 
             return Ok(payment);
+        }
+
+        [HttpPost("momo/create")]
+        public async Task<IActionResult> CreateMoMo([FromBody] CreateMoMoRequest dto)
+        {
+            try
+            {
+                var payment = await _paymentService.CreateAsync(dto.OrderId, "MoMo");
+                var paymentUrl = await _moMoService.CreatePaymentUrlAsync(payment);
+
+                return Ok(new
+                {
+                    paymentId = payment.PaymentId,
+                    txnRef = payment.TxnRef,
+                    paymentUrl
+                });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex) when (
+                ex is ArgumentException or InvalidOperationException)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (HttpRequestException)
+            {
+                return StatusCode(502, new { message = "Cannot connect to MoMo." });
+            }
+        }
+
+        // MoMo gọi server-to-server (POST JSON), yêu cầu trả 204
+        [HttpPost("momo-ipn")]
+        public async Task<IActionResult> MoMoIpn([FromBody] MoMoIpnRequest ipn)
+        {
+            try
+            {
+                var ok = await _paymentService.ProcessMoMoIpnAsync(ipn);
+                return ok ? NoContent() : BadRequest();
+            }
+            catch (Exception)
+            {
+                return StatusCode(500);
+            }
+        }
+
+        // Trình duyệt quay về — CHỈ redirect, KHÔNG cập nhật DB
+        [HttpGet("momo-return")]
+        public IActionResult MoMoReturn([FromQuery] string? orderId)
+        {
+            return Redirect(
+                $"{_vnPayOptions.FrontendResultUrl}?txnRef={Uri.EscapeDataString(orderId ?? "")}");
         }
     }
 }

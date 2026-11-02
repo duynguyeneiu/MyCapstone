@@ -10,17 +10,20 @@ namespace PaymentService.API.Services
         private readonly IOrderServiceClient _orderServiceClient;
         private readonly IVnPayService _vnPayService;
         private readonly ILogger<PaymentsService> _logger;
+        private readonly IMoMoService _moMoService;
 
         public PaymentsService(
             IPaymentRepository paymentRepository,
             IOrderServiceClient orderServiceClient,
             IVnPayService vnPayService,
-            ILogger<PaymentsService> logger)
+            ILogger<PaymentsService> logger,
+            IMoMoService moMoService)
         {
             _paymentRepository = paymentRepository;
             _orderServiceClient = orderServiceClient;
             _vnPayService = vnPayService;
             _logger = logger;
+            _moMoService = moMoService;
         }
 
         public async Task<IEnumerable<Payment>> GetAllAsync()
@@ -201,6 +204,53 @@ namespace PaymentService.API.Services
             _paymentRepository.Delete(payment);
 
             await _paymentRepository.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> ProcessMoMoIpnAsync(MoMoIpnRequest ipn)
+        {
+            // 1. Chữ ký
+            if (!_moMoService.ValidateSignature(ipn))
+                return false;
+
+            // 2. Tồn tại
+            var payment = await _paymentRepository.GetByTxnRefAsync(ipn.OrderId);
+            if (payment == null || payment.PaymentMethod != "MoMo")
+                return false;
+
+            // 3. Số tiền (MoMo gửi đúng số tiền, KHÔNG nhân 100)
+            if (ipn.Amount != (long)payment.Amount)
+                return false;
+
+            // 4. Đã xử lý → vẫn báo OK để MoMo không gọi lại
+            if (payment.Status != "Pending")
+                return true;
+
+            // 5. Update có điều kiện
+            var isSuccess = ipn.ResultCode == 0;
+
+            var affected = await _paymentRepository.UpdatePendingStatusAsync(
+                ipn.OrderId,
+                isSuccess ? "Completed" : "Failed",
+                isSuccess ? ipn.TransId.ToString() : null,
+                ipn.ResultCode.ToString(),
+                ipn.PayType);
+
+            // 6. Báo OrderService
+            if (affected > 0 && isSuccess)
+            {
+                try
+                {
+                    await _orderServiceClient.UpdatePaymentStatusAsync(payment.OrderId, "Paid");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex,
+                        "MoMo payment {TxnRef} completed but failed to update order {OrderId}",
+                        ipn.OrderId, payment.OrderId);
+                }
+            }
 
             return true;
         }
