@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using UserService.API.DTOs.Otp;
 using UserService.API.Interfaces;
 using UserService.API.Models.Otp;
@@ -18,6 +19,8 @@ namespace UserService.API.Controllers
             _authService = authService;
         }
 
+
+        [EnableRateLimiting("auth")]
         [HttpPost("send")]
         public async Task<IActionResult> Send([FromBody] SendOtpRequestDto request)
         {

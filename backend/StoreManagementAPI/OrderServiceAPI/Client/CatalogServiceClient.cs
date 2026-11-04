@@ -1,6 +1,7 @@
 ﻿using OrderServiceAPI.DTOs.Catalog;
 using OrderServiceAPI.DTOs.Product;
 using OrderServiceAPI.Interfaces;
+using System.Net;
 
 namespace OrderServiceAPI.Client
 {
@@ -15,8 +16,15 @@ namespace OrderServiceAPI.Client
 
         public async Task<ProductDto?> GetProductAsync(int productId)
         {
-            return await _httpClient.GetFromJsonAsync<ProductDto>(
-                $"api/products/{productId}");
+            var response = await _httpClient.GetAsync($"api/products/{productId}");
+
+            // San pham khong ton tai -> null (service tra 404), khong nem 502
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                return null;
+
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadFromJsonAsync<ProductDto>();
         }
         public async Task UpdateStockAsync(int productId, int quantity)
         {

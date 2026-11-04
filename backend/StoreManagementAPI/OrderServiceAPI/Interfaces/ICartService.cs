@@ -6,8 +6,8 @@ namespace OrderServiceAPI.Interfaces
     {
         Task<CartDto> GetCartAsync(int userId);
         Task<CartDto> AddItemAsync(AddCartItemRequest request);
-        Task<CartDto> UpdateItemAsync(int cartDetailId, UpdateCartItemRequest request);
-        Task<CartDto> RemoveItemAsync(int cartDetailId);
+        Task<CartDto> UpdateItemAsync(int userId,int cartDetailId, UpdateCartItemRequest request);
+        Task<CartDto> RemoveItemAsync(int userId,int cartDetailId);
 
         Task ClearCartAsync(int userId);
     }

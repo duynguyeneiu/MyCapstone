@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using UserService.API.DTOs.User;
 using UserService.API.Interfaces;
 
@@ -17,7 +18,9 @@ public class UserController : ControllerBase
         _userService = userService;
     }
 
-    [HttpGet]
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
     public async Task<IActionResult> GetAll()
     {
         var users = await _userService.GetAllAsync();
@@ -28,7 +31,9 @@ public class UserController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var user = await _userService.GetByIdAsync(id);
+            var currentId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            if (currentId != id && !User.IsInRole("Admin")) return Forbid();
+            var user = await _userService.GetByIdAsync(id);
 
         if (user == null)
             return NotFound();

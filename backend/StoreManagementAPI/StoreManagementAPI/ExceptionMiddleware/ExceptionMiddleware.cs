@@ -8,11 +8,9 @@ namespace CatalogService.API.ExceptionMiddleware
     {
         private readonly RequestDelegate _next;
 
-        public ExceptionMiddleware(RequestDelegate next)
-        {
-            _next = next;
-        }
-
+        private readonly ILogger<ExceptionMiddleware> _logger;
+        public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
+        { _next = next; _logger = logger; }
         public async Task InvokeAsync(HttpContext context)
         {
             try
@@ -25,7 +23,7 @@ namespace CatalogService.API.ExceptionMiddleware
             }
         }
 
-        private static async Task HandleExceptionAsync(
+        private  async Task HandleExceptionAsync(
             HttpContext context,
             Exception exception)
         {
@@ -33,6 +31,8 @@ namespace CatalogService.API.ExceptionMiddleware
 
             var statusCode = exception switch
             {
+                KeyNotFoundException => HttpStatusCode.NotFound,
+                UnauthorizedAccessException => HttpStatusCode.Forbidden,
                 NotFoundException => HttpStatusCode.NotFound,
                 ConflictException => HttpStatusCode.Conflict,
                 BadRequestException => HttpStatusCode.BadRequest,
@@ -41,14 +41,14 @@ namespace CatalogService.API.ExceptionMiddleware
 
             context.Response.StatusCode = (int)statusCode;
 
-            var response = new
-            {
-                StatusCode = context.Response.StatusCode,
-                Message = exception.Message
-            };
+            if (statusCode == HttpStatusCode.InternalServerError)
+                _logger.LogError(exception, "Unhandled exception");
 
-            await context.Response.WriteAsync(
-                JsonSerializer.Serialize(response));
+            var message = statusCode == HttpStatusCode.InternalServerError
+                ? "Internal server error." : exception.Message;
+
+            await context.Response.WriteAsync(JsonSerializer.Serialize(
+                new { statusCode = (int)statusCode, message }));
         }
     }
 }

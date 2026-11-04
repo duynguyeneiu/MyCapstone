@@ -11,6 +11,7 @@ const fmt = (n: number) => new Intl.NumberFormat("vi-VN").format(n) + " VND";
 const statusConfig: Record<string, { bg: string; color: string }> = {
   Pending: { bg: "#fff3d6", color: "#7a5c00" },
   Confirmed: { bg: "#dbeafe", color: "#1e40af" },
+  Shipping: { bg: "#e0e7ff", color: "#3730a3" },
   Processing: { bg: "#fff3d6", color: "#b47b10" },
   Shipped: { bg: "#e0f5ed", color: "#004d38" },
   Delivered: { bg: "#e0f5ed", color: "#004d38" },
@@ -150,7 +151,7 @@ export default function AdminOrdersPage({ search }: Props) {
   const today = new Date().toDateString();
   const ordersToday = orders.filter((o) => new Date(o.rawDate).toDateString() === today).length;
   const pendingCount = orders.filter((o) => o.status === "Pending" || o.status === "Processing").length;
-  const deliveredCount = orders.filter((o) => o.status === "Delivered" || o.status === "Paid").length;
+  const deliveredCount = orders.filter((o) => o.status === "Completed" || o.status === "Delivered" || o.status === "Paid").length;
   const cancelledCount = orders.filter((o) => o.status === "Cancelled" || o.status === "Refunded").length;
 
   return (
@@ -305,18 +306,10 @@ export default function AdminOrdersPage({ search }: Props) {
                   className="filter-select"
                 >
                   <option value="">All Status</option>
-                  <optgroup label="── Online ──">
-                    <option>Pending</option>
-                    <option>Confirmed</option>
-                    <option>Processing</option>
-                    <option>Shipped</option>
-                    <option>Delivered</option>
-                    <option>Completed</option>
-                  </optgroup>
-                  <optgroup label="── POS ──">
-                    <option>Paid</option>
-                    <option>Refunded</option>
-                  </optgroup>
+                  <option>Pending</option>
+                  <option>Confirmed</option>
+                  <option>Shipping</option>
+                  <option>Completed</option>
                   <option>Cancelled</option>
                 </select>
                 <select
@@ -838,18 +831,10 @@ export default function AdminOrdersPage({ search }: Props) {
                     fontSize: "14px",
                   }}
                 >
-                  <optgroup label="── Online ──">
-                    <option>Pending</option>
-                    <option>Confirmed</option>
-                    <option>Processing</option>
-                    <option>Shipped</option>
-                    <option>Delivered</option>
-                    <option>Completed</option>
-                  </optgroup>
-                  <optgroup label="── POS ──">
-                    <option>Paid</option>
-                    <option>Refunded</option>
-                  </optgroup>
+                  <option>Pending</option>
+                  <option>Confirmed</option>
+                  <option>Shipping</option>
+                  <option>Completed</option>
                   <option>Cancelled</option>
                 </select>
               </div>

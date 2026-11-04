@@ -3,8 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using System.Text;
+using System.Threading.RateLimiting;
 using UserService.API.Data;
 using UserService.API.Interfaces;
+using UserService.API.Middleware;
 using UserService.API.Models.Otp;
 using UserService.API.Models.Sms;
 using UserService.API.Repositories;
@@ -152,7 +154,17 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddRateLimiter(o =>
+{
+    o.RejectionStatusCode = 429;
+    o.AddPolicy("auth", ctx => RateLimitPartition.GetFixedWindowLimiter(
+        ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = 5, Window = TimeSpan.FromMinutes(1) }));
+});
+
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 // =====================================================
 // HTTP Request Pipeline
@@ -173,7 +185,7 @@ app.UseCors("AllowFrontend");
 // Authentication phải trước Authorization
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseRateLimiter();
 // Controllers
 app.MapControllers();
 

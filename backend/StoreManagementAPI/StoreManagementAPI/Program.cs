@@ -1,9 +1,12 @@
+using CatalogService.API.Data;
 using CatalogService.API.ExceptionMiddleware;
 using CatalogService.API.Interfaces;
 using CatalogService.API.Repositories;
 using CatalogService.API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using CatalogService.API.Data;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("CatalogContext") ?? throw new InvalidOperationException("Connection string 'CatalogContext' not found.");
@@ -34,10 +37,47 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
 
 
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+
 
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+
+// =====================================================
+// JWT Authentication
+// =====================================================
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters =
+            new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+
+                ValidIssuer =
+                    builder.Configuration["Jwt:Issuer"],
+
+                ValidAudience =
+                    builder.Configuration["Jwt:Audience"],
+
+                IssuerSigningKey =
+                    new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(
+                            builder.Configuration["Jwt:Key"]!
+                        )
+                    )
+            };
+    });
+
+// =====================================================
+// Authorization
+// =====================================================
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 app.UseMiddleware<ExceptionMiddleware>();
@@ -53,7 +93,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseCors("AllowFrontend");
-
+app.UseAuthentication();
 app.UseAuthorization();
 app.UseStaticFiles();
 

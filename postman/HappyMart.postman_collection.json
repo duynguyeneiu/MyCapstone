@@ -1,0 +1,2752 @@
+{
+  "info": {
+    "_postman_id": "edd470ae-ab4f-4e70-983b-dac766aec444",
+    "name": "HappyMart API – Phase 2 tests",
+    "description": "End-to-end API tests for the 5 HappyMart microservices (User, Catalog, Order, Payment, Review).\n\nRun the whole collection in order with the Collection Runner or Newman:\n\n  newman run HappyMart.postman_collection.json -e HappyMart.local.postman_environment.json -r cli,htmlextra\n\nPrerequisites: all 5 services running, and one Admin, one Staff and one Customer account in UserServiceDB (fill their phone/password in the environment).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Auth (UserService)",
+      "item": [
+        {
+          "name": "Login as Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{userUrl}}/api/Auth/login",
+              "host": [
+                "{{userUrl}}"
+              ],
+              "path": [
+                "api",
+                "Auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{adminPhone}}\",\n  \"password\": \"{{adminPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Returns JWT token\", () => pm.expect(body.token).to.be.a(\"string\").and.not.empty);",
+                  "pm.test(\"Role is Admin\", () => pm.expect(body.role).to.eql(\"Admin\"));",
+                  "pm.collectionVariables.set(\"adminToken\", body.token);",
+                  "pm.collectionVariables.set(\"adminId\", body.userId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login as Staff",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{userUrl}}/api/Auth/login",
+              "host": [
+                "{{userUrl}}"
+              ],
+              "path": [
+                "api",
+                "Auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{staffPhone}}\",\n  \"password\": \"{{staffPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Returns JWT token\", () => pm.expect(body.token).to.be.a(\"string\").and.not.empty);",
+                  "pm.test(\"Role is Staff\", () => pm.expect(body.role).to.eql(\"Staff\"));",
+                  "pm.collectionVariables.set(\"staffToken\", body.token);",
+                  "pm.collectionVariables.set(\"staffId\", body.userId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login as Customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{userUrl}}/api/Auth/login",
+              "host": [
+                "{{userUrl}}"
+              ],
+              "path": [
+                "api",
+                "Auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{customerPhone}}\",\n  \"password\": \"{{customerPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Returns JWT token\", () => pm.expect(body.token).to.be.a(\"string\").and.not.empty);",
+                  "pm.test(\"Role is Customer\", () => pm.expect(body.role).to.eql(\"Customer\"));",
+                  "pm.collectionVariables.set(\"customerToken\", body.token);",
+                  "pm.collectionVariables.set(\"customerId\", body.userId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login with wrong password → 401",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{userUrl}}/api/Auth/login",
+              "host": [
+                "{{userUrl}}"
+              ],
+              "path": [
+                "api",
+                "Auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{customerPhone}}\",\n  \"password\": \"wrong-password-123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 401\", () => pm.expect(pm.response.code).to.be.oneOf([401]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get current user (customer token)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{userUrl}}/api/Auth/me",
+              "host": [
+                "{{userUrl}}"
+              ],
+              "path": [
+                "api",
+                "Auth",
+                "me"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "pm.test(\"Role claim is Customer\", () => pm.expect(pm.response.json().role).to.eql(\"Customer\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get current user without token → 401",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{userUrl}}/api/Auth/me",
+              "host": [
+                "{{userUrl}}"
+              ],
+              "path": [
+                "api",
+                "Auth",
+                "me"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 401\", () => pm.expect(pm.response.code).to.be.oneOf([401]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List users as Customer → 403",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{userUrl}}/api/User",
+              "host": [
+                "{{userUrl}}"
+              ],
+              "path": [
+                "api",
+                "User"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 403\", () => pm.expect(pm.response.code).to.be.oneOf([403]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List users as Admin → 200",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{userUrl}}/api/User",
+              "host": [
+                "{{userUrl}}"
+              ],
+              "path": [
+                "api",
+                "User"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Send OTP with invalid phone → 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{userUrl}}/api/Otp/send",
+              "host": [
+                "{{userUrl}}"
+              ],
+              "path": [
+                "api",
+                "Otp",
+                "send"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"123\",\n  \"purpose\": \"Register\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.expect(pm.response.code).to.be.oneOf([400]));"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Logs in the three seeded accounts and stores their JWTs. Fill adminPhone/adminPassword, staffPhone/staffPassword and customerPhone/customerPassword in the environment first."
+    },
+    {
+      "name": "2. Catalog (CatalogService)",
+      "item": [
+        {
+          "name": "Get categories (public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{catalogUrl}}/api/Categories?page=1&pageSize=10",
+              "host": [
+                "{{catalogUrl}}"
+              ],
+              "path": [
+                "api",
+                "Categories?page=1&pageSize=10"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "const items = pm.response.json().items;",
+                  "pm.test(\"Has at least one category\", () => pm.expect(items.length).to.be.above(0));",
+                  "pm.collectionVariables.set(\"categoryId\", items[0].categoryId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get products (public, paged)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{catalogUrl}}/api/Products?page=1&pageSize=5",
+              "host": [
+                "{{catalogUrl}}"
+              ],
+              "path": [
+                "api",
+                "Products?page=1&pageSize=5"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Paged response shape\", () => { pm.expect(body).to.have.property(\"items\"); pm.expect(body).to.have.property(\"totalCount\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get product 999999 → 404",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{catalogUrl}}/api/Products/999999",
+              "host": [
+                "{{catalogUrl}}"
+              ],
+              "path": [
+                "api",
+                "Products",
+                "999999"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 404\", () => pm.expect(pm.response.code).to.be.oneOf([404]));",
+                  "pm.test(\"JSON error body from ExceptionMiddleware\", () => pm.expect(pm.response.json()).to.have.any.keys(\"message\",\"Message\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create product without token → 401",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{catalogUrl}}/api/Products",
+              "host": [
+                "{{catalogUrl}}"
+              ],
+              "path": [
+                "api",
+                "Products"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productCode\": \"PM-NOAUTH\",\n  \"productName\": \"x\",\n  \"unit\": \"box\",\n  \"importPrice\": 1,\n  \"salePrice\": 2,\n  \"quantityInStock\": 1,\n  \"categoryId\": {{categoryId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 401\", () => pm.expect(pm.response.code).to.be.oneOf([401]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create product as Customer → 403",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{catalogUrl}}/api/Products",
+              "host": [
+                "{{catalogUrl}}"
+              ],
+              "path": [
+                "api",
+                "Products"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productCode\": \"PM-CUSTOMER\",\n  \"productName\": \"x\",\n  \"unit\": \"box\",\n  \"importPrice\": 1,\n  \"salePrice\": 2,\n  \"quantityInStock\": 1,\n  \"categoryId\": {{categoryId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 403\", () => pm.expect(pm.response.code).to.be.oneOf([403]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create product with invalid data → 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{catalogUrl}}/api/Products",
+              "host": [
+                "{{catalogUrl}}"
+              ],
+              "path": [
+                "api",
+                "Products"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productCode\": \"\",\n  \"productName\": \"\",\n  \"unit\": \"box\",\n  \"importPrice\": -1,\n  \"salePrice\": 0,\n  \"quantityInStock\": 1,\n  \"categoryId\": {{categoryId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.expect(pm.response.code).to.be.oneOf([400]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create test product as Admin → 201",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{catalogUrl}}/api/Products",
+              "host": [
+                "{{catalogUrl}}"
+              ],
+              "path": [
+                "api",
+                "Products"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productCode\": \"{{testProductCode}}\",\n  \"productName\": \"Postman Test Product\",\n  \"unit\": \"box\",\n  \"importPrice\": 10000,\n  \"salePrice\": 20000,\n  \"quantityInStock\": 100,\n  \"categoryId\": {{categoryId}},\n  \"status\": \"Active\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"testProductCode\", \"PM-\" + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", () => pm.expect(pm.response.code).to.be.oneOf([201]));",
+                  "const p = pm.response.json();",
+                  "pm.collectionVariables.set(\"testProductId\", p.productId);",
+                  "pm.test(\"Stock is 100\", () => pm.expect(p.quantityInStock).to.eql(100));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create duplicate product code → 409",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{catalogUrl}}/api/Products",
+              "host": [
+                "{{catalogUrl}}"
+              ],
+              "path": [
+                "api",
+                "Products"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productCode\": \"{{testProductCode}}\",\n  \"productName\": \"Duplicate\",\n  \"unit\": \"box\",\n  \"importPrice\": 1,\n  \"salePrice\": 2,\n  \"quantityInStock\": 1,\n  \"categoryId\": {{categoryId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 409\", () => pm.expect(pm.response.code).to.be.oneOf([409]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update stock without internal key → 401",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{catalogUrl}}/api/Products/{{testProductId}}/stock",
+              "host": [
+                "{{catalogUrl}}"
+              ],
+              "path": [
+                "api",
+                "Products",
+                "{{testProductId}}",
+                "stock"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 401\", () => pm.expect(pm.response.code).to.be.oneOf([401]));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Cart & Order (OrderService)",
+      "item": [
+        {
+          "name": "Add test product to cart (customer)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{orderUrl}}/api/Cart/items",
+              "host": [
+                "{{orderUrl}}"
+              ],
+              "path": [
+                "api",
+                "Cart",
+                "items"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": {{testProductId}},\n  \"quantity\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "const cart = pm.response.json();",
+                  "pm.test(\"Cart contains the product\", () => pm.expect(cart.items.some(i => i.productId == pm.collectionVariables.get(\"testProductId\"))).to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Add more than stock → 409",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{orderUrl}}/api/Cart/items",
+              "host": [
+                "{{orderUrl}}"
+              ],
+              "path": [
+                "api",
+                "Cart",
+                "items"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": {{testProductId}},\n  \"quantity\": 1000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 409\", () => pm.expect(pm.response.code).to.be.oneOf([409]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "View another user's cart → 403",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{orderUrl}}/api/Cart/{{adminId}}",
+              "host": [
+                "{{orderUrl}}"
+              ],
+              "path": [
+                "api",
+                "Cart",
+                "{{adminId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 403\", () => pm.expect(pm.response.code).to.be.oneOf([403]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Checkout online order (COD)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{orderUrl}}/api/Order/checkout",
+              "host": [
+                "{{orderUrl}}"
+              ],
+              "path": [
+                "api",
+                "Order",
+                "checkout"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"receiverName\": \"Postman Customer\",\n  \"receiverPhone\": \"{{customerPhone}}\",\n  \"shippingAddress\": \"Thu Dau Mot, Binh Duong\",\n  \"paymentMethod\": \"COD\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "const o = pm.response.json();",
+                  "pm.collectionVariables.set(\"onlineOrderId\", o.orderId);",
+                  "pm.test(\"Status is Pending\", () => pm.expect(o.orderStatus).to.eql(\"Pending\"));",
+                  "pm.test(\"Final = total + 30.000 shipping\", () => pm.expect(o.finalAmount).to.eql(o.totalAmount + 30000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get own order",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{orderUrl}}/api/Order/{{onlineOrderId}}",
+              "host": [
+                "{{orderUrl}}"
+              ],
+              "path": [
+                "api",
+                "Order",
+                "{{onlineOrderId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get order without token → 401",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{orderUrl}}/api/Order/{{onlineOrderId}}",
+              "host": [
+                "{{orderUrl}}"
+              ],
+              "path": [
+                "api",
+                "Order",
+                "{{onlineOrderId}}"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 401\", () => pm.expect(pm.response.code).to.be.oneOf([401]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List all orders as Customer → 403",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{orderUrl}}/api/Order",
+              "host": [
+                "{{orderUrl}}"
+              ],
+              "path": [
+                "api",
+                "Order"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 403\", () => pm.expect(pm.response.code).to.be.oneOf([403]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List all orders as Staff → 200",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{orderUrl}}/api/Order",
+              "host": [
+                "{{orderUrl}}"
+              ],
+              "path": [
+                "api",
+                "Order"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staffToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Skip a step (Pending -> Completed) → 409",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{orderUrl}}/api/Order/{{onlineOrderId}}/status",
+              "host": [
+                "{{orderUrl}}"
+              ],
+              "path": [
+                "api",
+                "Order",
+                "{{onlineOrderId}}",
+                "status"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staffToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Completed\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 409\", () => pm.expect(pm.response.code).to.be.oneOf([409]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Staff confirms the online order (stock -2)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{orderUrl}}/api/Order/{{onlineOrderId}}/status",
+              "host": [
+                "{{orderUrl}}"
+              ],
+              "path": [
+                "api",
+                "Order",
+                "{{onlineOrderId}}",
+                "status"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staffToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Confirmed\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 204\", () => pm.expect(pm.response.code).to.be.oneOf([204]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Staff ships the online order",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{orderUrl}}/api/Order/{{onlineOrderId}}/status",
+              "host": [
+                "{{orderUrl}}"
+              ],
+              "path": [
+                "api",
+                "Order",
+                "{{onlineOrderId}}",
+                "status"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staffToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Shipping\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 204\", () => pm.expect(pm.response.code).to.be.oneOf([204]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Staff completes the online order",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{orderUrl}}/api/Order/{{onlineOrderId}}/status",
+              "host": [
+                "{{orderUrl}}"
+              ],
+              "path": [
+                "api",
+                "Order",
+                "{{onlineOrderId}}",
+                "status"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staffToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Completed\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 204\", () => pm.expect(pm.response.code).to.be.oneOf([204]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Customer cancels completed order → 409",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{orderUrl}}/api/Order/{{onlineOrderId}}/cancel",
+              "host": [
+                "{{orderUrl}}"
+              ],
+              "path": [
+                "api",
+                "Order",
+                "{{onlineOrderId}}",
+                "cancel"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 409\", () => pm.expect(pm.response.code).to.be.oneOf([409]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Add to cart again (for cancel test)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{orderUrl}}/api/Cart/items",
+              "host": [
+                "{{orderUrl}}"
+              ],
+              "path": [
+                "api",
+                "Cart",
+                "items"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": {{testProductId}},\n  \"quantity\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Checkout second order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{orderUrl}}/api/Order/checkout",
+              "host": [
+                "{{orderUrl}}"
+              ],
+              "path": [
+                "api",
+                "Order",
+                "checkout"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"receiverName\": \"Postman Customer\",\n  \"receiverPhone\": \"{{customerPhone}}\",\n  \"shippingAddress\": \"Thu Dau Mot, Binh Duong\",\n  \"paymentMethod\": \"COD\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "pm.collectionVariables.set(\"cancelOrderId\", pm.response.json().orderId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Customer cancels pending order → 204",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{orderUrl}}/api/Order/{{cancelOrderId}}/cancel",
+              "host": [
+                "{{orderUrl}}"
+              ],
+              "path": [
+                "api",
+                "Order",
+                "{{cancelOrderId}}",
+                "cancel"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 204\", () => pm.expect(pm.response.code).to.be.oneOf([204]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POS checkout as Customer → 403",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{orderUrl}}/api/Order/pos-checkout",
+              "host": [
+                "{{orderUrl}}"
+              ],
+              "path": [
+                "api",
+                "Order",
+                "pos-checkout"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentMethod\": \"Cash\",\n  \"items\": [\n    {\n      \"productId\": {{testProductId}},\n      \"quantity\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 403\", () => pm.expect(pm.response.code).to.be.oneOf([403]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POS checkout as Staff",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{orderUrl}}/api/Order/pos-checkout",
+              "host": [
+                "{{orderUrl}}"
+              ],
+              "path": [
+                "api",
+                "Order",
+                "pos-checkout"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staffToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentMethod\": \"Cash\",\n  \"items\": [\n    {\n      \"productId\": {{testProductId}},\n      \"quantity\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "const o = pm.response.json();",
+                  "pm.collectionVariables.set(\"posOrderId\", o.orderId);",
+                  "pm.test(\"POS order is paid and completed\", () => { pm.expect(o.orderType).to.eql(\"POS\"); pm.expect(o.paymentStatus).to.eql(\"Paid\"); pm.expect(o.orderStatus).to.eql(\"Completed\"); });",
+                  "pm.test(\"No shipping fee at the counter\", () => pm.expect(o.shippingFee).to.eql(0));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Stock after online order (-2) and POS sale (-1): 100 → 97",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{catalogUrl}}/api/Products/{{testProductId}}",
+              "host": [
+                "{{catalogUrl}}"
+              ],
+              "path": [
+                "api",
+                "Products",
+                "{{testProductId}}"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "pm.test(\"Stock decreased by confirmed order and POS sale\", () => pm.expect(pm.response.json().quantityInStock).to.eql(97));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Payment (PaymentService)",
+      "item": [
+        {
+          "name": "Cash payment for POS order → 201",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{paymentUrl}}/api/Payment",
+              "host": [
+                "{{paymentUrl}}"
+              ],
+              "path": [
+                "api",
+                "Payment"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staffToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": {{posOrderId}},\n  \"paymentMethod\": \"Cash\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", () => pm.expect(pm.response.code).to.be.oneOf([201]));",
+                  "const p = pm.response.json();",
+                  "pm.test(\"Cash payment is completed immediately\", () => pm.expect(p.status).to.eql(\"Completed\"));",
+                  "pm.test(\"TxnRef generated\", () => pm.expect(p.txnRef).to.match(/^CASH/));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pay the same order again → 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{paymentUrl}}/api/Payment",
+              "host": [
+                "{{paymentUrl}}"
+              ],
+              "path": [
+                "api",
+                "Payment"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staffToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": {{posOrderId}},\n  \"paymentMethod\": \"Cash\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.expect(pm.response.code).to.be.oneOf([400]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Unsupported payment method → 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{paymentUrl}}/api/Payment",
+              "host": [
+                "{{paymentUrl}}"
+              ],
+              "path": [
+                "api",
+                "Payment"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": {{onlineOrderId}},\n  \"paymentMethod\": \"Bitcoin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.expect(pm.response.code).to.be.oneOf([400]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Payment for missing order → 404",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{paymentUrl}}/api/Payment",
+              "host": [
+                "{{paymentUrl}}"
+              ],
+              "path": [
+                "api",
+                "Payment"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": 999999,\n  \"paymentMethod\": \"COD\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 404\", () => pm.expect(pm.response.code).to.be.oneOf([404]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create VNPay payment URL",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{paymentUrl}}/api/Payment/vnpay/create",
+              "host": [
+                "{{paymentUrl}}"
+              ],
+              "path": [
+                "api",
+                "Payment",
+                "vnpay",
+                "create"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": {{onlineOrderId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "const r = pm.response.json();",
+                  "pm.test(\"Returns a signed sandbox URL\", () => { pm.expect(r.paymentUrl).to.include(\"vnpayment.vn\"); pm.expect(r.paymentUrl).to.include(\"vnp_SecureHash=\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "VNPay IPN with fake signature → RspCode 97",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{paymentUrl}}/api/Payment/vnpay-ipn?vnp_TxnRef=FAKE&vnp_Amount=100&vnp_ResponseCode=00&vnp_SecureHash=deadbeef",
+              "host": [
+                "{{paymentUrl}}"
+              ],
+              "path": [
+                "api",
+                "Payment",
+                "vnpay-ipn?vnp_TxnRef=FAKE&vnp_Amount=100&vnp_ResponseCode=00&vnp_SecureHash=deadbeef"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "pm.test(\"Rejected: invalid signature\", () => pm.expect(pm.response.json().RspCode).to.eql(\"97\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List all payments as Customer → 403",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{paymentUrl}}/api/Payment",
+              "host": [
+                "{{paymentUrl}}"
+              ],
+              "path": [
+                "api",
+                "Payment"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 403\", () => pm.expect(pm.response.code).to.be.oneOf([403]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List all payments as Admin → 200",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{paymentUrl}}/api/Payment",
+              "host": [
+                "{{paymentUrl}}"
+              ],
+              "path": [
+                "api",
+                "Payment"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Review (ReviewService)",
+      "item": [
+        {
+          "name": "Get reviews of a product (public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{reviewUrl}}/api/Reviews/product/{{testProductId}}",
+              "host": [
+                "{{reviewUrl}}"
+              ],
+              "path": [
+                "api",
+                "Reviews",
+                "product",
+                "{{testProductId}}"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create review without token → 401",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{reviewUrl}}/api/Reviews",
+              "host": [
+                "{{reviewUrl}}"
+              ],
+              "path": [
+                "api",
+                "Reviews"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": {{testProductId}},\n  \"rating\": 5,\n  \"comment\": \"x\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 401\", () => pm.expect(pm.response.code).to.be.oneOf([401]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create review with rating 6 → 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{reviewUrl}}/api/Reviews",
+              "host": [
+                "{{reviewUrl}}"
+              ],
+              "path": [
+                "api",
+                "Reviews"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": {{testProductId}},\n  \"rating\": 6,\n  \"comment\": \"x\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.expect(pm.response.code).to.be.oneOf([400]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Staff reviews product never bought → 403",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{reviewUrl}}/api/Reviews",
+              "host": [
+                "{{reviewUrl}}"
+              ],
+              "path": [
+                "api",
+                "Reviews"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staffToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": {{testProductId}},\n  \"rating\": 5,\n  \"comment\": \"Not a buyer\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 403\", () => pm.expect(pm.response.code).to.be.oneOf([403]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Customer reviews purchased product → 201",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{reviewUrl}}/api/Reviews",
+              "host": [
+                "{{reviewUrl}}"
+              ],
+              "path": [
+                "api",
+                "Reviews"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": {{testProductId}},\n  \"rating\": 5,\n  \"comment\": \"Postman test review\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", () => pm.expect(pm.response.code).to.be.oneOf([201]));",
+                  "pm.collectionVariables.set(\"reviewId\", pm.response.json().reviewId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Review the same product twice → 409",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{reviewUrl}}/api/Reviews",
+              "host": [
+                "{{reviewUrl}}"
+              ],
+              "path": [
+                "api",
+                "Reviews"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": {{testProductId}},\n  \"rating\": 4,\n  \"comment\": \"again\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 409\", () => pm.expect(pm.response.code).to.be.oneOf([409]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Another user edits the review → 403",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{reviewUrl}}/api/Reviews/{{reviewId}}",
+              "host": [
+                "{{reviewUrl}}"
+              ],
+              "path": [
+                "api",
+                "Reviews",
+                "{{reviewId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staffToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 1,\n  \"comment\": \"hijack\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 403\", () => pm.expect(pm.response.code).to.be.oneOf([403]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Owner updates the review → 204",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{reviewUrl}}/api/Reviews/{{reviewId}}",
+              "host": [
+                "{{reviewUrl}}"
+              ],
+              "path": [
+                "api",
+                "Reviews",
+                "{{reviewId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 4,\n  \"comment\": \"Updated by Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 204\", () => pm.expect(pm.response.code).to.be.oneOf([204]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Owner deletes the review → 204",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{reviewUrl}}/api/Reviews/{{reviewId}}",
+              "host": [
+                "{{reviewUrl}}"
+              ],
+              "path": [
+                "api",
+                "Reviews",
+                "{{reviewId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 204\", () => pm.expect(pm.response.code).to.be.oneOf([204]));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6. Cleanup",
+      "item": [
+        {
+          "name": "Delete test product as Customer → 403",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{catalogUrl}}/api/Products/{{testProductId}}",
+              "host": [
+                "{{catalogUrl}}"
+              ],
+              "path": [
+                "api",
+                "Products",
+                "{{testProductId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 403\", () => pm.expect(pm.response.code).to.be.oneOf([403]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete test product as Admin → 204",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{catalogUrl}}/api/Products/{{testProductId}}",
+              "host": [
+                "{{catalogUrl}}"
+              ],
+              "path": [
+                "api",
+                "Products",
+                "{{testProductId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 204\", () => pm.expect(pm.response.code).to.be.oneOf([204]));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "7. Rate limiting (run last)",
+      "item": [
+        {
+          "name": "6th login within a minute → 429",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{userUrl}}/api/Auth/login",
+              "host": [
+                "{{userUrl}}"
+              ],
+              "path": [
+                "api",
+                "Auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{customerPhone}}\",\n  \"password\": \"wrong-password-123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Fires 6 login attempts in the pre-request script, then expects the real request to be rejected with 429 Too Many Requests. Wait 1 minute before running the collection again."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Burn the 5-requests-per-minute quota of the \"auth\" policy first.",
+                  "for (let i = 0; i < 6; i++) {",
+                  "  pm.sendRequest({",
+                  "    url: pm.variables.replaceIn(\"{{userUrl}}/api/Auth/login\"),",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: { mode: \"raw\", raw: JSON.stringify({ phone: \"0000000000\", password: \"x\" }) }",
+                  "  }, () => {});",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 429\", () => pm.expect(pm.response.code).to.be.oneOf([429]));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "adminToken",
+      "value": ""
+    },
+    {
+      "key": "staffToken",
+      "value": ""
+    },
+    {
+      "key": "customerToken",
+      "value": ""
+    },
+    {
+      "key": "adminId",
+      "value": ""
+    },
+    {
+      "key": "staffId",
+      "value": ""
+    },
+    {
+      "key": "customerId",
+      "value": ""
+    },
+    {
+      "key": "categoryId",
+      "value": ""
+    },
+    {
+      "key": "testProductCode",
+      "value": ""
+    },
+    {
+      "key": "testProductId",
+      "value": ""
+    },
+    {
+      "key": "onlineOrderId",
+      "value": ""
+    },
+    {
+      "key": "cancelOrderId",
+      "value": ""
+    },
+    {
+      "key": "posOrderId",
+      "value": ""
+    },
+    {
+      "key": "reviewId",
+      "value": ""
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+# HappyMart – 5 ASP.NET Core microservices + Next.js frontend
+#
+#   1. cp .env.example .env   (then fill in the values)
+#   2. docker compose up -d --build
+#   3. open http://localhost:3000
+#
+# The SQL Server databases stay on the Windows host (the same 5 databases used
+# in development). Containers reach it through host.docker.internal using a
+# SQL login – see docker/sql/create-login.sql.
+#
+# Host ports are the same as in development (5001–5005, 3000), so the browser,
+# the frontend bundle, VNPay/MoMo return URLs and Postman need no changes.
+
+x-aspnet-common: &aspnet-common
+  restart: unless-stopped
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+
+x-aspnet-env: &aspnet-env
+  ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}   # Development keeps Swagger UI on
+  ASPNETCORE_HTTP_PORTS: "8080"
+  Jwt__Key: ${JWT_KEY:?JWT_KEY is required (same value for all services)}
+  Jwt__Issuer: UserService
+  Jwt__Audience: RetailManagement
+  InternalApi__Key: ${INTERNAL_API_KEY:?INTERNAL_API_KEY is required}
+
+services:
+
+  catalog-api:
+    <<: *aspnet-common
+    build: ./backend/StoreManagementAPI/StoreManagementAPI
+    image: happymart/catalog-api
+    container_name: happymart-catalog
+    ports: ["5001:8080"]
+    environment:
+      <<: *aspnet-env
+      ConnectionStrings__CatalogContext: "Server=${DB_HOST:-host.docker.internal},${DB_PORT:-1433};Database=CatalogServiceDB;User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=True"
+      AppSettings__BaseUrl: http://localhost:5001      # image URLs are opened by the browser
+
+  user-api:
+    <<: *aspnet-common
+    build: ./backend/StoreManagementAPI/UserService.API
+    image: happymart/user-api
+    container_name: happymart-user
+    ports: ["5005:8080"]
+    environment:
+      <<: *aspnet-env
+      ConnectionStrings__DefaultConnection: "Server=${DB_HOST:-host.docker.internal},${DB_PORT:-1433};Database=UserServiceDB;User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=True"
+      Sms__Provider: ${SMS_PROVIDER:-Console}         # Console = OTP printed in `docker compose logs user-api`
+      Sms__Esms__ApiKey: ${ESMS_API_KEY:-}
+      Sms__Esms__SecretKey: ${ESMS_SECRET_KEY:-}
+
+  order-api:
+    <<: *aspnet-common
+    build: ./backend/StoreManagementAPI/OrderServiceAPI
+    image: happymart/order-api
+    container_name: happymart-order
+    ports: ["5002:8080"]
+    depends_on: [catalog-api]
+    environment:
+      <<: *aspnet-env
+      ConnectionStrings__DefaultConnection: "Server=${DB_HOST:-host.docker.internal},${DB_PORT:-1433};Database=OrderServiceDB;User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=True"
+      Services__CatalogService: http://catalog-api:8080/
+
+  payment-api:
+    <<: *aspnet-common
+    build: ./backend/StoreManagementAPI/PaymentService.API
+    image: happymart/payment-api
+    container_name: happymart-payment
+    ports: ["5003:8080"]
+    depends_on: [order-api]
+    environment:
+      <<: *aspnet-env
+      ConnectionStrings__PaymentDatabase: "Server=${DB_HOST:-host.docker.internal},${DB_PORT:-1433};Database=PaymentServiceDB;User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=True"
+      Services__OrderService: http://order-api:8080/
+      VnPay__TmnCode: ${VNPAY_TMN_CODE:-}
+      VnPay__HashSecret: ${VNPAY_HASH_SECRET:-}
+      MoMo__PartnerCode: ${MOMO_PARTNER_CODE:-}
+      MoMo__AccessKey: ${MOMO_ACCESS_KEY:-}
+      MoMo__SecretKey: ${MOMO_SECRET_KEY:-}
+      MoMo__IpnUrl: ${MOMO_IPN_URL:-http://localhost:5003/api/Payment/momo-ipn}
+
+  review-api:
+    <<: *aspnet-common
+    build: ./backend/StoreManagementAPI/ReviewService.API
+    image: happymart/review-api
+    container_name: happymart-review
+    ports: ["5004:8080"]
+    depends_on: [order-api, catalog-api, user-api]
+    environment:
+      <<: *aspnet-env
+      ConnectionStrings__ReviewContext: "Server=${DB_HOST:-host.docker.internal},${DB_PORT:-1433};Database=ReviewServiceDB;User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=True"
+      Services__OrderService: http://order-api:8080/
+      Services__CatalogService: http://catalog-api:8080/
+      Services__UserService: http://user-api:8080/
+
+  frontend:
+    build:
+      context: ./fontend/storemanagement
+      args:
+        NEXT_PUBLIC_CATEGORY_API_URL: http://localhost:5001
+        NEXT_PUBLIC_ORDER_API_URL: http://localhost:5002
+        NEXT_PUBLIC_PAYMENT_API_URL: http://localhost:5003
+        NEXT_PUBLIC_REVIEW_API_URL: http://localhost:5004
+        NEXT_PUBLIC_USER_API_URL: http://localhost:5005
+    image: happymart/frontend
+    container_name: happymart-frontend
+    restart: unless-stopped
+    ports: ["3000:3000"]
+    depends_on: [catalog-api, user-api, order-api, payment-api, review-api]

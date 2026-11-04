@@ -1,0 +1,6 @@
+# Local secrets for docker compose
+.env
+
+# Test output
+**/TestResults/
+newman/

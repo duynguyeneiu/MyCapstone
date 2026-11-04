@@ -6,4 +6,11 @@
     <Project Path="StoreManagementAPI/CatalogService.API.csproj" />
     <Project Path="UserService.API/UserService.API.csproj" Id="006adda4-8d07-43de-bb7b-dcf6c62b6b46" />
   </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="tests/CatalogService.API.Tests/CatalogService.API.Tests.csproj" />
+    <Project Path="tests/OrderServiceAPI.Tests/OrderServiceAPI.Tests.csproj" />
+    <Project Path="tests/PaymentService.API.Tests/PaymentService.API.Tests.csproj" />
+    <Project Path="tests/ReviewService.API.Tests/ReviewService.API.Tests.csproj" />
+    <Project Path="tests/UserService.API.Tests/UserService.API.Tests.csproj" />
+  </Folder>
 </Solution>

@@ -12,9 +12,9 @@ interface POSHistoryPageProps {
 }
 
 const paymentColor: Record<string, { bg: string; color: string }> = {
-  Cash: { bg: '#d1fae5', color: '#065f46' },
-  Card: { bg: '#dbeafe', color: '#1e40af' },
-  QR:   { bg: '#ede9fe', color: '#6d28d9' },
+  Cash:  { bg: '#d1fae5', color: '#065f46' },
+  VNPay: { bg: '#dbeafe', color: '#1e40af' },
+  MoMo:  { bg: '#fce7f3', color: '#a50064' },
 };
 
 export default function POSHistoryPage({ history, onBack, onViewReceipt }: POSHistoryPageProps) {

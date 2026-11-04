@@ -26,7 +26,7 @@ namespace OrderServiceAPI.Services
             var cart = await _cartRepository.GetCartByUserIdAsync(request.UserId);
 
             if (cart == null || !cart.CartDetails.Any())
-                throw new Exception("Cart is empty.");
+                throw new ArgumentException("Cart is empty.");
 
             decimal totalAmount = 0;
             var productNames = new Dictionary<int, string>();
@@ -37,10 +37,10 @@ namespace OrderServiceAPI.Services
                 var product = await _catalogClient.GetProductAsync(item.ProductId);
 
                 if (product == null)
-                    throw new Exception($"Product {item.ProductId} not found.");
+                    throw new KeyNotFoundException($"Product {item.ProductId} not found.");
 
                 if (product.StockQuantity < item.Quantity)
-                    throw new Exception($"Product {item.ProductId} is out of stock.");
+                    throw new InvalidOperationException($"Product {item.ProductId} is out of stock.");
 
                 item.UnitPrice = product.Price;
                 item.Subtotal = product.Price * item.Quantity;
@@ -130,7 +130,7 @@ namespace OrderServiceAPI.Services
         public async Task<OrderDto> CheckoutPosAsync(PosCheckoutRequest request)
         {
             if (request.Items == null || !request.Items.Any())
-                throw new Exception("No items to checkout.");
+                throw new ArgumentException("No items to checkout.");
 
             decimal totalAmount = 0;
             var orderDetails = new List<OrderDetail>();
@@ -140,10 +140,10 @@ namespace OrderServiceAPI.Services
                 var product = await _catalogClient.GetProductAsync(item.ProductId);
 
                 if (product == null)
-                    throw new Exception($"Product {item.ProductId} not found.");
+                    throw new KeyNotFoundException($"Product {item.ProductId} not found.");
 
                 if (product.StockQuantity < item.Quantity)
-                    throw new Exception($"Product {item.ProductId} is out of stock.");
+                    throw new InvalidOperationException($"Product {item.ProductId} is out of stock.");
 
                 var subtotal = product.Price * item.Quantity;
                 totalAmount += subtotal;
@@ -220,7 +220,7 @@ namespace OrderServiceAPI.Services
             var order = await _orderRepository.GetOrderByIdAsync(orderId);
 
             if (order == null)
-                throw new Exception("Order not found.");
+                throw new KeyNotFoundException("Order not found.");
 
             return MapToDto(order);
         }
@@ -254,15 +254,16 @@ namespace OrderServiceAPI.Services
             };
         }
 
-        public async Task CancelOrderAsync(int orderId)
+        public async Task CancelOrderAsync(int orderId, int userId, bool isStaff)
         {
             var order = await _orderRepository.GetOrderByIdAsync(orderId);
 
             if (order == null)
-                throw new Exception("Order not found.");
-
+                throw new KeyNotFoundException("Order not found.");
+            if (!isStaff && order.CustomerUserId != userId)
+                throw new UnauthorizedAccessException("You can only cancel your own orders.");
             if (order.OrderStatus != "Pending")
-                throw new Exception("Only pending orders can be cancelled.");
+                throw new InvalidOperationException("Only pending orders can be cancelled.");
 
             order.OrderStatus = "Cancelled";
             order.UpdatedAt = DateTime.Now;
@@ -271,12 +272,32 @@ namespace OrderServiceAPI.Services
         }
 
 
+        // Luong trang thai don ONLINE. Huy chi khi con Pending (chua tru kho).
+        // Completed / Cancelled la trang thai cuoi -> khong co buoc tiep theo.
+        private static readonly Dictionary<string, string[]> AllowedTransitions = new()
+        {
+            ["Pending"]   = new[] { "Confirmed", "Cancelled" },
+            ["Confirmed"] = new[] { "Shipping" },
+            ["Shipping"]  = new[] { "Completed" },
+        };
+
+        private static readonly HashSet<string> ValidStatuses =
+            new() { "Pending", "Confirmed", "Shipping", "Completed", "Cancelled" };
+
         public async Task UpdateStatusAsync(int orderId, UpdateOrderStatusRequest request)
         {
+            if (!ValidStatuses.Contains(request.Status))
+                throw new ArgumentException($"Invalid order status '{request.Status}'.");
+
             var order = await _orderRepository.GetOrderByIdAsync(orderId);
 
             if (order == null)
-                throw new Exception("Order not found.");
+                throw new KeyNotFoundException("Order not found.");
+
+            if (!AllowedTransitions.TryGetValue(order.OrderStatus, out var next)
+                || !next.Contains(request.Status))
+                throw new InvalidOperationException(
+                    $"Cannot change order status from '{order.OrderStatus}' to '{request.Status}'.");
 
             order.OrderStatus = request.Status;
             order.UpdatedAt = DateTime.Now;
@@ -299,7 +320,7 @@ namespace OrderServiceAPI.Services
             var order = await _orderRepository.GetOrderByIdAsync(orderId);
 
             if (order == null)
-                throw new Exception("Order not found.");
+                throw new KeyNotFoundException("Order not found.");
 
             order.PaymentStatus = paymentStatus;
             order.UpdatedAt = DateTime.Now;

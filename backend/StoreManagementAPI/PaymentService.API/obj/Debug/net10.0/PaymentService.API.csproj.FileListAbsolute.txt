@@ -324,3 +324,4 @@ D:\Captone2\MyCapstone\backend\StoreManagementAPI\PaymentService.API\obj\Debug\n
 D:\Captone2\MyCapstone\backend\StoreManagementAPI\PaymentService.API\obj\Debug\net10.0\PaymentService.API.pdb
 D:\Captone2\MyCapstone\backend\StoreManagementAPI\PaymentService.API\obj\Debug\net10.0\PaymentService.API.genruntimeconfig.cache
 D:\Captone2\MyCapstone\backend\StoreManagementAPI\PaymentService.API\obj\Debug\net10.0\ref\PaymentService.API.dll
+D:\Tài liệu Đồ Án tốt nghiệp\StoreManagement\MyCapstone\backend\StoreManagementAPI\PaymentService.API\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

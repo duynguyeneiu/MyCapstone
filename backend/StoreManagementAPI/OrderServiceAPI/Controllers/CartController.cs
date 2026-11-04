@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OrderServiceAPI.DTOs.Cart;
 using OrderServiceAPI.Interfaces;
 
@@ -6,9 +7,10 @@ using OrderServiceAPI.Interfaces;
 
 namespace OrderServiceAPI.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class CartController : ControllerBase
+    public class CartController : BaseApiController
     {
         private readonly ICartService _cartService;
 
@@ -20,6 +22,7 @@ namespace OrderServiceAPI.Controllers
         [HttpGet("{userId:int}")]
         public async Task<IActionResult> GetCart(int userId)
         {
+            if (!CanAccess(userId)) return Forbid();
             var cart = await _cartService.GetCartAsync(userId);
 
             return Ok(cart);
@@ -27,6 +30,7 @@ namespace OrderServiceAPI.Controllers
         [HttpPost("items")]
         public async Task<IActionResult> AddItem(AddCartItemRequest request)
         {
+            request.UserId = CurrentUserId;
             var result = await _cartService.AddItemAsync(request);
 
             return Ok(result);
@@ -39,7 +43,7 @@ namespace OrderServiceAPI.Controllers
         int cartDetailId,
         UpdateCartItemRequest request)
         {
-            var result = await _cartService.UpdateItemAsync(cartDetailId, request);
+            var result = await _cartService.UpdateItemAsync(CurrentUserId, cartDetailId, request);
 
             return Ok(result);
         }
@@ -48,7 +52,7 @@ namespace OrderServiceAPI.Controllers
         [HttpDelete("items/{cartDetailId:int}")]
         public async Task<IActionResult> RemoveItem(int cartDetailId)
         {
-            var result = await _cartService.RemoveItemAsync(cartDetailId);
+            var result = await _cartService.RemoveItemAsync(CurrentUserId, cartDetailId);
 
             return Ok(result);
         }
@@ -58,6 +62,7 @@ namespace OrderServiceAPI.Controllers
         [HttpDelete("{userId:int}")]
         public async Task<IActionResult> ClearCart(int userId)
         {
+            if (!CanAccess(userId)) return Forbid();
             await _cartService.ClearCartAsync(userId);
 
             return NoContent();
