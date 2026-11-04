@@ -143,37 +143,6 @@
         }
       }
     },
-    "/api/Invoice/from-order/{orderId}": {
-      "post": {
-        "tags": [
-          "Invoice"
-        ],
-        "parameters": [
-          {
-            "name": "orderId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "staffUserId",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/api/Order/checkout": {
       "post": {
         "tags": [
@@ -555,9 +524,6 @@
   "tags": [
     {
       "name": "Cart"
-    },
-    {
-      "name": "Invoice"
     },
     {
       "name": "Order"

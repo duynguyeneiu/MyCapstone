@@ -4,6 +4,9 @@
     {
         public int OrderId { get; set; }
 
+        // 0 = don POS (khach vang lai)
+        public int UserId { get; set; }
+
         public string? OrderNumber { get; set; }
 
         public decimal FinalAmount { get; set; }

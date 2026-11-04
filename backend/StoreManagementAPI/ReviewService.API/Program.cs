@@ -5,6 +5,7 @@ using Microsoft.OpenApi;
 using ReviewService.API.Clients;
 using ReviewService.API.Data;
 using ReviewService.API.Interfaces;
+using ReviewService.API.Middleware;
 using ReviewService.API.Repositories;
 using ReviewService.API.Services;
 using System.Text;
@@ -93,12 +94,14 @@ builder.Services.AddHttpClient<IOrderServiceClient, OrderServiceClient>(
     {
         client.BaseAddress = new Uri(
             builder.Configuration["Services:OrderService"]!);
+        client.DefaultRequestHeaders.Add("X-Internal-Key", builder.Configuration["InternalApi:Key"]);
     });
 builder.Services.AddHttpClient<ICatalogServiceClient, CatalogServiceClient>(
     client =>
     {
         client.BaseAddress = new Uri(
             builder.Configuration["Services:CatalogService"]!);
+        client.DefaultRequestHeaders.Add("X-Internal-Key", builder.Configuration["InternalApi:Key"]);
     });
 
 
@@ -106,17 +109,12 @@ builder.Services.AddHttpClient<IUserServiceClient, UserServiceClient>(client =>
 {
     client.BaseAddress = new Uri(
             builder.Configuration["Services:UserService"]!);
+    
 });
 
 
-
-
-
-
-
-
-
 var app = builder.Build();
+app.UseMiddleware<ExceptionMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -129,8 +127,10 @@ app.UseHttpsRedirection();
 // CORS
 app.UseCors("AllowFrontend");
 
+// Authentication phải trước Authorization
 app.UseAuthentication();
 app.UseAuthorization();
+
 
 app.MapControllers();
 

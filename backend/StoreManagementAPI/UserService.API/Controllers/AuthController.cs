@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using UserService.API.Data;
@@ -24,6 +25,8 @@ namespace UserService.API.Controllers
             _authService = authService;
         }
 
+
+        [EnableRateLimiting("auth")]
         [HttpPost("login")]
         public async Task<IActionResult> Login(
             [FromBody] LoginRequest request)
@@ -58,6 +61,9 @@ namespace UserService.API.Controllers
             });
         }
 
+
+
+        [EnableRateLimiting("auth")]
         [HttpPost("register")]
         public async Task<IActionResult> Register(
     [FromBody] RegisterRequestDto request)
@@ -84,7 +90,7 @@ namespace UserService.API.Controllers
         }
 
 
-
+        [EnableRateLimiting("auth")]
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword(
     [FromBody] ResetPasswordRequestDto request)

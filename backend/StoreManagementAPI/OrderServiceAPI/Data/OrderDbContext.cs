@@ -20,10 +20,6 @@ public partial class OrderDbContext : DbContext
 
     public virtual DbSet<CartDetail> CartDetails { get; set; }
 
-    public virtual DbSet<Invoice> Invoices { get; set; }
-
-    public virtual DbSet<InvoiceDetail> InvoiceDetails { get; set; }
-
     public virtual DbSet<Order> Orders { get; set; }
 
     public virtual DbSet<OrderDetail> OrderDetails { get; set; }
@@ -49,27 +45,6 @@ public partial class OrderDbContext : DbContext
             entity.HasOne(d => d.Cart).WithMany(p => p.CartDetails)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__CART_DETA__CartI__5AEE82B9");
-        });
-
-        modelBuilder.Entity<Invoice>(entity =>
-        {
-            entity.HasKey(e => e.InvoiceId).HasName("PK__INVOICE__D796AAD5B674B19C");
-
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.InvoiceDate).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.OrderStatus).HasDefaultValue("Pending");
-            entity.Property(e => e.OrderType).HasDefaultValue("POS");
-        });
-
-        modelBuilder.Entity<InvoiceDetail>(entity =>
-        {
-            entity.HasKey(e => e.InvoiceDetailId).HasName("PK__INVOICE___1F1578F15D33D282");
-
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
-
-            entity.HasOne(d => d.Invoice).WithMany(p => p.InvoiceDetails)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__INVOICE_D__Invoi__52593CB8");
         });
 
         modelBuilder.Entity<Order>(entity =>

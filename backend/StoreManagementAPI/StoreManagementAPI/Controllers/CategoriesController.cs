@@ -1,6 +1,7 @@
 using CatalogService.API.Common.Paging;
 using CatalogService.API.DTOs.Category;
 using CatalogService.API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CatalogService.API.Data;
@@ -36,6 +37,7 @@ public class CategoriesController : ControllerBase
     }
 
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Create(CreateCategoryDto dto)
     {
@@ -48,6 +50,7 @@ public class CategoriesController : ControllerBase
     }
 
 
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(
     int id,
@@ -59,6 +62,7 @@ public class CategoriesController : ControllerBase
     }
 
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {

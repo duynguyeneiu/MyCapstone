@@ -1,6 +1,8 @@
 using CatalogService.API.Common.Paging;
 using CatalogService.API.DTOs.Product;
+using CatalogService.API.Filters;
 using CatalogService.API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CatalogService.API.Controllers;
@@ -57,6 +59,7 @@ public class ProductsController : ControllerBase
     }
 
     // POST: api/products
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Create(CreateProductDto dto)
     {
@@ -69,6 +72,7 @@ public class ProductsController : ControllerBase
     }
 
     // PUT: api/products/1
+    [Authorize(Roles = "Admin")]
     [HttpPut("{productId:int}")]
     public async Task<IActionResult> Update(
         int productId,
@@ -80,6 +84,7 @@ public class ProductsController : ControllerBase
     }
 
     // DELETE: api/products/1
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{productId:int}")]
     public async Task<IActionResult> Delete(int productId)
     {
@@ -89,6 +94,9 @@ public class ProductsController : ControllerBase
     }
 
     // PUT: api/products/1/stock
+    // Internal: OrderService gọi khi đặt hàng
+    [AllowAnonymous]
+    [InternalApiKey]
     [HttpPut("{productId:int}/stock")]
     public async Task<IActionResult> UpdateStock(
         int productId,
@@ -125,6 +133,9 @@ public class ProductsController : ControllerBase
         return Ok(products);
     }
 
+    // Internal: ReviewService gọi khi đánh giá
+    [AllowAnonymous]
+    [InternalApiKey]
     [HttpPost("{id:int}/rating")]
     public async Task<IActionResult> UpdateRating(
     int id,

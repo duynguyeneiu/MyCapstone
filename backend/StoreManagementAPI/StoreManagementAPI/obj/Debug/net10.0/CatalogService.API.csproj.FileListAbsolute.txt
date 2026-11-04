@@ -489,3 +489,4 @@ D:\Captone2\MyCapstone\backend\StoreManagementAPI\StoreManagementAPI\obj\Debug\n
 D:\Captone2\MyCapstone\backend\StoreManagementAPI\StoreManagementAPI\obj\Debug\net10.0\CatalogService.API.pdb
 D:\Captone2\MyCapstone\backend\StoreManagementAPI\StoreManagementAPI\obj\Debug\net10.0\CatalogService.API.genruntimeconfig.cache
 D:\Captone2\MyCapstone\backend\StoreManagementAPI\StoreManagementAPI\obj\Debug\net10.0\ref\CatalogService.API.dll
+D:\Tài liệu Đồ Án tốt nghiệp\StoreManagement\MyCapstone\backend\StoreManagementAPI\StoreManagementAPI\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

@@ -229,8 +229,8 @@ namespace CatalogService.API.Services
         {
             return await _productRepository
                 .UpdateRatingAsync(
-                    ratingDelta,
                     productId,
+                    ratingDelta,
                     countDelta);
         }
 

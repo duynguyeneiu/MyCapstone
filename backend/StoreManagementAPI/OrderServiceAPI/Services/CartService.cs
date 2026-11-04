@@ -74,7 +74,7 @@ namespace OrderServiceAPI.Services
             var product = await _catalogClient.GetProductAsync(request.ProductId);
 
             if (product == null)
-                throw new Exception("Product not found.");
+                throw new KeyNotFoundException("Product not found.");
 
             // Lấy cart item
             var cartItem = await _repository.GetCartItemAsync(cart.CartId, request.ProductId);
@@ -83,7 +83,7 @@ namespace OrderServiceAPI.Services
             var totalQuantity = request.Quantity + (cartItem?.Quantity ?? 0);
 
             if (product.StockQuantity < totalQuantity)
-                throw new Exception("Out of stock.");
+                throw new InvalidOperationException("Out of stock.");
 
             if (cartItem == null)
             {
@@ -114,20 +114,21 @@ namespace OrderServiceAPI.Services
 
             return await  MapToDto(cart!);
         }
-        public async Task<CartDto> UpdateItemAsync(int cartDetailId, UpdateCartItemRequest request)
+        public async Task<CartDto> UpdateItemAsync(int userId, int cartDetailId, UpdateCartItemRequest request)
         {
             var cartItem = await _repository.GetCartItemByIdAsync(cartDetailId);
 
             if (cartItem == null)
-                throw new Exception("Cart item not found.");
-
+                throw new KeyNotFoundException("Cart item not found.");
+            if (cartItem.Cart.UserId != userId)
+                throw new UnauthorizedAccessException("This cart item does not belong to you.");
             var product = await _catalogClient.GetProductAsync(cartItem.ProductId);
 
             if (product == null)
-                throw new Exception("Product not found.");
+                throw new KeyNotFoundException("Product not found.");
 
             if (product.StockQuantity < request.Quantity)
-                throw new Exception("Out of stock.");
+                throw new InvalidOperationException("Out of stock.");
 
             cartItem.Quantity = request.Quantity;
             cartItem.UnitPrice = product.Price;
@@ -140,14 +141,15 @@ namespace OrderServiceAPI.Services
 
             return await  MapToDto(cart!);
         }
-        public async Task<CartDto> RemoveItemAsync(int cartDetailId)
+        public async Task<CartDto> RemoveItemAsync(int userId, int cartDetailId)
         {
             var cartItem = await _repository.GetCartItemByIdAsync(cartDetailId);
 
             if (cartItem == null)
-                throw new Exception("Cart item not found.");
+                throw new KeyNotFoundException("Cart item not found.");
 
-            var userId = cartItem.Cart.UserId;
+            if (cartItem.Cart.UserId != userId)
+                throw new UnauthorizedAccessException("This cart item does not belong to you.");
 
             await _repository.RemoveCartItemAsync(cartItem);
             await _repository.SaveChangesAsync();
@@ -156,7 +158,6 @@ namespace OrderServiceAPI.Services
 
             return await MapToDto(cart!);
         }
-
 
         public async Task ClearCartAsync(int userId)
         {

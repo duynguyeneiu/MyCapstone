@@ -85,27 +85,6 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "OrderServiceAPI.Controllers.InvoiceController",
-    "Method": "CreateInvoice",
-    "RelativePath": "api/Invoice/from-order/{orderId}",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "orderId",
-        "Type": "System.Int32",
-        "IsRequired": true
-      },
-      {
-        "Name": "staffUserId",
-        "Type": "System.Int32",
-        "IsRequired": false
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
     "ContainingType": "OrderServiceAPI.Controllers.OrderController",
     "Method": "GetAllOrders",
     "RelativePath": "api/Order",

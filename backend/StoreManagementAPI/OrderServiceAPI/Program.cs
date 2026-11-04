@@ -1,9 +1,14 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using OrderServiceAPI.Client;
 using OrderServiceAPI.Data;
+
 using OrderServiceAPI.Interfaces;
+using OrderServiceAPI.Middleware;
 using OrderServiceAPI.Repositories;
 using OrderServiceAPI.Services;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,16 +41,52 @@ builder.Services.AddHttpClient<ICatalogServiceClient, CatalogServiceClient>(clie
 {
     client.BaseAddress = new Uri(
         builder.Configuration["Services:CatalogService"]!);
+    client.DefaultRequestHeaders.Add("X-Internal-Key", builder.Configuration["InternalApi:Key"]);
 });
 
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 
 builder.Services.AddScoped<IOrderService, OrderService>();
-builder.Services.AddScoped<IInvoiceService, InvoiceService>();
+// =====================================================
+// JWT Authentication
+// =====================================================
 
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters =
+            new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+
+                ValidIssuer =
+                    builder.Configuration["Jwt:Issuer"],
+
+                ValidAudience =
+                    builder.Configuration["Jwt:Audience"],
+
+                IssuerSigningKey =
+                    new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(
+                            builder.Configuration["Jwt:Key"]!
+                        )
+                    )
+            };
+    });
+
+// =====================================================
+// Authorization
+// =====================================================
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -60,7 +101,10 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowFrontend");
 
+// Authentication phải trước Authorization
+app.UseAuthentication();
 app.UseAuthorization();
+
 
 app.MapControllers();
 
