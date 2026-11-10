@@ -1,5 +1,7 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { promotionService, ApiPromotion } from '@/src/services/promotionService';
+import { getApiErrorMessage } from '@/src/lib/apiError';
 
 interface Props { search: string; }
 
@@ -19,23 +21,32 @@ const statusConfig: Record<string, { bg: string; color: string }> = {
   'Active':   { bg: '#e0f5ed', color: '#004d38' },
   'Inactive': { bg: '#e5e7eb', color: '#374151' },
   'Expired':  { bg: '#fee2e2', color: '#7f1d1d' },
+  'Scheduled':{ bg: '#dbeafe', color: '#1e40af' },
 };
 
 interface Promo {
   id: number; code: string; desc: string; type: string; value: number;
-  minOrder: number; start: string; end: string; status: string;
+  minOrder: number; start: string; end: string;
+  status: string;      // display status: Active | Inactive | Expired | Scheduled
+  rawStatus: string;   // stored status: Active | Inactive (used by the edit form)
+  usageCount: number; totalDiscount: number;
 }
 
-const initialPromos: Promo[] = [
-  { id:1, code:'SUMMER20',   desc:'Summer sale 20% off',         type:'Percentage', value:20,    minOrder:200000, start:'2024-05-01', end:'2024-05-31', status:'Active'   },
-  { id:2, code:'WELCOME50K', desc:'New customer 50,000 VND off',    type:'Fixed',      value:50000, minOrder:300000, start:'2024-01-01', end:'2024-12-31', status:'Active'   },
-  { id:3, code:'FLASH15',    desc:'Flash sale 15% this weekend', type:'Percentage', value:15,    minOrder:0,      start:'2024-05-24', end:'2024-05-26', status:'Active'   },
-  { id:4, code:'VIP100K',    desc:'VIP customer 100,000 VND off',  type:'Fixed',      value:100000,minOrder:500000, start:'2024-05-01', end:'2024-05-28', status:'Active'   },
-  { id:5, code:'FREESHIP',   desc:'Free shipping on all orders', type:'Fixed',      value:30000, minOrder:150000, start:'2024-05-20', end:'2024-05-27', status:'Active'   },
-  { id:6, code:'TETHOLIDAY', desc:'Tet holiday special 25% off', type:'Percentage', value:25,    minOrder:400000, start:'2024-02-01', end:'2024-02-15', status:'Expired'  },
-  { id:7, code:'BLACKFRI30', desc:'Black Friday 30% mega sale',  type:'Percentage', value:30,    minOrder:500000, start:'2023-11-24', end:'2023-11-24', status:'Expired'  },
-  { id:8, code:'PAYDAY10',   desc:'Payday 10% off sitewide',     type:'Percentage', value:10,    minOrder:100000, start:'2024-06-01', end:'2024-06-30', status:'Inactive' },
-];
+const toPromo = (p: ApiPromotion): Promo => ({
+  id: p.promotionId,
+  code: p.code,
+  desc: p.description ?? '',
+  type: p.discountType,
+  value: p.discountValue,
+  minOrder: p.minOrderValue,
+  start: p.startDate.slice(0, 10),
+  end: p.endDate.slice(0, 10),
+  status: p.displayStatus,
+  rawStatus: p.status,
+  usageCount: p.usageCount,
+  totalDiscount: p.totalDiscount,
+});
+
 
 const emptyForm = { code: '', desc: '', type: 'Percentage', value: '', minOrder: '', start: new Date().toISOString().split('T')[0], end: '', status: 'Active' };
 
@@ -50,7 +61,23 @@ function daysLeft(endDate: string) {
 }
 
 export default function PromotionsPage({ search }: Props) {
-  const [promos, setPromos] = useState<Promo[]>(initialPromos);
+  const [promos, setPromos] = useState<Promo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const loadPromos = async () => {
+    try {
+      setPromos((await promotionService.getAll()).map(toPromo));
+      setLoadError(null);
+    } catch (err) {
+      setLoadError(getApiErrorMessage(err, 'Could not load promotions.'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { loadPromos(); }, []);
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [checkAll, setCheckAll] = useState(false);
@@ -78,34 +105,64 @@ export default function PromotionsPage({ search }: Props) {
     const p = promos.find(x => x.id === id);
     if (!p) return;
     setEditId(id);
-    setForm({ code: p.code, desc: p.desc, type: p.type, value: String(p.value), minOrder: String(p.minOrder), start: p.start, end: p.end, status: p.status });
+    setForm({ code: p.code, desc: p.desc, type: p.type, value: String(p.value), minOrder: String(p.minOrder), start: p.start, end: p.end, status: p.rawStatus });
     setFormOpen(true);
   };
 
-  const savePromo = () => {
+  const savePromo = async () => {
     const code = form.code.trim().toUpperCase();
+    const value = parseFloat(form.value);
     if (!code) { alert('Promo code is required'); return; }
-    const newPromo: Promo = {
-      id: editId ?? Date.now(),
+    if (!value || value <= 0) { alert('Discount value must be greater than 0'); return; }
+    if (form.type === 'Percentage' && value > 100) { alert('Percentage cannot exceed 100'); return; }
+    if (!form.start || !form.end) { alert('Start date and end date are required'); return; }
+    if (form.end < form.start) { alert('End date must be on or after start date'); return; }
+
+    const body = {
       code,
-      desc: form.desc,
-      type: form.type,
-      value: parseFloat(form.value) || 0,
-      minOrder: parseFloat(form.minOrder) || 0,
-      start: form.start,
-      end: form.end,
+      description: form.desc.trim() || undefined,
+      discountType: form.type,
+      discountValue: value,
+      minOrderValue: parseFloat(form.minOrder) || 0,
+      startDate: form.start,
+      endDate: form.end,
       status: form.status,
     };
-    if (editId) {
-      setPromos(prev => prev.map(p => p.id === editId ? newPromo : p));
-    } else {
-      setPromos(prev => [newPromo, ...prev]);
+
+    setSaving(true);
+    try {
+      if (editId) await promotionService.update(editId, body);
+      else await promotionService.create(body);
+      setFormOpen(false);
+      await loadPromos();
+    } catch (err) {
+      alert(getApiErrorMessage(err, 'Could not save promotion.'));   // e.g. 409 duplicate code
+    } finally {
+      setSaving(false);
     }
-    setFormOpen(false);
   };
 
   const openDelete = (id: number) => { setDeleteId(id); setDelOpen(true); };
-  const confirmDelete = () => { setPromos(prev => prev.filter(p => p.id !== deleteId)); setDelOpen(false); };
+  const confirmDelete = async () => {
+    if (deleteId == null) return;
+    try {
+      await promotionService.remove(deleteId);
+      setDelOpen(false);
+      await loadPromos();
+    } catch (err) {
+      setDelOpen(false);
+      alert(getApiErrorMessage(err, 'Could not delete promotion.'));   // 409: used by orders -> set Inactive
+    }
+  };
+
+  // ---- stat cards (computed from API data) ----
+  const activeCount = promos.filter(p => p.status === 'Active').length;
+  const totalDiscountGiven = promos.reduce((s, p) => s + p.totalDiscount, 0);
+  const expiringSoon = promos.filter(p => {
+    if (p.status !== 'Active') return false;
+    const days = Math.ceil((new Date(p.end).getTime() - Date.now()) / 86400000);
+    return days >= 0 && days <= 7;
+  }).length;
 
   const PAGE_SIZE = 6;
   const [curPage, setCurPage] = useState(1);
@@ -130,28 +187,28 @@ export default function PromotionsPage({ search }: Props) {
           <div className="grid grid-cols-4 gap-5">
             <div className="stat-card bg-surface-container-lowest border rounded-xl p-6 flex flex-col justify-between" style={{ borderColor: '#b8e0cc', boxShadow: '0 0 0 1px #00694c1a,0 4px 20px #00694c14' }}>
               <div className="flex justify-between items-start">
-                <div><p className="text-on-surface-variant font-label-md text-label-md mb-1">Total Promotions</p><h3 className="font-bold" style={{ fontSize: '24px' }}>12</h3></div>
+                <div><p className="text-on-surface-variant font-label-md text-label-md mb-1">Total Promotions</p><h3 className="font-bold" style={{ fontSize: '24px' }}>{promos.length}</h3></div>
                 <span className="material-symbols-outlined p-2 rounded-lg" style={{ color: '#00694c', background: '#e0f5ed' }}>campaign</span>
               </div>
               <div className="mt-4"><span className="font-label-sm text-label-sm" style={{ color: '#00694c' }}>All time</span></div>
             </div>
             <div className="stat-card bg-surface-container-lowest border rounded-xl p-6 flex flex-col justify-between" style={{ borderColor: '#fcd97a', boxShadow: '0 0 0 1px #f59e0b1a,0 4px 20px #f59e0b14' }}>
               <div className="flex justify-between items-start">
-                <div><p className="text-on-surface-variant font-label-md text-label-md mb-1">Active Now</p><h3 className="font-bold" style={{ fontSize: '24px' }}>5</h3></div>
+                <div><p className="text-on-surface-variant font-label-md text-label-md mb-1">Active Now</p><h3 className="font-bold" style={{ fontSize: '24px' }}>{activeCount}</h3></div>
                 <span className="material-symbols-outlined p-2 rounded-lg" style={{ color: '#b47b10', background: '#fff3d6' }}>local_offer</span>
               </div>
               <div className="mt-4"><span className="font-label-sm text-label-sm" style={{ color: '#b47b10' }}>Currently running</span></div>
             </div>
             <div className="stat-card bg-surface-container-lowest border rounded-xl p-6 flex flex-col justify-between" style={{ borderColor: '#b8e0cc', boxShadow: '0 0 0 1px #00694c1a,0 4px 20px #00694c14' }}>
               <div className="flex justify-between items-start">
-                <div><p className="text-on-surface-variant font-label-md text-label-md mb-1">Total Discount Given</p><h3 className="font-bold" style={{ fontSize: '22px' }}>8,240,000 VND</h3></div>
+                <div><p className="text-on-surface-variant font-label-md text-label-md mb-1">Total Discount Given</p><h3 className="font-bold" style={{ fontSize: '22px' }}>{fmt(totalDiscountGiven)}</h3></div>
                 <span className="material-symbols-outlined p-2 rounded-lg" style={{ color: '#00694c', background: '#e0f5ed' }}>savings</span>
               </div>
-              <div className="mt-4"><span className="font-label-sm text-label-sm" style={{ color: '#00694c' }}>This month</span></div>
+              <div className="mt-4"><span className="font-label-sm text-label-sm" style={{ color: '#00694c' }}>All time (excl. cancelled orders)</span></div>
             </div>
             <div className="stat-card bg-surface-container-lowest border rounded-xl p-6 flex flex-col justify-between" style={{ borderColor: '#fac057', boxShadow: '0 0 0 1px #D9770622,0 4px 20px #D9770614' }}>
               <div className="flex justify-between items-start">
-                <div><p className="text-on-surface-variant font-label-md text-label-md mb-1">Expiring Soon</p><h3 className="font-bold" style={{ fontSize: '24px', color: '#854f0b' }}>2</h3></div>
+                <div><p className="text-on-surface-variant font-label-md text-label-md mb-1">Expiring Soon</p><h3 className="font-bold" style={{ fontSize: '24px', color: '#854f0b' }}>{expiringSoon}</h3></div>
                 <span className="material-symbols-outlined p-2 rounded-lg" style={{ color: '#854f0b', background: '#fff3d6' }}>timer</span>
               </div>
               <div className="mt-4"><span className="font-label-sm text-label-sm" style={{ color: '#854f0b' }}>Within 7 days</span></div>
@@ -166,6 +223,7 @@ export default function PromotionsPage({ search }: Props) {
                   <option>Active</option>
                   <option>Inactive</option>
                   <option>Expired</option>
+                  <option>Scheduled</option>
                 </select>
                 <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="filter-select">
                   <option value="">All Types</option>
@@ -194,6 +252,15 @@ export default function PromotionsPage({ search }: Props) {
                   </tr>
                 </thead>
                 <tbody className="divide-y" style={{ borderColor: '#c8e4d8' }}>
+                  {loading && (
+                    <tr><td colSpan={9} className="px-4 py-8 text-center" style={{ fontSize: '13px', color: '#6d7a73' }}>Loading promotions…</td></tr>
+                  )}
+                  {!loading && loadError && (
+                    <tr><td colSpan={9} className="px-4 py-8 text-center" style={{ fontSize: '13px', color: '#dc2626' }}>{loadError}</td></tr>
+                  )}
+                  {!loading && !loadError && pagedData.length === 0 && (
+                    <tr><td colSpan={9} className="px-4 py-8 text-center" style={{ fontSize: '13px', color: '#6d7a73' }}>No promotions found</td></tr>
+                  )}
                   {pagedData.map(p => {
                     const sc = statusConfig[p.status] || statusConfig['Inactive'];
                     const dl = daysLeft(p.end);
@@ -336,7 +403,7 @@ export default function PromotionsPage({ search }: Props) {
             </div>
             <div className="flex justify-end gap-3 px-6 py-4 border-t" style={{ borderColor: '#c8e4d8' }}>
               <button onClick={() => setFormOpen(false)} className="px-4 py-2 rounded-lg border text-on-surface-variant hover:bg-surface-container" style={{ borderColor: '#c8e4d8', fontSize: '14px' }}>Cancel</button>
-              <button onClick={savePromo} className="btn-primary px-4 py-2 rounded-lg text-white font-bold" style={{ fontSize: '14px' }}>Save Promotion</button>
+              <button onClick={savePromo} disabled={saving} className="btn-primary px-4 py-2 rounded-lg text-white font-bold" style={{ fontSize: '14px', opacity: saving ? 0.7 : 1 }}>{saving ? 'Saving…' : 'Save Promotion'}</button>
             </div>
           </div>
         </div>
@@ -351,7 +418,7 @@ export default function PromotionsPage({ search }: Props) {
             </div>
             <h3 className="font-bold text-on-surface mb-2" style={{ fontSize: '18px' }}>Delete promotion?</h3>
             <p className="text-on-surface-variant mb-6" style={{ fontSize: '14px' }}>
-              Promotion &quot;{deletePromo?.code}&quot; will be permanently removed.
+              Promotion &quot;{deletePromo?.code}&quot; will be permanently removed. Codes already used by orders cannot be deleted – set them to Inactive instead.
             </p>
             <div className="flex gap-3 justify-center">
               <button onClick={() => setDelOpen(false)} className="px-5 py-2 rounded-lg border text-on-surface-variant hover:bg-surface-container" style={{ borderColor: '#c8e4d8', fontSize: '14px' }}>Cancel</button>

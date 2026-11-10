@@ -18,7 +18,7 @@ IF NOT EXISTS (SELECT 1 FROM sys.server_principals WHERE name = N'happymart')
     CREATE LOGIN happymart WITH PASSWORD = N'Change_Me_123!', CHECK_POLICY = OFF;
 GO
 
-DECLARE @db sysname;
+DECLARE @db sysname, @sql nvarchar(max);
 DECLARE dbs CURSOR FOR
     SELECT name FROM sys.databases
     WHERE name IN (N'CatalogServiceDB', N'UserServiceDB', N'OrderServiceDB',
@@ -27,10 +27,13 @@ OPEN dbs;
 FETCH NEXT FROM dbs INTO @db;
 WHILE @@FETCH_STATUS = 0
 BEGIN
-    EXEC (N'USE ' + QUOTENAME(@db) + N';
+    -- EXEC(...) khong cho goi ham ben trong -> ghep chuoi vao bien truoc
+    SET @sql = N'USE ' + QUOTENAME(@db) + N';
           IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = N''happymart'')
               CREATE USER happymart FOR LOGIN happymart;
-          ALTER ROLE db_owner ADD MEMBER happymart;');
+          ALTER ROLE db_owner ADD MEMBER happymart;';
+    EXEC sp_executesql @sql;
+    PRINT N'Granted db_owner on ' + @db;
     FETCH NEXT FROM dbs INTO @db;
 END
 CLOSE dbs;

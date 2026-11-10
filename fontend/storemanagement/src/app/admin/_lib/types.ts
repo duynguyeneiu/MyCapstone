@@ -52,6 +52,7 @@ export const NAV_ITEMS: { page: Page; icon: string; label: string }[] = [
   { page: "categories", icon: "category", label: "Categories" },
   { page: "orders", icon: "receipt_long", label: "Orders" },
   { page: "inventory", icon: "inventory", label: "Inventory" },
+  { page: "promotions", icon: "local_offer", label: "Promotions" },
   { page: "users", icon: "people", label: "Users" },
   { page: "settings", icon: "settings", label: "Settings" },
 ];

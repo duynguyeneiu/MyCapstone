@@ -330,6 +330,7 @@ export default function AdminPage() {
           {activePage === "orders" && <AdminOrdersPage search={search} />}
           {activePage === "inventory" && <InventoryPage search={search} />}
           {activePage === "users" && <AdminUsersPage search={search} />}
+          {activePage === "promotions" && <PromotionsPage search={search} />}
           {activePage === "settings" && <AdminSettingsPage onNav={handleNav} />}
         </main>
       </div>

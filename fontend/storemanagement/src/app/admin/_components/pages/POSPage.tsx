@@ -14,6 +14,8 @@ import { Product, Category } from '@/src/lib/data';
 import { useAuth } from '@/src/app/context/AuthContext';
 import ReceiptModal, { TransactionRecord } from './ReceiptModal';
 import POSHistoryPage from './POSHistoryPage';
+import PromoCodeInput from '@/src/app/components/ui/PromoCodeInput';
+import { PromotionApplyResult } from '@/src/services/promotionService';
 
 const posCSS = `
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Hanken+Grotesk:wght@600;700&display=swap');
@@ -95,9 +97,9 @@ function orderToTransactionRecord(o: Order): TransactionRecord {
     time: d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
     items: o.items.map(i => ({ id: i.productId, name: i.productName, price: i.unitPrice, qty: i.quantity })),
     subtotal: o.totalAmount,
-    discount: 0,
+    discount: o.discount ?? 0,
     vat: 0,
-    total: o.totalAmount,
+    total: o.finalAmount,
     paymentMethod: o.paymentMethod,
   };
 }
@@ -155,6 +157,7 @@ export default function POSPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [checkoutSaving, setCheckoutSaving] = useState(false);
+  const [promo, setPromo] = useState<PromotionApplyResult | null>(null);
 
   useEffect(() => {
     if (!autoPrintPending || !currentReceipt) return;
@@ -238,17 +241,20 @@ export default function POSPage() {
   };
 
   const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  const total = subtotal;
+  const discount = promo?.discount ?? 0;
+  const total = subtotal - discount;
   const cashInsufficient = paymentMethod === "Cash" && (parseInt(cashTendered) || 0) < total;
 
   const processPayment = async () => {
     const now = new Date();
     setCheckoutSaving(true);
     try {
-      await orderService.checkoutPos({
+      // Use the amounts calculated by the server (discount is re-validated there)
+      const order = await orderService.checkoutPos({
         staffUserId: user ? Number(user.id) : undefined,
         paymentMethod: paymentMethod === "QR" ? "VNPay" : "Cash",
         items: cart.map((i) => ({ productId: i.id, quantity: i.qty })),
+        promotionCode: promo?.code,
       });
 
       const tx: TransactionRecord = {
@@ -256,10 +262,10 @@ export default function POSPage() {
         date: now.toLocaleDateString("vi-VN"),
         time: now.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
         items: [...cart],
-        subtotal,
-        discount: 0,
+        subtotal: order.totalAmount,
+        discount: order.discount ?? 0,
         vat: 0,
-        total,
+        total: order.finalAmount,
         paymentMethod,
       };
       setCurrentReceipt(tx);
@@ -290,6 +296,7 @@ export default function POSPage() {
     setShowSuccess(false);
     setCurrentReceipt(null);
     setCart([]);
+    setPromo(null);
     setInvoiceNo((n) => n + 1);
   };
 
@@ -428,7 +435,10 @@ export default function POSPage() {
           </div>
 
           <div style={{ padding: "12px 16px", borderTop: `1px solid #e0e3e5`, flexShrink: 0 }}>
-            {[["Subtotal", fmt(subtotal)]].map(([label, val]) => (
+            <div style={{ marginBottom: 10 }}>
+              <PromoCodeInput orderAmount={subtotal} applied={promo} onChange={setPromo} accent={C.primary} />
+            </div>
+            {[["Subtotal", fmt(subtotal)], ...(discount > 0 ? [[`Discount (${promo?.code})`, `-${fmt(discount)}`]] : [])].map(([label, val]) => (
               <div key={label} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 6 }}>
                 <span style={{ color: C.textFaint }}>{label}</span>
                 <span style={{ fontWeight: 500 }}>{val}</span>

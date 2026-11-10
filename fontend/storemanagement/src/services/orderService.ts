@@ -15,6 +15,8 @@ export interface Order {
   orderDate: string;
   totalAmount: number;
   shippingFee: number;
+  discount: number;
+  promotionId?: number | null;
   finalAmount: number;
   orderType: string;
   receiverName: string;
@@ -32,6 +34,7 @@ export interface CheckoutRequest {
   receiverPhone: string;
   shippingAddress: string;
   paymentMethod: string;
+  promotionCode?: string;
 }
 
 export interface PosCheckoutItem {
@@ -44,6 +47,7 @@ export interface PosCheckoutRequest {
   receiverName?: string;
   paymentMethod: string;
   items: PosCheckoutItem[];
+  promotionCode?: string;
 }
 
 export const orderService = {

@@ -5,34 +5,38 @@ import { useRouter } from 'next/navigation';
 import { fmt } from '@/src/lib/utils';
 import { useOrders } from '../../context/OrderContext';
 import { useAuth } from '../../context/AuthContext';
-import { Order } from '@/src/services/orderService';
+import { Order, orderService } from '@/src/services/orderService';
+import { getApiErrorMessage } from '@/src/lib/apiError';
 import { reviewService, ApiReview, unwrapComment } from '@/src/services/reviewService';
 import BtnTeal from '../ui/BtnTeal';
 import BtnOutline from '../ui/BtnOutline';
 import StarRow from '../ui/StarRow';
 
-type UiStatus = 'processing' | 'shipping' | 'delivered' | 'cancelled';
+// Same flow as the backend: Pending -> Confirmed -> Shipping -> Completed (or Cancelled while Pending)
+type UiStatus = 'pending' | 'confirmed' | 'shipping' | 'completed' | 'cancelled';
 
 const statusCfg: Record<UiStatus, { label: string; bg: string; color: string; icon: string }> = {
-  delivered:  { label: 'Delivered',  bg: '#dcfce7', color: '#166534', icon: 'check_circle' },
-  processing: { label: 'Processing', bg: '#fef9c3', color: '#854d0e', icon: 'schedule' },
+  pending:    { label: 'Pending',    bg: '#fef9c3', color: '#854d0e', icon: 'schedule' },
+  confirmed:  { label: 'Confirmed',  bg: '#ede9fe', color: '#4c1d95', icon: 'inventory_2' },
   shipping:   { label: 'Shipping',   bg: '#dbeafe', color: '#1e40af', icon: 'local_shipping' },
+  completed:  { label: 'Completed',  bg: '#dcfce7', color: '#166534', icon: 'check_circle' },
   cancelled:  { label: 'Cancelled',  bg: '#fee2e2', color: '#991b1b', icon: 'cancel' },
 };
 
 function mapStatus(orderStatus: string): UiStatus {
   const s = orderStatus.toLowerCase();
   if (s === 'cancelled' || s === 'refunded') return 'cancelled';
-  if (s === 'delivered' || s === 'paid' || s === 'completed') return 'delivered';
-  if (s === 'shipped' || s === 'shipping') return 'shipping';
-  return 'processing';
+  if (s === 'completed' || s === 'delivered') return 'completed';
+  if (s === 'shipping' || s === 'shipped') return 'shipping';
+  if (s === 'confirmed') return 'confirmed';
+  return 'pending';
 }
 
-const progressPct = (s: UiStatus) => s === 'processing' ? 25 : s === 'shipping' ? 62 : s === 'delivered' ? 100 : 0;
+const progressPct = (s: UiStatus) => s === 'pending' ? 12 : s === 'confirmed' ? 45 : s === 'shipping' ? 78 : s === 'completed' ? 100 : 0;
 
 export default function OrdersContent() {
   const router = useRouter();
-  const { orders } = useOrders();
+  const { orders, refreshOrders } = useOrders();
   const { user } = useAuth();
   const [filter, setFilter] = useState<UiStatus | 'all'>('all');
   const [search, setSearch] = useState('');
@@ -48,6 +52,17 @@ export default function OrdersContent() {
       .then((data) => setMyReviews(data.filter((r) => r.userId === Number(user.id))))
       .catch((err) => console.error(err));
   }, [user]);
+
+  // Backend only allows cancelling while the order is Pending (409 otherwise)
+  const cancelOrder = async (o: Order) => {
+    if (!window.confirm(`Cancel order #${o.orderNumber}?`)) return;
+    try {
+      await orderService.cancel(o.orderId);
+      refreshOrders();
+    } catch (err) {
+      alert(getApiErrorMessage(err, 'Could not cancel this order.'));
+    }
+  };
 
   const reviewFor = (productId: number) => myReviews.find((r) => r.productId === productId);
   const isFullyReviewed = (o: Order) => o.items.length > 0 && o.items.every((i) => reviewFor(i.productId));
@@ -91,10 +106,10 @@ export default function OrdersContent() {
               <p style={{ fontWeight: 600, fontSize: '.9rem', marginBottom: '1rem' }}>Order Progress</p>
               {([
                 ['Order Placed', true],
-                ['Payment Confirmed', detailOrder.paymentMethod === 'VNPay' || status === 'delivered'],
-                ['Packed & Ready', ['shipping', 'delivered'].includes(status)],
-                ['Out for Delivery', ['shipping', 'delivered'].includes(status)],
-                ['Delivered', status === 'delivered'],
+                ['Payment Received', detailOrder.paymentStatus === 'Paid'],
+                ['Confirmed by Store', ['confirmed', 'shipping', 'completed'].includes(status)],
+                ['Out for Delivery', ['shipping', 'completed'].includes(status)],
+                ['Completed', status === 'completed'],
               ] as [string, boolean][]).map(([l, done]) => (
                 <div key={l} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
                   <div style={{ width: 28, height: 28, borderRadius: '50%', background: done ? 'var(--teal)' : '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -117,6 +132,7 @@ export default function OrdersContent() {
               {(() => {
                 const rows: [string, string][] = [
                   ['Subtotal', fmt(detailOrder.totalAmount)],
+                  ...(detailOrder.discount > 0 ? [['Discount', `-${fmt(detailOrder.discount)}`] as [string, string]] : []),
                   ['Shipping', fmt(detailOrder.shippingFee)],
                   ['Total', fmt(detailOrder.finalAmount)],
                 ];
@@ -133,7 +149,7 @@ export default function OrdersContent() {
               })()}
 
               <div style={{ display: 'flex', gap: '0.5rem' }}>
-                {status === 'delivered' && (
+                {status === 'completed' && (
                   isFullyReviewed(detailOrder) ? (
                     <BtnTeal onClick={() => { setDetailOrder(null); setReviewOrder(detailOrder); }} style={{ flex: 1, padding: '0.6rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                       <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>rate_review</span>View Review
@@ -206,7 +222,7 @@ export default function OrdersContent() {
       </div>
 
       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', background: '#fff', borderRadius: '1rem', padding: '0.5rem', boxShadow: '0 2px 8px rgba(0,0,0,.04)', width: 'fit-content', marginBottom: '1.25rem' }}>
-        {(['all', 'processing', 'shipping', 'delivered', 'cancelled'] as const).map(s => (
+        {(['all', 'pending', 'confirmed', 'shipping', 'completed', 'cancelled'] as const).map(s => (
           <button key={s} onClick={() => { setFilter(s); setCurPage(1); }}
             style={{ padding: '.4rem 1rem', borderRadius: 9999, border: 'none', background: filter === s ? 'var(--teal)' : 'transparent', color: filter === s ? '#fff' : '#64748b', fontWeight: 500, fontSize: '.85rem', cursor: 'pointer', transition: '.2s' }}>
             {s === 'all' ? 'All Orders' : s.charAt(0).toUpperCase() + s.slice(1)}
@@ -265,10 +281,10 @@ export default function OrdersContent() {
                     </div>
                   )}
 
-                  {(status === 'shipping' || status === 'processing') && (
+                  {(status === 'pending' || status === 'confirmed' || status === 'shipping') && (
                     <div style={{ marginBottom: '1rem' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.7rem', color: '#94a3b8', marginBottom: 4 }}>
-                        {['Ordered', 'Packed', 'In Transit', 'Delivered'].map(l => <span key={l}>{l}</span>)}
+                        {['Ordered', 'Confirmed', 'Shipping', 'Completed'].map(l => <span key={l}>{l}</span>)}
                       </div>
                       <div style={{ width: '100%', height: 6, background: '#f1f5f9', borderRadius: 3 }}>
                         <div style={{ height: 6, background: 'var(--teal)', borderRadius: 3, width: `${pct}%`, transition: '.5s' }} />
@@ -278,7 +294,7 @@ export default function OrdersContent() {
 
                   <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                     <BtnTeal onClick={() => setDetailOrder(o)} style={{ fontSize: '.8rem', padding: '0.45rem 1rem' }}>View Details</BtnTeal>
-                    {status === 'delivered' && (
+                    {status === 'completed' && (
                       isFullyReviewed(o) ? (
                         <BtnOutline onClick={() => setReviewOrder(o)} style={{ fontSize: '.8rem', padding: '0.4rem .9rem', display: 'inline-flex', alignItems: 'center', gap: 4 } as React.CSSProperties}>
                           <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>rate_review</span>View Review
@@ -294,8 +310,8 @@ export default function OrdersContent() {
                         <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>map</span>Track Order
                       </BtnOutline>
                     )}
-                    {status === 'processing' && (
-                      <BtnOutline style={{ fontSize: '.8rem', padding: '0.4rem .9rem' } as React.CSSProperties}>Cancel</BtnOutline>
+                    {status === 'pending' && (
+                      <BtnOutline onClick={() => cancelOrder(o)} style={{ fontSize: '.8rem', padding: '0.4rem .9rem' } as React.CSSProperties}>Cancel</BtnOutline>
                     )}
                   </div>
                 </div>

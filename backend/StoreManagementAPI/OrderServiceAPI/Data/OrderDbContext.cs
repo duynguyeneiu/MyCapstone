@@ -24,6 +24,8 @@ public partial class OrderDbContext : DbContext
 
     public virtual DbSet<OrderDetail> OrderDetails { get; set; }
 
+    public virtual DbSet<Promotion> Promotions { get; set; }
+
    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

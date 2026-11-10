@@ -11,5 +11,8 @@
         public string ShippingAddress { get; set; } = string.Empty;
 
         public string PaymentMethod { get; set; } = string.Empty;
+
+        // Optional discount code (validated and recalculated on the server)
+        public string? PromotionCode { get; set; }
     }
 }

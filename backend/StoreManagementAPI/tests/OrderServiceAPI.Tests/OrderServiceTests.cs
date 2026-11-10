@@ -1,6 +1,7 @@
 using Moq;
 using OrderServiceAPI.DTOs;
 using OrderServiceAPI.DTOs.Order;
+using OrderServiceAPI.DTOs.Promotion;
 using OrderServiceAPI.Interfaces;
 using OrderServiceAPI.Models;
 using OrderServiceAPI.Services;
@@ -14,11 +15,12 @@ public class OrderServiceTests
     private readonly Mock<IOrderRepository> _orderRepo = new();
     private readonly Mock<ICartRepository> _cartRepo = new();
     private readonly Mock<ICatalogServiceClient> _catalog = new();
+    private readonly Mock<IPromotionService> _promotion = new();
     private readonly OrderService _sut;
 
     public OrderServiceTests()
     {
-        _sut = new OrderService(_orderRepo.Object, _cartRepo.Object, _catalog.Object);
+        _sut = new OrderService(_orderRepo.Object, _cartRepo.Object, _catalog.Object, _promotion.Object);
     }
 
     // ---------- helpers ----------
@@ -151,6 +153,78 @@ public class OrderServiceTests
         await _sut.CheckoutAsync(NewCheckout());
 
         _catalog.Verify(c => c.UpdateStockAsync(It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+    }
+
+    // ---------- Promotion at checkout ----------
+
+    [Fact]
+    public async Task CheckoutAsync_WithPromotionCode_DiscountsGoodsButNotShipping()
+    {
+        _cartRepo.Setup(r => r.GetCartByUserIdAsync(1)).ReturnsAsync(CartWith((10, 2)));
+        ProductExists(10, price: 100000, stock: 50);
+        _promotion.Setup(p => p.ValidateAsync("WELCOME10", 200000m))
+            .ReturnsAsync(new PromotionApplyResult { PromotionId = 5, Code = "WELCOME10", Discount = 20000m });
+
+        var request = NewCheckout();
+        request.PromotionCode = "WELCOME10";
+        var result = await _sut.CheckoutAsync(request);
+
+        Assert.Equal(200000m, result.TotalAmount);
+        Assert.Equal(20000m, result.Discount);
+        Assert.Equal(5, result.PromotionId);
+        Assert.Equal(210000m, result.FinalAmount);   // 200.000 - 20.000 + 30.000 ship
+        _orderRepo.Verify(r => r.AddOrderAsync(It.Is<OrderEntity>(o =>
+            o.PromotionId == 5 && o.Discount == 20000m)), Times.Once);
+    }
+
+    [Fact]
+    public async Task CheckoutAsync_WithoutPromotionCode_DoesNotCallPromotionService()
+    {
+        _cartRepo.Setup(r => r.GetCartByUserIdAsync(1)).ReturnsAsync(CartWith((10, 1)));
+        ProductExists(10, price: 10000, stock: 50);
+
+        var result = await _sut.CheckoutAsync(NewCheckout());
+
+        Assert.Equal(0m, result.Discount);
+        Assert.Null(result.PromotionId);
+        _promotion.Verify(p => p.ValidateAsync(It.IsAny<string>(), It.IsAny<decimal>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task CheckoutAsync_InvalidPromotionCode_ThrowsAndDoesNotCreateOrder()
+    {
+        _cartRepo.Setup(r => r.GetCartByUserIdAsync(1)).ReturnsAsync(CartWith((10, 1)));
+        ProductExists(10, price: 10000, stock: 50);
+        _promotion.Setup(p => p.ValidateAsync("SUMMER20", It.IsAny<decimal>()))
+            .ThrowsAsync(new ArgumentException("expired"));
+
+        var request = NewCheckout();
+        request.PromotionCode = "SUMMER20";
+
+        await Assert.ThrowsAsync<ArgumentException>(() => _sut.CheckoutAsync(request));
+        _orderRepo.Verify(r => r.AddOrderAsync(It.IsAny<OrderEntity>()), Times.Never);
+        _cartRepo.Verify(r => r.RemoveAllItemsAsync(It.IsAny<int>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task CheckoutPosAsync_WithPromotionCode_FinalAmountIsTotalMinusDiscount()
+    {
+        ProductExists(10, price: 50000, stock: 10);
+        _promotion.Setup(p => p.ValidateAsync("SALE50K", 300000m))
+            .ReturnsAsync(new PromotionApplyResult { PromotionId = 2, Code = "SALE50K", Discount = 50000m });
+
+        var request = new PosCheckoutRequest
+        {
+            PaymentMethod = "Cash",
+            PromotionCode = "SALE50K",
+            Items = [new PosOrderItem { ProductId = 10, Quantity = 6 }]
+        };
+
+        var result = await _sut.CheckoutPosAsync(request);
+
+        Assert.Equal(300000m, result.TotalAmount);
+        Assert.Equal(50000m, result.Discount);
+        Assert.Equal(250000m, result.FinalAmount);   // no shipping at POS
     }
 
     // ---------- POS checkout ----------
