@@ -9,6 +9,9 @@ import { useOrders } from "../../context/OrderContext";
 import { useAuth } from "../../context/AuthContext";
 import { paymentService } from "@/src/services/paymentService";
 import { userService } from "@/src/services/userService";
+import { PromotionApplyResult } from "@/src/services/promotionService";
+import { getApiErrorMessage } from "@/src/lib/apiError";
+import PromoCodeInput from "../ui/PromoCodeInput";
 import BtnTeal from "../ui/BtnTeal";
 import Badge from "../ui/Badge";
 
@@ -29,6 +32,7 @@ export default function CheckoutContent() {
   const [payment, setPayment] = useState<PaymentMethod>("vnpay");
   const [placing, setPlacing] = useState(false);
   const [placeError, setPlaceError] = useState<string | null>(null);
+  const [promo, setPromo] = useState<PromotionApplyResult | null>(null);
 
   const [ship, setShip] = useState<ShipForm>(() => {
     let savedAddr = { address: '', city: '' };
@@ -71,7 +75,9 @@ export default function CheckoutContent() {
   }, [user]);
 
   const sub = totalAmount;
-  const total = sub + SHIPPING_FEE;
+  const discount = promo?.discount ?? 0;
+  // Discount applies to goods only; server recalculates it at checkout
+  const total = sub - discount + SHIPPING_FEE;
 
   const payOpts: {
     id: PaymentMethod;
@@ -168,6 +174,7 @@ export default function CheckoutContent() {
         receiverPhone: ship.phone,
         shippingAddress: ship.address,
         paymentMethod: PAYMENT_METHOD_API[payment],
+        promotionCode: promo?.code,
       });
       refreshCart();
 
@@ -196,7 +203,7 @@ export default function CheckoutContent() {
       router.push(`/orders/success?id=${order.orderId}`);
     } catch (err) {
       console.error(err);
-      setPlaceError("Could not place order. Please try again.");
+      setPlaceError(getApiErrorMessage(err, "Could not place order. Please try again."));
     } finally {
       setPlacing(false);
     }
@@ -533,8 +540,12 @@ export default function CheckoutContent() {
                 </div>
               ))}
             </div>
+            <div style={{ marginBottom: "0.75rem" }}>
+              <PromoCodeInput orderAmount={sub} applied={promo} onChange={setPromo} accent="var(--teal)" />
+            </div>
             {[
               ["Subtotal", fmt(sub)],
+              ...(discount > 0 ? [[`Discount (${promo?.code})`, `-${fmt(discount)}`]] : []),
               ["Shipping", fmt(SHIPPING_FEE)],
             ].map(([l, v]) => (
               <div

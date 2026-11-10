@@ -10,14 +10,26 @@ namespace OrderServiceAPI.Services
         private readonly IOrderRepository _orderRepository;
         private readonly ICartRepository _cartRepository;
         private readonly ICatalogServiceClient _catalogClient;
+        private readonly IPromotionService _promotionService;
         public OrderService(
     IOrderRepository orderRepository,
     ICartRepository cartRepository,
-    ICatalogServiceClient catalogClient)
+    ICatalogServiceClient catalogClient,
+    IPromotionService promotionService)
         {
             _orderRepository = orderRepository;
             _cartRepository = cartRepository;
             _catalogClient = catalogClient;
+            _promotionService = promotionService;
+        }
+
+        // Returns (null, 0) when no code is given; throws ArgumentException (400) when the code is invalid.
+        private async Task<(int? PromotionId, decimal Discount)> ApplyPromotionAsync(string? code, decimal totalAmount)
+        {
+            if (string.IsNullOrWhiteSpace(code)) return (null, 0);
+
+            var result = await _promotionService.ValidateAsync(code, totalAmount);
+            return (result.PromotionId, result.Discount);
         }
 
         public async Task<OrderDto> CheckoutAsync(CheckoutRequest request)
@@ -51,7 +63,10 @@ namespace OrderServiceAPI.Services
 
             const decimal shippingFee = 30000;
 
-            var finalAmount = totalAmount + shippingFee;
+            // Discount applies to goods only, not shipping
+            var (promotionId, discount) = await ApplyPromotionAsync(request.PromotionCode, totalAmount);
+
+            var finalAmount = totalAmount - discount + shippingFee;
 
             // Tạo Order
             var order = new Order
@@ -66,7 +81,8 @@ namespace OrderServiceAPI.Services
                 PaymentStatus = "Pending",
                 OrderStatus = "Pending",
                 TotalAmount = totalAmount,
-                Discount = 0,
+                Discount = discount,
+                PromotionId = promotionId,
                 Vat = 0,
                 ShippingFee = shippingFee,
                 FinalAmount = finalAmount,
@@ -112,6 +128,8 @@ namespace OrderServiceAPI.Services
                 OrderStatus = order.OrderStatus,
                 ShippingAddress = order.ShippingAddress ?? string.Empty,
                 ShippingFee = order.ShippingFee,
+                Discount = order.Discount,
+                PromotionId = order.PromotionId,
                 FinalAmount = order.FinalAmount,
                 Items = orderDetails.Select(x => new OrderItemDto
                 {
@@ -159,6 +177,8 @@ namespace OrderServiceAPI.Services
                 });
             }
 
+            var (promotionId, discount) = await ApplyPromotionAsync(request.PromotionCode, totalAmount);
+
             var order = new Order
             {
                 OrderNumber = $"POS-{DateTime.Now:yyyyMMddHHmmssfff}",
@@ -171,10 +191,11 @@ namespace OrderServiceAPI.Services
                 PaymentStatus = "Paid",
                 OrderStatus = "Completed",
                 TotalAmount = totalAmount,
-                Discount = 0,
+                Discount = discount,
+                PromotionId = promotionId,
                 Vat = 0,
                 ShippingFee = 0,
-                FinalAmount = totalAmount,
+                FinalAmount = totalAmount - discount,
                 CreatedAt = DateTime.Now,
                 OrderDate = DateTime.Now
             };
@@ -242,6 +263,8 @@ namespace OrderServiceAPI.Services
                 OrderStatus = order.OrderStatus,
                 ShippingAddress = order.ShippingAddress ?? string.Empty,
                 ShippingFee = order.ShippingFee,
+                Discount = order.Discount,
+                PromotionId = order.PromotionId,
                 FinalAmount = order.FinalAmount,
                 Items = order.OrderDetails.Select(item => new OrderItemDto
                 {

@@ -11,6 +11,7 @@ interface PlaceOrderInput {
   receiverPhone: string;
   shippingAddress: string;
   paymentMethod: string;
+  promotionCode?: string;
 }
 
 interface OrderContextValue {

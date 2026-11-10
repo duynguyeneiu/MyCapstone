@@ -1,6 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
 import { orderService, Order as ApiOrder } from "@/src/services/orderService";
+import { getApiErrorMessage } from "@/src/lib/apiError";
+
+// Mirror of OrderService.AllowedTransitions (backend)
+const NEXT_STATUS: Record<string, string[]> = {
+  Pending: ["Confirmed", "Cancelled"],
+  Confirmed: ["Shipping"],
+  Shipping: ["Completed"],
+};
 
 interface Props {
   search: string;
@@ -64,7 +72,7 @@ function mapApiOrder(o: ApiOrder): Order {
     amount: o.finalAmount,
     subtotal: o.totalAmount,
     shippingFee: o.shippingFee,
-    discount: 0,
+    discount: o.discount ?? 0,
     status: o.orderStatus,
     items: o.items.map((i) => ({ name: i.productName, qty: i.quantity, price: i.unitPrice })),
   };
@@ -119,6 +127,7 @@ export default function AdminOrdersPage({ search }: Props) {
 
   const updateStatus = () => {
     if (currentOrderId == null) return;
+    if (dStatus === currentOrder?.status) { setDetailOpen(false); return; }   // nothing changed
     orderService.updateStatus(currentOrderId, dStatus)
       .then(() => {
         setOrders((prev) =>
@@ -128,7 +137,7 @@ export default function AdminOrdersPage({ search }: Props) {
         );
         setDetailOpen(false);
       })
-      .catch((err) => console.error(err));
+      .catch((err) => alert(getApiErrorMessage(err, "Could not update order status.")));
   };
 
   const data = filtered();
@@ -232,7 +241,7 @@ export default function AdminOrdersPage({ search }: Props) {
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-on-surface-variant font-label-md text-label-md mb-1">
-                    Delivered
+                    Completed
                   </p>
                   <h3 className="font-bold" style={{ fontSize: "24px" }}>
                     {deliveredCount}
@@ -831,11 +840,10 @@ export default function AdminOrdersPage({ search }: Props) {
                     fontSize: "14px",
                   }}
                 >
-                  <option>Pending</option>
-                  <option>Confirmed</option>
-                  <option>Shipping</option>
-                  <option>Completed</option>
-                  <option>Cancelled</option>
+                  {/* current status + valid next steps only */}
+                  {[currentOrder?.status ?? "Pending", ...(NEXT_STATUS[currentOrder?.status ?? ""] ?? [])].map((s) => (
+                    <option key={s}>{s}</option>
+                  ))}
                 </select>
               </div>
             </div>

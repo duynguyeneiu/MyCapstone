@@ -16,5 +16,8 @@ namespace OrderServiceAPI.DTOs
         public string PaymentMethod { get; set; } = string.Empty;
 
         public List<PosOrderItem> Items { get; set; } = new();
+
+        // Optional discount code (validated and recalculated on the server)
+        public string? PromotionCode { get; set; }
     }
 }

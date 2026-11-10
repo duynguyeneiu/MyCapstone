@@ -42,7 +42,18 @@ export default function SuccessContent({ orderId }: SuccessContentProps) {
               <span style={{ fontWeight: 600 }}>{fmt(item.subtotal)}</span>
             </div>
           ))}
-          <div style={{ borderTop: '1px solid #f1f5f9', marginTop: '0.75rem', paddingTop: '0.75rem', display: 'flex', justifyContent: 'space-between', fontWeight: 700 }}>
+          <div style={{ borderTop: '1px solid #f1f5f9', marginTop: '0.75rem', paddingTop: '0.75rem', fontSize: '.875rem', color: '#64748b' }}>
+            {[
+              ['Subtotal', fmt(order.totalAmount)],
+              ...(order.discount > 0 ? [['Discount', `-${fmt(order.discount)}`]] : []),
+              ['Shipping', fmt(order.shippingFee)],
+            ].map(([l, v]) => (
+              <div key={l} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
+                <span>{l}</span><span>{v}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ borderTop: '1px solid #f1f5f9', marginTop: '0.5rem', paddingTop: '0.75rem', display: 'flex', justifyContent: 'space-between', fontWeight: 700 }}>
             <span>Total Paid</span>
             <span style={{ color: 'var(--teal)' }}>{fmt(total)}</span>
           </div>

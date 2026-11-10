@@ -13,9 +13,13 @@ $Accounts = @{
     Admin = @{ Phone = "0901234567"; Password = "Admin@123" }
 }
 
-# Doc tu appsettings.json cua Order, khong can go tay
-$OrderSettings = Join-Path $PSScriptRoot "..\backend\StoreManagementAPI\OrderServiceAPI\appsettings.json"
-$InternalKey   = (Get-Content $OrderSettings -Raw -Encoding UTF8 | ConvertFrom-Json).InternalApi.Key
+$OrderProj = Join-Path $PSScriptRoot "..\backend\StoreManagementAPI\OrderServiceAPI"
+# Doc InternalApi:Key tu user-secrets cua OrderService (fallback: appsettings.json)
+$InternalKey = $null
+$lines = & dotnet user-secrets list --project $OrderProj 2>$null
+foreach ($l in $lines) { if ($l -match '^\s*InternalApi:Key\s*=\s*(.+?)\s*$') { $InternalKey = $Matches[1] } }
+if (-not $InternalKey) { $InternalKey = (Get-Content (Join-Path $OrderProj "appsettings.json") -Raw -Encoding UTF8 | ConvertFrom-Json).InternalApi.Key }
+if (-not $InternalKey) { $InternalKey = Read-Host "  Khong doc duoc InternalApi:Key. Dan key" }
 
 # (Tuy chon) ProductId ma A DA MUA nhung CHUA review -> test Review goi Order co key.
 # De 0 neu muon bo qua.
@@ -87,7 +91,7 @@ if ($bCart.Status -eq 200) { $items = ($bCart.Content | ConvertFrom-Json).items;
 
 $bOrders = Call GET "$Order/Order/user/$($B.Id)" $B.Token
 $bOrderId = $null
-if ($bOrders.Status -eq 200) { $list = @($bOrders.Content | ConvertFrom-Json); if ($list.Count -gt 0) { $bOrderId = $list[0].orderId } }
+if ($bOrders.Status -eq 200) { $list = @(($bOrders.Content | ConvertFrom-Json) | ForEach-Object { $_ }); if ($list.Count -gt 0) { $bOrderId = $list[0].orderId } }
 
 Write-Host ("  Du lieu B: cartDetailId={0}  orderId={1}" -f $bItemId, $bOrderId)
 

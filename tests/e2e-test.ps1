@@ -1,7 +1,7 @@
 ﻿# =====================================================================
 #  HappyMart - End-to-End test
 #  Dang ky -> Dang nhap -> San pham -> Gio hang -> Dat don (COD) -> Staff xu ly
-#  -> Hoa don -> Review -> VNPay (gia lap IPN) -> Huy don -> POS -> Admin CRUD
+#  -> Hoa don -> Review -> VNPay (gia lap IPN) -> Huy don -> POS -> Admin CRUD -> Khuyen mai
 #
 #  Chay:  powershell -ExecutionPolicy Bypass -File .\e2e-test.ps1
 #  Yeu cau: 5 service dang chay. Script GHI DU LIEU THAT vao DB local.
@@ -23,7 +23,7 @@ $User    = "http://localhost:5005/api"
 
 $Backend     = Join-Path $PSScriptRoot "..\backend\StoreManagementAPI"
 $PaymentProj = Join-Path $Backend "PaymentService.API"
-$OrderCfg    = Join-Path $Backend "OrderServiceAPI\appsettings.json"
+$OrderProj   = Join-Path $Backend "OrderServiceAPI"
 # ---------------------------------------------------------------------
 
 $ErrorActionPreference = "Continue"
@@ -141,7 +141,12 @@ foreach ($k in $svc.Keys) { if ((Api GET $svc[$k] $null).Status -eq 0) { $down +
 if ($down.Count) { Write-Host "Service chua chay: $($down -join ', '). Bat len roi chay lai." -ForegroundColor Red; exit 1 }
 Write-Host "  5 service dang chay."
 
-$InternalKey = (Get-Content $OrderCfg -Raw -Encoding UTF8 | ConvertFrom-Json).InternalApi.Key
+# Doc InternalApi:Key tu user-secrets cua OrderService (fallback: appsettings.json)
+$InternalKey = $null
+$lines = & dotnet user-secrets list --project $OrderProj 2>$null
+foreach ($l in $lines) { if ($l -match '^\s*InternalApi:Key\s*=\s*(.+?)\s*$') { $InternalKey = $Matches[1] } }
+if (-not $InternalKey) { $InternalKey = (Get-Content (Join-Path $OrderProj "appsettings.json") -Raw -Encoding UTF8 | ConvertFrom-Json).InternalApi.Key }
+if (-not $InternalKey) { $InternalKey = Read-Host "  Khong doc duoc InternalApi:Key. Dan key" }
 $KeyHdr = @{ "X-Internal-Key" = $InternalKey }
 
 $HashSecret = $null
@@ -414,10 +419,85 @@ T "11.8" "Admin xem danh sach user" @(200) (Api GET "$User/User" $S.Admin.Token)
 T "11.9" "Admin xem tat ca payment" @(200) (Api GET "$Payment/Payment" $S.Admin.Token) | Out-Null
 T "11.10" "Staff xem tat ca payment" @(403) (Api GET "$Payment/Payment" $S.Staff.Token) | Out-Null
 
-# ============================ 12. DON DEP ==============================
-Head "12. Don dep du lieu test"
-if ($NewPid) { T "12.1" "Xoa san pham test" @(204) (Api DELETE "$Catalog/products/$NewPid" $S.Admin.Token) | Out-Null }
-if ($CatId)  { T "12.2" "Xoa danh muc test" @(204) (Api DELETE "$Catalog/categories/$CatId" $S.Admin.Token) | Out-Null }
+# ============================ 12. KHUYEN MAI ===========================
+Head "12. Khuyen mai (Promotion)"
+$today    = (Get-Date).ToString("yyyy-MM-dd")
+$PmCode   = "E2E$RunTag"              # ma rieng cho moi lan chay -> khong phu thuoc du lieu mau
+$PmMin    = $Price * 2                # don toi thieu = 2 san pham
+$PmPct = $null; $PmExp = $null; $PmOff = $null; $O4 = $null
+$pmBody = @{ code = $PmCode.ToLower(); description = "E2E 10%"; discountType = "Percentage"; discountValue = 10; minOrderValue = $PmMin
+             startDate = (Get-Date).AddDays(-1).ToString("yyyy-MM-dd"); endDate = (Get-Date).AddDays(30).ToString("yyyy-MM-dd"); status = "Active" }
+
+T "12.1" "Staff tao khuyen mai" @(403) (Api POST "$Order/Promotion" $S.Staff.Token $pmBody) | Out-Null
+T "12.2" "Khach xem danh sach khuyen mai" @(403) (Api GET "$Order/Promotion" $Main.Token) | Out-Null
+$pc = Api POST "$Order/Promotion" $S.Admin.Token $pmBody
+if (T "12.3" "Admin tao khuyen mai 10%" @(201) $pc) {
+    $PmPct = [int]$pc.Json.promotionId
+    A "12.4" "Ma duoc luu chu in hoa" ($pc.Json.code -eq $PmCode) $PmCode $pc.Json.code | Out-Null
+    T "12.5" "Tao trung ma" @(409) (Api POST "$Order/Promotion" $S.Admin.Token $pmBody) | Out-Null
+    $bad = $pmBody.Clone(); $bad.code = "X$PmCode"; $bad.discountValue = 150
+    T "12.6" "Tao khuyen mai 150%" @(400) (Api POST "$Order/Promotion" $S.Admin.Token $bad) | Out-Null
+
+    $exp = $pmBody.Clone(); $exp.code = "EXP$RunTag"; $exp.discountType = "Fixed"; $exp.discountValue = 5000; $exp.minOrderValue = 0
+    $exp.startDate = (Get-Date).AddDays(-10).ToString("yyyy-MM-dd"); $exp.endDate = (Get-Date).AddDays(-1).ToString("yyyy-MM-dd")
+    $r = Api POST "$Order/Promotion" $S.Admin.Token $exp
+    if ($r.Status -eq 201) { $PmExp = [int]$r.Json.promotionId }
+    $off = $exp.Clone(); $off.code = "OFF$RunTag"; $off.startDate = $today; $off.endDate = (Get-Date).AddDays(30).ToString("yyyy-MM-dd"); $off.status = "Inactive"
+    $r = Api POST "$Order/Promotion" $S.Admin.Token $off
+    if ($r.Status -eq 201) { $PmOff = [int]$r.Json.promotionId }
+    A "12.7" "Tao ma het han + ma Inactive" ($PmExp -and $PmOff) "2 ma" "$PmExp/$PmOff" | Out-Null
+
+    # ---- Kiem tra ma (validate) ----
+    $ExpDisc = [math]::Round([decimal]$PmMin * 10 / 100, 0, [MidpointRounding]::AwayFromZero)
+    $v = Api POST "$Order/Promotion/validate" $Main.Token @{ code = $PmCode.ToLower(); orderAmount = $PmMin }
+    if (T "12.8" "Validate ma hop le (chu thuong)" @(200) $v) {
+        A "12.9" "Tien giam = 10% don hang" ([decimal]$v.Json.discount -eq $ExpDisc) $ExpDisc $v.Json.discount | Out-Null
+    }
+    T "12.10" "Validate don duoi muc toi thieu" @(400) (Api POST "$Order/Promotion/validate" $Main.Token @{ code = $PmCode; orderAmount = $PmMin - 1 }) | Out-Null
+    T "12.11" "Validate ma het han" @(400) (Api POST "$Order/Promotion/validate" $Main.Token @{ code = "EXP$RunTag"; orderAmount = $PmMin }) | Out-Null
+    T "12.12" "Validate ma Inactive" @(400) (Api POST "$Order/Promotion/validate" $Main.Token @{ code = "OFF$RunTag"; orderAmount = $PmMin }) | Out-Null
+    T "12.13" "Validate ma khong ton tai" @(400) (Api POST "$Order/Promotion/validate" $Main.Token @{ code = "NOPE$RunTag"; orderAmount = $PmMin }) | Out-Null
+    T "12.14" "Validate khong token" @(401) (Api POST "$Order/Promotion/validate" $null @{ code = $PmCode; orderAmount = $PmMin }) | Out-Null
+
+    # ---- Checkout online co ma ----
+    Api DELETE "$Order/Cart/$($Main.Id)" $Main.Token | Out-Null
+    Api POST "$Order/Cart/items" $Main.Token @{ userId = $Main.Id; productId = $ProdId; quantity = 1 } | Out-Null
+    T "12.15" "Checkout voi ma het han" @(400) (Api POST "$Order/Order/checkout" $Main.Token @{ receiverName = "E2E Promo"; receiverPhone = $Main.Phone; shippingAddress = "1 Promo"; paymentMethod = "COD"; promotionCode = "EXP$RunTag" }) | Out-Null
+    $cart = Api GET "$Order/Cart/$($Main.Id)" $Main.Token
+    A "12.16" "Gio hang giu nguyen khi ma loi" ((ToList $cart.Json.items).Count -gt 0) ">0 item" (ToList $cart.Json.items).Count | Out-Null
+
+    Api DELETE "$Order/Cart/$($Main.Id)" $Main.Token | Out-Null
+    Api POST "$Order/Cart/items" $Main.Token @{ userId = $Main.Id; productId = $ProdId; quantity = 2 } | Out-Null
+    $co4 = Api POST "$Order/Order/checkout" $Main.Token @{ receiverName = "E2E Promo"; receiverPhone = $Main.Phone; shippingAddress = "1 Promo"; paymentMethod = "COD"; promotionCode = $PmCode }
+    if (T "12.17" "Checkout online co ma" @(200) $co4) {
+        $O4 = [int]$co4.Json.orderId
+        $expFinal = $PmMin - $ExpDisc + 30000
+        A "12.18" "discount + promotionId luu vao don" ([decimal]$co4.Json.discount -eq $ExpDisc -and [int]$co4.Json.promotionId -eq $PmPct) "$ExpDisc/#$PmPct" "$($co4.Json.discount)/#$($co4.Json.promotionId)" | Out-Null
+        A "12.19" "finalAmount = tien hang - giam + ship" ([decimal]$co4.Json.finalAmount -eq $expFinal) $expFinal $co4.Json.finalAmount | Out-Null
+    }
+
+    # ---- POS co ma ----
+    $posPm = Api POST "$Order/Order/pos-checkout" $S.Staff.Token @{ paymentMethod = "Cash"; receiverName = "Khach le KM"; promotionCode = $PmCode; items = @(@{ productId = $ProdId; quantity = 2 }) }
+    if (T "12.20" "POS checkout co ma" @(200) $posPm) {
+        A "12.21" "POS finalAmount = tien hang - giam (khong ship)" ([decimal]$posPm.Json.finalAmount -eq $PmMin - $ExpDisc) ($PmMin - $ExpDisc) $posPm.Json.finalAmount | Out-Null
+    }
+
+    # ---- Thong ke + rang buoc xoa ----
+    $g = Api GET "$Order/Promotion/$PmPct" $S.Admin.Token
+    A "12.22" "Thong ke: dung 2 lan, tong giam = 2 x giam" ([int]$g.Json.usageCount -eq 2 -and [decimal]$g.Json.totalDiscount -eq $ExpDisc * 2) "2/$($ExpDisc * 2)" "$($g.Json.usageCount)/$($g.Json.totalDiscount)" | Out-Null
+    T "12.23" "Xoa ma da duoc dung" @(409) (Api DELETE "$Order/Promotion/$PmPct" $S.Admin.Token) | Out-Null
+    $inact = $pmBody.Clone(); $inact.code = $PmCode; $inact.status = "Inactive"
+    T "12.24" "Chuyen ma sang Inactive" @(204) (Api PUT "$Order/Promotion/$PmPct" $S.Admin.Token $inact) | Out-Null
+    T "12.25" "Ma Inactive khong dung duoc nua" @(400) (Api POST "$Order/Promotion/validate" $Main.Token @{ code = $PmCode; orderAmount = $PmMin }) | Out-Null
+}
+
+# ============================ 13. DON DEP ==============================
+Head "13. Don dep du lieu test"
+if ($NewPid) { T "13.1" "Xoa san pham test" @(204) (Api DELETE "$Catalog/products/$NewPid" $S.Admin.Token) | Out-Null }
+if ($CatId)  { T "13.2" "Xoa danh muc test" @(204) (Api DELETE "$Catalog/categories/$CatId" $S.Admin.Token) | Out-Null }
+if ($PmExp)  { T "13.3" "Xoa ma khuyen mai chua dung" @(204) (Api DELETE "$Order/Promotion/$PmExp" $S.Admin.Token) | Out-Null }
+if ($PmOff)  { Api DELETE "$Order/Promotion/$PmOff" $S.Admin.Token | Out-Null }
+if ($O4)     { Api PUT "$Order/Order/$O4/cancel" $Main.Token | Out-Null }   # huy don online co ma (van giu lai lich su)
 Api DELETE "$Order/Cart/$($Main.Id)" $Main.Token | Out-Null
 
 # ============================ TONG KET =================================
@@ -430,7 +510,7 @@ if ($fail) {
     Write-Host "`n Cac test FAIL:" -ForegroundColor Red
     $Results | Where-Object Result -eq "FAIL" | ForEach-Object { Write-Host ("  {0,-5} {1} (expect {2}, got {3}) {4}" -f $_.Id, $_.Test, $_.Expected, $_.Actual, $_.Note) -ForegroundColor Red }
 }
-Write-Host "`n Du lieu da tao: user $($Main.Phone), don #$O1 (COD, Completed), #$O2 (VNPay), #$O3 (Cancelled), 1 don POS, 1 review."
+Write-Host "`n Du lieu da tao: user $($Main.Phone), don #$O1 (COD, Completed), #$O2 (VNPay), #$O3 (Cancelled), #$O4 (KM, Cancelled), 2 don POS, 1 review, ma KM $PmCode (Inactive)."
 $csv = Join-Path $PSScriptRoot ("e2e-result_{0:yyyyMMdd_HHmm}.csv" -f (Get-Date))
 $Results | Export-Csv $csv -NoTypeInformation -Encoding UTF8
 Write-Host " Da luu: $csv"
