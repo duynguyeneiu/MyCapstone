@@ -464,7 +464,7 @@ if (T "12.3" "Admin tao khuyen mai 10%" @(201) $pc) {
     Api POST "$Order/Cart/items" $Main.Token @{ userId = $Main.Id; productId = $ProdId; quantity = 1 } | Out-Null
     T "12.15" "Checkout voi ma het han" @(400) (Api POST "$Order/Order/checkout" $Main.Token @{ receiverName = "E2E Promo"; receiverPhone = $Main.Phone; shippingAddress = "1 Promo"; paymentMethod = "COD"; promotionCode = "EXP$RunTag" }) | Out-Null
     $cart = Api GET "$Order/Cart/$($Main.Id)" $Main.Token
-    A "12.16" "Gio hang giu nguyen khi ma loi" ((ToList $cart.Json.items).Count -gt 0) ">0 item" (ToList $cart.Json.items).Count | Out-Null
+    A "12.16" "Gio hang giu nguyen khi ma loi" (@(ToList $cart.Json.items).Count -gt 0) ">0 item" @(ToList $cart.Json.items).Count | Out-Null
 
     Api DELETE "$Order/Cart/$($Main.Id)" $Main.Token | Out-Null
     Api POST "$Order/Cart/items" $Main.Token @{ userId = $Main.Id; productId = $ProdId; quantity = 2 } | Out-Null

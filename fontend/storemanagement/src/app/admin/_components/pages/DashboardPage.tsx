@@ -50,7 +50,7 @@ export default function DashboardPage({ onNav, search }: Props) {
         setProducts(productsData);
         setCategories(categoriesData);
         setCustomerCount(
-          usersData.filter((u) => u.role?.roleName?.toLowerCase() === 'customer').length
+          usersData.filter((u) => (u.roleName ?? u.role?.roleName)?.toLowerCase() === 'customer').length
         );
       } catch (err) {
         console.error(err);
@@ -75,7 +75,12 @@ export default function DashboardPage({ onNav, search }: Props) {
     }
   };
 
-  const totalRevenue = useMemo(() => orders.reduce((s, o) => s + o.totalAmount, 0), [orders]);
+  // Revenue = money actually earned: paid (POS/VNPay) or completed (COD), never cancelled; after discount.
+  const revenueOrders = useMemo(
+    () => orders.filter((o) => o.orderStatus !== 'Cancelled' && (o.paymentStatus === 'Paid' || o.orderStatus === 'Completed')),
+    [orders]
+  );
+  const totalRevenue = useMemo(() => revenueOrders.reduce((s, o) => s + o.finalAmount, 0), [revenueOrders]);
   const lowStockProducts = useMemo(
     () => [...products].sort((a, b) => a.quantity - b.quantity).slice(0, 6),
     [products]
@@ -110,13 +115,13 @@ export default function DashboardPage({ onNav, search }: Props) {
       const d = new Date();
       d.setDate(d.getDate() - i);
       const key = d.toDateString();
-      const total = orders
+      const total = revenueOrders
         .filter((o) => new Date(o.orderDate).toDateString() === key)
-        .reduce((s, o) => s + o.totalAmount, 0);
+        .reduce((s, o) => s + o.finalAmount, 0);
       days.push({ label: d.toLocaleDateString('en-US', { weekday: 'short' }), total });
     }
     return days;
-  }, [orders]);
+  }, [revenueOrders]);
 
   const channelBreakdown = useMemo(() => {
     const counts = new Map<string, number>();

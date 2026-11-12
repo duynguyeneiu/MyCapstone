@@ -4,3 +4,8 @@
 # Test output
 **/TestResults/
 newman/
+
+# Build output (.NET / Visual Studio)
+**/bin/
+**/obj/
+**/.vs/

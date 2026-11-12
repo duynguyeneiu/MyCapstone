@@ -220,6 +220,18 @@ export const productService = {
     return res.data;
   },
 
+  // Upload ảnh sản phẩm, trả về tên file (lưu vào Product.Image)
+  async uploadImage(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await api.post<{ fileName: string; url: string }>(
+      "/Products/upload-image",
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } },
+    );
+    return res.data.fileName;
+  },
+
   async delete(
     id: number,
   ) {
