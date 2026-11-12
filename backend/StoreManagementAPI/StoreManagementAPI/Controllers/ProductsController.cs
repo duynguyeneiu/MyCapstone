@@ -12,10 +12,46 @@ namespace CatalogService.API.Controllers;
 public class ProductsController : ControllerBase
 {
     private readonly IProductService _productService;
+    private readonly IWebHostEnvironment _env;
 
-    public ProductsController(IProductService productService)
+    private static readonly string[] AllowedImageExtensions = { ".jpg", ".jpeg", ".png", ".webp", ".gif" };
+    private const long MaxImageSize = 5 * 1024 * 1024; // 5 MB
+
+    public ProductsController(IProductService productService, IWebHostEnvironment env)
     {
         _productService = productService;
+        _env = env;
+    }
+
+    // POST: api/products/upload-image  (multipart/form-data, field "file")
+    // Lưu ảnh vào wwwroot/images, trả về tên file để lưu vào Product.Image
+    [Authorize(Roles = "Admin")]
+    [HttpPost("upload-image")]
+    [RequestSizeLimit(MaxImageSize + 1024 * 1024)] // + phần overhead của multipart
+    public async Task<IActionResult> UploadImage(IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+            return BadRequest(new { message = "No file uploaded." });
+
+        if (file.Length > MaxImageSize)
+            return BadRequest(new { message = "Image must be 5 MB or smaller." });
+
+        var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (!AllowedImageExtensions.Contains(ext) || !file.ContentType.StartsWith("image/"))
+            return BadRequest(new { message = "Only JPG, PNG, WEBP or GIF images are allowed." });
+
+        var webRoot = _env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot");
+        var folder = Path.Combine(webRoot, "images");
+        Directory.CreateDirectory(folder);
+
+        // Tên ngẫu nhiên: tránh trùng và tránh ghi đè/đường dẫn độc hại từ tên file gốc
+        var fileName = $"{Guid.NewGuid():N}{ext}";
+        await using (var stream = System.IO.File.Create(Path.Combine(folder, fileName)))
+        {
+            await file.CopyToAsync(stream);
+        }
+
+        return Ok(new { fileName, url = $"/images/{fileName}" });
     }
 
    

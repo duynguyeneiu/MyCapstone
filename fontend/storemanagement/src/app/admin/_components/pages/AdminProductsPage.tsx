@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { productService, ApiProductRaw } from "@/src/services/productService";
 import { categoryService } from "@/src/services/categoryService";
 import { reviewService, ApiReview } from "@/src/services/reviewService";
@@ -70,6 +70,8 @@ const toAdmin = (products: ApiProductRaw[], ratings: Map<number, number>): Admin
 const emptyForm = {
   name: "",
   code: "",
+  barcode: "",
+  unit: "pcs",
   categoryId: "",
   image: "",
   stock: "",
@@ -91,6 +93,31 @@ export default function AdminProductsPage({ search }: Props) {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageFile = async (file: File | undefined) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      alert("Please choose an image file (JPG, PNG, WEBP, GIF)");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image must be 5 MB or smaller");
+      return;
+    }
+    setUploading(true);
+    try {
+      const fileName = await productService.uploadImage(file);
+      setForm((f) => ({ ...f, image: toDisplayImage(fileName) }));
+    } catch (err) {
+      console.error(err);
+      alert(getApiErrorMessage(err));
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
 
   async function loadData() {
     try {
@@ -172,6 +199,8 @@ export default function AdminProductsPage({ search }: Props) {
     setForm({
       name: p.name,
       code: p.code,
+      barcode: p.raw.barcode ?? "",
+      unit: p.raw.unit || "pcs",
       categoryId: String(p.categoryId),
       image: p.image,
       stock: String(p.stock),
@@ -205,6 +234,8 @@ export default function AdminProductsPage({ search }: Props) {
         await productService.update(editId, {
           ...current.raw,
           productName: form.name,
+          barcode: form.barcode.trim() || null,
+          unit: form.unit.trim() || "pcs",
           categoryId,
           image: toRawImage(form.image),
           quantityInStock: parseInt(form.stock) || 0,
@@ -217,9 +248,9 @@ export default function AdminProductsPage({ search }: Props) {
         await productService.create({
           productId: 0,
           productCode: form.code || `PRD-${Date.now()}`,
-          barcode: null,
+          barcode: form.barcode.trim() || null,
           productName: form.name,
-          unit: "pcs",
+          unit: form.unit.trim() || "pcs",
           importPrice: parseFloat(form.importPrice) || 0,
           salePrice,
           quantityInStock: parseInt(form.stock) || 0,
@@ -858,7 +889,7 @@ export default function AdminProductsPage({ search }: Props) {
 
               <div>
                 <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
-                  Image URL
+                  Image
                 </label>
                 <div className="flex gap-3 items-start">
                   <div className="w-16 h-16 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden"
@@ -868,14 +899,45 @@ export default function AdminProductsPage({ search }: Props) {
                       : <span className="material-symbols-outlined" style={{ color: "#b8d4c8", fontSize: 28 }}>image</span>
                     }
                   </div>
-                  <input
-                    type="text"
-                    placeholder="https://… or /images/product.png"
-                    value={form.image}
-                    onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
-                    className="w-full rounded-lg px-3 py-2 focus:outline-none"
-                    style={{ border: "1.5px solid #c8e4d8", background: "#f4fbf7", fontSize: "14px" }}
-                  />
+                  <div className="flex-1 space-y-2">
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploading}
+                        className="rounded-lg px-3 py-2 font-label-sm text-label-sm whitespace-nowrap"
+                        style={{ border: "1.5px solid #00694c", color: "#00694c", background: "#fff", opacity: uploading ? 0.6 : 1 }}
+                      >
+                        {uploading ? "Uploading..." : "Choose image"}
+                      </button>
+                      {form.image && (
+                        <button
+                          type="button"
+                          onClick={() => setForm((f) => ({ ...f, image: "" }))}
+                          className="rounded-lg px-3 py-2 font-label-sm text-label-sm"
+                          style={{ border: "1.5px solid #e0e3e5", color: "#6d7a73", background: "#fff" }}
+                        >
+                          Remove
+                        </button>
+                      )}
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp,image/gif"
+                        className="hidden"
+                        onChange={(e) => handleImageFile(e.target.files?.[0])}
+                      />
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="…or paste a URL / file name"
+                      value={form.image}
+                      onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
+                      className="w-full rounded-lg px-3 py-2 focus:outline-none"
+                      style={{ border: "1.5px solid #c8e4d8", background: "#f4fbf7", fontSize: "14px" }}
+                    />
+                    <p style={{ fontSize: 12, color: "#6d7a73" }}>JPG, PNG, WEBP or GIF · max 5 MB</p>
+                  </div>
                 </div>
               </div>
 
@@ -902,6 +964,40 @@ export default function AdminProductsPage({ search }: Props) {
                     placeholder="e.g. P001"
                     value={form.code}
                     onChange={(e) => setForm((f) => ({ ...f, code: e.target.value }))}
+                    disabled={editId !== null}
+                    title={editId !== null ? "Product code cannot be changed" : undefined}
+                    className="w-full rounded-lg px-3 py-2 focus:outline-none"
+                    style={{ border: "1.5px solid #c8e4d8", background: editId !== null ? "#eceeef" : "#f4fbf7", fontSize: "14px" }}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
+                    Barcode
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Scan or type barcode"
+                    value={form.barcode}
+                    onChange={(e) => setForm((f) => ({ ...f, barcode: e.target.value }))}
+                    onKeyDown={(e) => { if (e.key === "Enter") e.preventDefault(); }}
+                    maxLength={50}
+                    className="w-full rounded-lg px-3 py-2 focus:outline-none"
+                    style={{ border: "1.5px solid #c8e4d8", background: "#f4fbf7", fontSize: "14px" }}
+                  />
+                </div>
+                <div>
+                  <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">
+                    Unit <span style={{ color: "#dc2626" }}>*</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. pcs, box, bottle"
+                    value={form.unit}
+                    onChange={(e) => setForm((f) => ({ ...f, unit: e.target.value }))}
+                    maxLength={30}
                     className="w-full rounded-lg px-3 py-2 focus:outline-none"
                     style={{ border: "1.5px solid #c8e4d8", background: "#f4fbf7", fontSize: "14px" }}
                   />

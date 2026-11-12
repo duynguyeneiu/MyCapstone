@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, type KeyboardEvent } from 'react';
 import Icon from '../ui/Icon';
 import { Modal, ModalHeader } from '../ui/AdminModal';
 import Btn from '../ui/AdminBtn';
@@ -158,6 +158,15 @@ export default function POSPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [checkoutSaving, setCheckoutSaving] = useState(false);
   const [promo, setPromo] = useState<PromotionApplyResult | null>(null);
+  const [scanMsg, setScanMsg] = useState<{ text: string; ok: boolean } | null>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const focusSearch = () => setTimeout(() => searchRef.current?.focus(), 0);
+
+  useEffect(() => {
+    if (!scanMsg) return;
+    const t = setTimeout(() => setScanMsg(null), 2500);
+    return () => clearTimeout(t);
+  }, [scanMsg]);
 
   useEffect(() => {
     if (!autoPrintPending || !currentReceipt) return;
@@ -227,17 +236,41 @@ export default function POSPage() {
     (p.name.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase()))
   );
 
-  const addToCart = (product: typeof POS_PRODUCTS[0]) => {
-    if (product.stock === 0) return;
+  const addToCart = (product: typeof POS_PRODUCTS[0]): boolean => {
+    if (product.stock === 0) return false;
+    const inCart = cart.find((i) => i.id === product.id)?.qty ?? 0;
+    if (inCart >= product.stock) return false; // không vượt tồn kho
     setCart((prev) => {
       const existing = prev.find((i) => i.id === product.id);
       if (existing) return prev.map((i) => i.id === product.id ? { ...i, qty: i.qty + 1 } : i);
       return [...prev, { id: product.id, name: product.name, price: product.price, qty: 1 }];
     });
+    focusSearch();
+    return true;
+  };
+
+  // Máy quét USB gõ mã như bàn phím rồi tự nhấn Enter
+  const handleScan = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    const code = search.trim();
+    if (!code) return;
+    const p = POS_PRODUCTS.find((x) => x.barcode === code); // khớp chính xác
+    if (!p) {
+      setScanMsg({ text: `Không tìm thấy sản phẩm có mã: ${code}`, ok: false });
+    } else if (p.stock === 0) {
+      setScanMsg({ text: `${p.name} đã hết hàng`, ok: false });
+    } else if (!addToCart(p)) {
+      setScanMsg({ text: `${p.name} chỉ còn ${p.stock} trong kho`, ok: false });
+    } else {
+      setScanMsg({ text: `Đã thêm: ${p.name}`, ok: true });
+    }
+    setSearch("");
   };
 
   const updateQty = (id: number, delta: number) => {
     setCart((prev) => prev.map((i) => i.id === id ? { ...i, qty: Math.max(0, i.qty + delta) } : i).filter((i) => i.qty > 0));
+    focusSearch();
   };
 
   const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
@@ -360,13 +393,18 @@ export default function POSPage() {
           <div style={{ padding: "12px 16px", borderBottom: `1px solid #e0e3e5` }}>
             <div style={{ position: "relative" }}>
               <Icon name="search" size={20} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: C.textFaint }} />
-              <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search product or scan barcode..."
+              <input ref={searchRef} autoFocus value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={handleScan} placeholder="Search product or scan barcode..."
                 style={{ width: "100%", border: `1.5px solid #e0e3e5`, borderRadius: 10, padding: "9px 12px 9px 38px", fontSize: 14, background: "#f7f9fb", outline: "none" }} />
             </div>
+            {scanMsg && (
+              <div style={{ marginTop: 6, fontSize: 12, fontWeight: 600, color: scanMsg.ok ? C.primary : "#ba1a1a" }}>
+                {scanMsg.text}
+              </div>
+            )}
           </div>
           <div style={{ display: "flex", gap: 6, padding: "10px 16px", borderBottom: `1px solid #e0e3e5`, overflowX: "auto", flexShrink: 0 }}>
             {POS_CATS.map((cat) => (
-              <button key={cat.slug} onClick={() => setActiveCategory(cat.slug)}
+              <button key={cat.slug} onClick={() => { setActiveCategory(cat.slug); focusSearch(); }}
                 style={{ padding: "6px 14px", borderRadius: 99, fontSize: 12, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap",
                   border: `1.5px solid ${activeCategory === cat.slug ? C.primary : "#e0e3e5"}`,
                   background: activeCategory === cat.slug ? C.primary : "#fff",

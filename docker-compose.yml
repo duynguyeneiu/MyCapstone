@@ -17,7 +17,7 @@ x-aspnet-common: &aspnet-common
     - "host.docker.internal:host-gateway"
 
 x-aspnet-env: &aspnet-env
-  ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}   # Development keeps Swagger UI on
+  ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development} # Development keeps Swagger UI on
   ASPNETCORE_HTTP_PORTS: "8080"
   Jwt__Key: ${JWT_KEY:?JWT_KEY is required (same value for all services)}
   Jwt__Issuer: UserService
@@ -25,7 +25,6 @@ x-aspnet-env: &aspnet-env
   InternalApi__Key: ${INTERNAL_API_KEY:?INTERNAL_API_KEY is required}
 
 services:
-
   catalog-api:
     <<: *aspnet-common
     build: ./backend/StoreManagementAPI/StoreManagementAPI
@@ -35,7 +34,10 @@ services:
     environment:
       <<: *aspnet-env
       ConnectionStrings__CatalogContext: "Server=${DB_HOST:-host.docker.internal},${DB_PORT:-1433};Database=CatalogServiceDB;User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=True"
-      AppSettings__BaseUrl: http://localhost:5001      # image URLs are opened by the browser
+      AppSettings__BaseUrl: http://localhost:5001 # image URLs are opened by the browser
+    volumes:
+      # Keep product images (incl. uploads) on the host so they survive rebuilds
+      - ./backend/StoreManagementAPI/StoreManagementAPI/wwwroot/images:/app/wwwroot/images
 
   user-api:
     <<: *aspnet-common
@@ -46,7 +48,7 @@ services:
     environment:
       <<: *aspnet-env
       ConnectionStrings__DefaultConnection: "Server=${DB_HOST:-host.docker.internal},${DB_PORT:-1433};Database=UserServiceDB;User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=True"
-      Sms__Provider: ${SMS_PROVIDER:-Console}         # Console = OTP printed in `docker compose logs user-api`
+      Sms__Provider: ${SMS_PROVIDER:-Console} # Console = OTP printed in `docker compose logs user-api`
       Sms__Esms__ApiKey: ${ESMS_API_KEY:-}
       Sms__Esms__SecretKey: ${ESMS_SECRET_KEY:-}
 
@@ -98,13 +100,29 @@ services:
     build:
       context: ./fontend/storemanagement
       args:
-        NEXT_PUBLIC_CATEGORY_API_URL: http://localhost:5001
-        NEXT_PUBLIC_ORDER_API_URL: http://localhost:5002
-        NEXT_PUBLIC_PAYMENT_API_URL: http://localhost:5003
-        NEXT_PUBLIC_REVIEW_API_URL: http://localhost:5004
-        NEXT_PUBLIC_USER_API_URL: http://localhost:5005
+        NEXT_PUBLIC_CATEGORY_API_URL: http://localhost:5000
+        NEXT_PUBLIC_ORDER_API_URL: http://localhost:5000
+        NEXT_PUBLIC_PAYMENT_API_URL: http://localhost:5000
+        NEXT_PUBLIC_REVIEW_API_URL: http://localhost:5000
+        NEXT_PUBLIC_USER_API_URL: http://localhost:5000
     image: happymart/frontend
     container_name: happymart-frontend
     restart: unless-stopped
     ports: ["3000:3000"]
-    depends_on: [catalog-api, user-api, order-api, payment-api, review-api]
+    depends_on: [api-gateway]
+
+  api-gateway:
+    restart: unless-stopped
+    build: ./backend/StoreManagementAPI/ApiGateway
+    image: happymart/api-gateway
+    container_name: happymart-gateway
+    ports: ["5000:8080"]
+    depends_on: [catalog-api, order-api, payment-api, review-api, user-api]
+    environment:
+      ASPNETCORE_HTTP_PORTS: "8080"
+      # Same routes as appsettings.json, but clusters point to container names
+      ReverseProxy__Clusters__catalog__Destinations__d1__Address: http://catalog-api:8080/
+      ReverseProxy__Clusters__order__Destinations__d1__Address: http://order-api:8080/
+      ReverseProxy__Clusters__payment__Destinations__d1__Address: http://payment-api:8080/
+      ReverseProxy__Clusters__review__Destinations__d1__Address: http://review-api:8080/
+      ReverseProxy__Clusters__user__Destinations__d1__Address: http://user-api:8080/

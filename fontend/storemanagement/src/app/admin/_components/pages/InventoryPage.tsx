@@ -288,6 +288,7 @@ export default function InventoryPage({ search }: Props) {
               {(['stock', 'import', 'transactions'] as const).map(tab => (
                 <button key={tab} className={`inv-tab${activeTab === tab ? ' tab-active' : ''}`} onClick={() => setActiveTab(tab)}>
                   {tab === 'stock' ? 'Stock Overview' : tab === 'import' ? 'Import Receipts' : 'Transactions'}
+                  {tab !== 'stock' && <span style={{ marginLeft: 6, fontSize: '10px', padding: '1px 6px', borderRadius: 999, background: '#fff3d6', color: '#7a5c00', fontWeight: 600 }}>Sample</span>}
                 </button>
               ))}
             </div>
@@ -417,7 +418,7 @@ export default function InventoryPage({ search }: Props) {
             {activeTab === 'import' && (
               <>
                 <div className="p-6 border-b flex items-center justify-between" style={{ borderColor: '#c8e4d8' }}>
-                  <p className="text-on-surface-variant" style={{ fontSize: '13px' }}>All import receipts</p>
+                  <p className="text-on-surface-variant" style={{ fontSize: '13px' }}>All import receipts <span style={{ color: '#7a5c00' }}>(sample data — history is not persisted yet)</span></p>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left">
@@ -457,7 +458,7 @@ export default function InventoryPage({ search }: Props) {
             {activeTab === 'transactions' && (
               <>
                 <div className="p-6 border-b" style={{ borderColor: '#c8e4d8' }}>
-                  <p className="text-on-surface-variant" style={{ fontSize: '13px' }}>Stock movement history</p>
+                  <p className="text-on-surface-variant" style={{ fontSize: '13px' }}>Stock movement history <span style={{ color: '#7a5c00' }}>(sample data — history is not persisted yet)</span></p>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left">

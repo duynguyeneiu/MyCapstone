@@ -9,6 +9,7 @@ export interface ApiUser {
   address: string | null;
   username: string;
   roleId: number;
+  roleName?: string | null;   // UserDto returns the role name flat
   loyaltyPoint: number | null;
   registerDate: string | null;
   status: string;

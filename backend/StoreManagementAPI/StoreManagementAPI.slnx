@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/Services/">
+    <Project Path="ApiGateway/ApiGateway.csproj" Id="3a9a54d6-2998-44bd-96d0-2ca09706ca9c" />
     <Project Path="OrderServiceAPI/OrderServiceAPI.csproj" Id="b5d1e2b8-8c56-4495-9288-9d78d5be4020" />
     <Project Path="PaymentService.API/PaymentService.API.csproj" Id="2a55d08d-48b6-41ba-bcf6-52891bdce61f" />
     <Project Path="ReviewService.API/ReviewService.API.csproj" Id="c706fd17-889a-40ea-8e17-2bc597534cc8" />
